@@ -1,0 +1,26 @@
+{
+  "global": {
+    "defaultBrowserPath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "defaultBrowserArgs": "{URL}",
+    "interactiveMode": false,
+    "launchAtStartup": false,
+    "daemonMode": false
+  },
+  "rules": [
+    {
+      "regex": "https://music\\.yandex\\.(ru|com)/album/(\\d+)/track/(\\d+)\\?.*",
+      "program": "%LOCALAPPDATA%\\Programs\\YandexMusic\\Яндекс Музыка.exe",
+      "arguments": "yandexmusic://album/$2/track/$3"
+    },
+    {
+      "regex": "https://music\\.yandex\\.(ru|com)/album/(\\d+).*",
+      "program": "%LOCALAPPDATA%\\Programs\\YandexMusic\\Яндекс Музыка.exe",
+      "arguments": "yandexmusic://album/$2"
+    },
+    {
+      "regex": "https://store.steampowered.com.*",
+      "program": "C:\\Program Files (x86)\\Steam\\steam.exe",
+      "arguments": "steam://openurl/{URL}"
+    }
+  ]
+}
