@@ -163,6 +163,13 @@ func LoadConfig() (*Config, error) {
 		return nil, err
 	}
 
+	exePath = filepath.Clean(exePath)
+
+	if isSameBinary(exePath, cfg.Global.DefaultBrowserPath) {
+		fmt.Fprintf(os.Stderr, "❌ Failback browser is set to linkrouter itself failing back to edge.")
+		cfg.Global.DefaultBrowserPath = "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe"
+	}
+
 	return &cfg, nil
 }
 
