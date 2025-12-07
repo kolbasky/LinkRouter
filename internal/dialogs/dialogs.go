@@ -1,4 +1,3 @@
-// dialogs.go
 package dialogs
 
 import (
