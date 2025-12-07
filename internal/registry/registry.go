@@ -4,6 +4,7 @@ package registry
 import (
 	"fmt"
 	"linkrouter/internal/config"
+	"linkrouter/internal/dialogs"
 	"os"
 	"regexp"
 	"strings"
@@ -24,7 +25,7 @@ func parseProtocol(proto string) string {
 	proto = strings.TrimSpace(proto)
 	match := re.FindStringSubmatch(proto)
 	if len(match) < 2 {
-		fmt.Fprintf(os.Stderr, "⚠️ Wrong proto name: %s\n", proto)
+		dialogs.ShowError("Wrong proto name: " + proto)
 		return ""
 	}
 
@@ -54,17 +55,16 @@ func RegisterApp() error {
 	cmd := fmt.Sprintf(`"%s" "%%1"`, exePath)
 
 	protocols := getSupportedProtocols()
-	fmt.Printf("  → Supported protocols: %v\n", protocols)
-
-	fmt.Println("📝 Registering browser with:")
-	fmt.Printf("  EXE: %s\n", exePath)
-	fmt.Printf("  CMD: %s\n", cmd)
-
 	appPath := `Software\Clients\StartMenuInternet\` + appName
-	fmt.Printf("  → HKCU\\%s\n", appPath)
+	// fmt.Printf("  → Supported protocols: %v\n", protocols)
+	// fmt.Println("📝 Registering browser with:")
+	// fmt.Printf("  EXE: %s\n", exePath)
+	// fmt.Printf("  CMD: %s\n", cmd)
+	// fmt.Printf("  → HKCU\\%s\n", appPath)
 
 	k, _, err := registry.CreateKey(registry.CURRENT_USER, appPath, registry.ALL_ACCESS)
 	if err != nil {
+		dialogs.ShowError("Failed to create StartMenuInternet key:\n" + err.Error())
 		return fmt.Errorf("failed to create StartMenuInternet key: %w", err)
 	}
 	k.SetStringValue("DisplayName", appName)
@@ -73,7 +73,7 @@ func RegisterApp() error {
 	k.Close()
 
 	capPath := appPath + `\Capabilities`
-	fmt.Printf("  → HKCU\\%s\n", capPath)
+	// fmt.Printf("  → HKCU\\%s\n", capPath)
 	cap, _, _ := registry.CreateKey(registry.CURRENT_USER, capPath, registry.ALL_ACCESS)
 	cap.SetStringValue("ApplicationName", appName)
 	cap.SetStringValue("ApplicationIcon", exePath+",0")
@@ -91,29 +91,29 @@ func RegisterApp() error {
 		k.Close()
 
 		urlAssoc.SetStringValue(proto, appName+"HTML")
-		fmt.Printf("    → %s → %sHTML\n", proto, appName)
+		// fmt.Printf("    → %s → %sHTML\n", proto, appName)
 	}
 	cap.Close()
 
-	fmt.Printf("  → HKCU\\Software\\RegisteredApplications (%s)\n", appName)
+	// fmt.Printf("  → HKCU\\Software\\RegisteredApplications (%s)\n", appName)
 	regApps, _, _ := registry.CreateKey(registry.CURRENT_USER, `Software\RegisteredApplications`, registry.ALL_ACCESS)
 	regApps.SetStringValue(appName, capPath)
 	regApps.Close()
 
 	htmlClass := appName + "HTML"
-	fmt.Printf("  → HKCU\\Software\\Classes\\%s\n", htmlClass)
+	// fmt.Printf("  → HKCU\\Software\\Classes\\%s\n", htmlClass)
 	html, _, _ := registry.CreateKey(registry.CURRENT_USER, `Software\Classes\`+htmlClass, registry.ALL_ACCESS)
 	html.SetStringValue("", appName+" Document")
 
 	shellPath := `Software\Classes\` + htmlClass + `\shell\open\command`
-	fmt.Printf("    → CMD: %s\n", shellPath)
+	// fmt.Printf("    → CMD: %s\n", shellPath)
 	shell, _, _ := registry.CreateKey(registry.CURRENT_USER, shellPath, registry.ALL_ACCESS)
 	shell.SetStringValue("", cmd)
 	shell.Close()
 	html.Close()
 
-	fmt.Println("✅ Registration complete.")
-	fmt.Println("👉 Go to Settings → Default apps → Web browser → Choose LinkRouter")
+	// fmt.Println("✅ Registration complete.")
+	// fmt.Println("👉 Go to Settings → Default apps → Web browser → Choose LinkRouter")
 	return nil
 }
 
@@ -147,6 +147,6 @@ func UnregisterApp() error {
 		regAppsKey.Close()
 	}
 
-	fmt.Println("✅ Safely unregistered as browser.")
+	// fmt.Println("✅ Safely unregistered as browser.")
 	return nil
 }

@@ -4,8 +4,8 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"io"
+	"linkrouter/internal/dialogs"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -168,7 +168,7 @@ func LoadConfig() (*Config, error) {
 	exePath = filepath.Clean(exePath)
 
 	if isSameBinary(exePath, cfg.Global.DefaultBrowserPath) {
-		fmt.Fprintf(os.Stderr, "❌ Failback browser is set to linkrouter itself failing back to edge.")
+		dialogs.ShowError("Failback browser is set to linkrouter itself failing back to edge.")
 		cfg.Global.DefaultBrowserPath = "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe"
 	}
 
@@ -188,7 +188,7 @@ func (c *Config) MatchRule(url string) (*Rule, []string) {
 	for _, rule := range c.Rules {
 		re, err := regexp.Compile(rule.Regex)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "⚠️ Invalid regex: %v\n", err)
+			dialogs.ShowError("Invalid regex:\n" + err.Error())
 			continue
 		}
 		if matches := re.FindStringSubmatch(url); len(matches) > 0 {
