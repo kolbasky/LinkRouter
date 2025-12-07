@@ -27,11 +27,11 @@ func main() {
 
 	// Handle CLI flags first
 	if *register {
-		registry.RegisterAsBrowser()
+		registry.RegisterApp()
 		return
 	}
 	if *unregister {
-		registry.UnregisterAsBrowser()
+		registry.UnregisterApp()
 		return
 	}
 	if *daemonMode {
@@ -48,7 +48,7 @@ func main() {
 	}
 
 	// Handle URL: exactly one non-flag arg
-	if len(args) == 1 && isHTTPURL(args[0]) {
+	if len(args) == 1 && isCorrectURL(args[0]) {
 		handleURL(args[0])
 		return
 	}
@@ -76,8 +76,10 @@ func handleDoubleClick() {
 	os.Exit(0)
 }
 
-func isHTTPURL(s string) bool {
-	return len(s) > 8 && (s[:7] == "http://" || s[:8] == "https://")
+func isCorrectURL(s string) bool {
+	// return len(s) > 3 && (s[:7] == "http://" || s[:8] == "https://")
+	// we don't need that check
+	return len(s) > 1
 }
 
 func handleURL(url string) {

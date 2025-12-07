@@ -3,7 +3,10 @@ package registry
 
 import (
 	"fmt"
+	"linkrouter/internal/config"
 	"os"
+	"regexp"
+	"strings"
 
 	"golang.org/x/sys/windows/registry"
 )
@@ -16,9 +19,42 @@ func getExePath() string {
 	return exe // Already uses \ on Windows
 }
 
-func RegisterAsBrowser() error {
+func parseProtocol(proto string) string {
+	re := regexp.MustCompile(`^([a-zA-Z][a-zA-Z0-9+.-]*).*$`)
+	proto = strings.TrimSpace(proto)
+	match := re.FindStringSubmatch(proto)
+	if len(match) < 2 {
+		fmt.Fprintf(os.Stderr, "⚠️ Wrong proto name: %s\n", proto)
+		return ""
+	}
+
+	return strings.ToLower(match[1])
+}
+
+func getSupportedProtocols() []string {
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		// Fallback to default
+		return []string{"http", "https"}
+	}
+	var protos []string
+	for _, p := range cfg.Global.SupportedProtocols {
+		if cleaned := parseProtocol(p); cleaned != "" {
+			protos = append(protos, cleaned)
+		}
+	}
+	if len(protos) == 0 {
+		protos = []string{"http", "https"}
+	}
+	return protos
+}
+
+func RegisterApp() error {
 	exePath := getExePath()
 	cmd := fmt.Sprintf(`"%s" "%%1"`, exePath)
+
+	protocols := getSupportedProtocols()
+	fmt.Printf("  → Supported protocols: %v\n", protocols)
 
 	fmt.Println("📝 Registering browser with:")
 	fmt.Printf("  EXE: %s\n", exePath)
@@ -44,9 +80,19 @@ func RegisterAsBrowser() error {
 	cap.SetStringValue("ApplicationDescription", appDescription)
 
 	urlAssoc, _, _ := registry.CreateKey(cap, "URLAssociations", registry.ALL_ACCESS)
-	urlAssoc.SetStringValue("http", appName+"HTML")
-	urlAssoc.SetStringValue("https", appName+"HTML")
-	urlAssoc.Close()
+	for _, proto := range protocols {
+		classPath := `Software\Classes\` + proto
+		k, _, err := registry.CreateKey(registry.CURRENT_USER, classPath, registry.ALL_ACCESS)
+		if err != nil {
+			continue // skip if fails
+		}
+		k.SetStringValue("", "URL: "+proto+" Protocol")
+		k.SetStringValue("URL Protocol", "")
+		k.Close()
+
+		urlAssoc.SetStringValue(proto, appName+"HTML")
+		fmt.Printf("    → %s → %sHTML\n", proto, appName)
+	}
 	cap.Close()
 
 	fmt.Printf("  → HKCU\\Software\\RegisteredApplications (%s)\n", appName)
@@ -71,8 +117,14 @@ func RegisterAsBrowser() error {
 	return nil
 }
 
-func UnregisterAsBrowser() error {
+func UnregisterApp() error {
 	// 1. Remove StartMenuInternet entry (and all children)
+	registry.DeleteKey(
+		registry.CURRENT_USER,
+		`Software\Clients\StartMenuInternet\`+appName+`\Capabilities\URLAssociations`)
+	registry.DeleteKey(
+		registry.CURRENT_USER,
+		`Software\Clients\StartMenuInternet\`+appName+`\Capabilities`)
 	registry.DeleteKey(registry.CURRENT_USER, `Software\Clients\StartMenuInternet\`+appName)
 
 	// 2. Recursively remove LinkRouterHTML class

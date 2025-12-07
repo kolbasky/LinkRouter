@@ -22,11 +22,12 @@ type Config struct {
 
 // GlobalConfig holds global settings
 type GlobalConfig struct {
-	DefaultBrowserPath string `json:"defaultBrowserPath"`
-	DefaultBrowserArgs string `json:"defaultBrowserArgs"`
-	InteractiveMode    bool   `json:"interactiveMode"`
-	LaunchAtStartup    bool   `json:"launchAtStartup"`
-	DaemonMode         bool   `json:"daemonMode"`
+	DefaultBrowserPath string   `json:"defaultBrowserPath"`
+	DefaultBrowserArgs string   `json:"defaultBrowserArgs"`
+	InteractiveMode    bool     `json:"interactiveMode"`
+	LaunchAtStartup    bool     `json:"launchAtStartup"`
+	DaemonMode         bool     `json:"daemonMode"`
+	SupportedProtocols []string `json:"supportedProtocols"`
 }
 
 // Rule defines a URL routing rule
@@ -136,6 +137,7 @@ func DefaultConfig() *Config {
 			InteractiveMode:    true,
 			LaunchAtStartup:    false,
 			DaemonMode:         false,
+			SupportedProtocols: []string{"http://", "https://"},
 		},
 		Rules: []Rule{},
 	}
