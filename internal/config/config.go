@@ -4,8 +4,8 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"io"
+	"linkrouter/internal/dialogs"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -22,11 +22,12 @@ type Config struct {
 
 // GlobalConfig holds global settings
 type GlobalConfig struct {
-	DefaultBrowserPath string `json:"defaultBrowserPath"`
-	DefaultBrowserArgs string `json:"defaultBrowserArgs"`
-	InteractiveMode    bool   `json:"interactiveMode"`
-	LaunchAtStartup    bool   `json:"launchAtStartup"`
-	DaemonMode         bool   `json:"daemonMode"`
+	DefaultBrowserPath string   `json:"defaultBrowserPath"`
+	DefaultBrowserArgs string   `json:"defaultBrowserArgs"`
+	InteractiveMode    bool     `json:"interactiveMode"`
+	LaunchAtStartup    bool     `json:"launchAtStartup"`
+	DaemonMode         bool     `json:"daemonMode"`
+	SupportedProtocols []string `json:"supportedProtocols"`
 }
 
 // Rule defines a URL routing rule
@@ -107,7 +108,6 @@ func isSameBinary(path1, path2 string) bool {
 	return err1 == nil && err2 == nil && hash1 == hash2
 }
 
-// DefaultConfig returns a sensible default config
 func DefaultConfig() *Config {
 	browserPath := getDefaultBrowserPath()
 
@@ -120,12 +120,11 @@ func DefaultConfig() *Config {
 
 	if browserPath == "" {
 		browserPath = `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`
-		// Also check 64-bit path if needed
 		if _, err := os.Stat(browserPath); os.IsNotExist(err) {
 			browserPath = `C:\Program Files\Microsoft\Edge\Application\msedge.exe`
 		}
 		if _, err := os.Stat(browserPath); os.IsNotExist(err) {
-			browserPath = "" // leave empty if Edge not found
+			browserPath = ""
 		}
 	}
 
@@ -133,22 +132,21 @@ func DefaultConfig() *Config {
 		Global: GlobalConfig{
 			DefaultBrowserPath: browserPath,
 			DefaultBrowserArgs: "{URL}",
-			InteractiveMode:    true,
+			InteractiveMode:    false,
 			LaunchAtStartup:    false,
 			DaemonMode:         false,
+			SupportedProtocols: []string{"http://", "https://"},
 		},
 		Rules: []Rule{},
 	}
 }
 
-// LoadConfig loads config from file next to the executable
 func LoadConfig() (*Config, error) {
 	exePath, _ := os.Executable()
 	configPath := filepath.Join(filepath.Dir(exePath), "config.json")
 
 	data, err := os.ReadFile(configPath)
 	if os.IsNotExist(err) {
-		// Create default config
 		cfg := DefaultConfig()
 		cfg.Save(configPath)
 		return cfg, nil
@@ -166,14 +164,13 @@ func LoadConfig() (*Config, error) {
 	exePath = filepath.Clean(exePath)
 
 	if isSameBinary(exePath, cfg.Global.DefaultBrowserPath) {
-		fmt.Fprintf(os.Stderr, "❌ Failback browser is set to linkrouter itself failing back to edge.")
+		dialogs.ShowError("Failback browser is set to linkrouter itself failing back to edge.")
 		cfg.Global.DefaultBrowserPath = "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe"
 	}
 
 	return &cfg, nil
 }
 
-// Save writes config to file
 func (c *Config) Save(path string) error {
 	data, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
@@ -186,7 +183,7 @@ func (c *Config) MatchRule(url string) (*Rule, []string) {
 	for _, rule := range c.Rules {
 		re, err := regexp.Compile(rule.Regex)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "⚠️ Invalid regex: %v\n", err)
+			dialogs.ShowError("Invalid regex:\n" + err.Error())
 			continue
 		}
 		if matches := re.FindStringSubmatch(url); len(matches) > 0 {

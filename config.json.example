@@ -4,11 +4,17 @@
     "defaultBrowserArgs": "{URL}",
     "interactiveMode": false,
     "launchAtStartup": false,
-    "daemonMode": false
+    "daemonMode": false,
+    "supportedProtocols": [
+      "http",
+      "https",
+      "ssh",
+      "mailto"
+    ]
   },
   "rules": [
     {
-      "regex": "https://music\\.yandex\\.(ru|com)/album/(\\d+)/track/(\\d+)\\?.*",
+      "regex": "https://music\\.yandex\\.(ru|com)/album/(\\d+)/track/(\\d+).*",
       "program": "%LOCALAPPDATA%\\Programs\\YandexMusic\\Яндекс Музыка.exe",
       "arguments": "yandexmusic://album/$2/track/$3"
     },
@@ -19,8 +25,18 @@
     },
     {
       "regex": "https://store.steampowered.com.*",
-      "program": "C:\\Program Files (x86)\\Steam\\steam.exe",
+      "program": "C:\\Windows\\explorer.exe",
       "arguments": "steam://openurl/{URL}"
+    },
+    {
+      "regex": "ssh://(.*)/",
+      "program": "C:\\Windows\\System32\\OpenSSH\\ssh.exe",
+      "arguments": "$1"
+    },
+    {
+      "regex": "mailto:(.*)",
+      "program": "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE",
+      "arguments": "/c ipm.note /m $1"
     }
   ]
 }
