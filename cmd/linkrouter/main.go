@@ -89,8 +89,10 @@ func handleURL(url string) {
 
 	if rule, matches := cfg.MatchRule(url); rule != nil {
 		expandedArgs := expandPlaceholders(rule.Arguments, matches)
-		launchApp(rule.Program, expandedArgs, url)
-		return
+		err := launchApp(rule.Program, expandedArgs, url)
+		if err == nil {
+			return
+		}
 	}
 
 	if cfg.Global.DefaultBrowserPath != "" {
