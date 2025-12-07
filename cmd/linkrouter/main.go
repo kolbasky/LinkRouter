@@ -11,6 +11,9 @@ import (
 	"strings"
 	"syscall"
 	"unsafe"
+
+	"linkrouter/internal/config"
+	"linkrouter/internal/registry"
 )
 
 func main() {
@@ -24,11 +27,11 @@ func main() {
 
 	// Handle CLI flags first
 	if *register {
-		RegisterAsBrowser()
+		registry.RegisterAsBrowser()
 		return
 	}
 	if *unregister {
-		UnregisterAsBrowser()
+		registry.UnregisterAsBrowser()
 		return
 	}
 	if *daemonMode {
@@ -55,7 +58,7 @@ func main() {
 }
 
 func handleDoubleClick() {
-	cfg, err := LoadConfig()
+	cfg, err := config.LoadConfig()
 	if err != nil {
 		showError("Failed to load config:\n" + err.Error())
 		os.Exit(1)
@@ -78,7 +81,7 @@ func isHTTPURL(s string) bool {
 }
 
 func handleURL(url string) {
-	cfg, err := LoadConfig()
+	cfg, err := config.LoadConfig()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "❌ Config error: %v\n", err)
 		return
