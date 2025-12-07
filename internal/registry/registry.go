@@ -1,5 +1,5 @@
 // registry.go
-package main
+package registry
 
 import (
 	"fmt"
