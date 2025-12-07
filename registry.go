@@ -72,11 +72,21 @@ func RegisterAsBrowser() error {
 }
 
 func UnregisterAsBrowser() error {
-	// 1. Remove StartMenuInternet entry (and all subkeys)
+	// 1. Remove StartMenuInternet entry (and all children)
 	registry.DeleteKey(registry.CURRENT_USER, `Software\Clients\StartMenuInternet\`+appName)
 
-	// 2. Remove your custom HTML class
-	registry.DeleteKey(registry.CURRENT_USER, `Software\Classes\`+appName+"HTML")
+	// 2. Recursively remove LinkRouterHTML class
+	htmlClass := appName + "HTML"
+	htmlPath := `Software\Classes\` + htmlClass
+
+	// Delete 'shell\open\command'
+	registry.DeleteKey(registry.CURRENT_USER, htmlPath+`\shell\open\command`)
+	// Delete 'shell\open'
+	registry.DeleteKey(registry.CURRENT_USER, htmlPath+`\shell\open`)
+	// Delete 'shell'
+	registry.DeleteKey(registry.CURRENT_USER, htmlPath+`\shell`)
+	// Now delete the root class
+	registry.DeleteKey(registry.CURRENT_USER, htmlPath)
 
 	// 3. Remove from RegisteredApplications
 	regAppsKey, err := registry.OpenKey(registry.CURRENT_USER, `Software\RegisteredApplications`, registry.SET_VALUE)

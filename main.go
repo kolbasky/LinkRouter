@@ -11,8 +11,6 @@ import (
 	"strings"
 	"syscall"
 	"unsafe"
-
-	"golang.org/x/sys/windows"
 )
 
 func main() {
@@ -141,8 +139,7 @@ func launchApp(programPath, argsTemplate, url string) error {
 	cmd := exec.Command(program) // still needed for Go internals
 	cmd.Path = program
 	cmd.SysProcAttr = &syscall.SysProcAttr{
-		CmdLine:       fullCmdLine,
-		CreationFlags: windows.CREATE_NO_WINDOW | windows.DETACHED_PROCESS,
+		CmdLine: fullCmdLine,
 	}
 	return cmd.Start()
 }
