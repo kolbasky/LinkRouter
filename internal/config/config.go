@@ -108,7 +108,6 @@ func isSameBinary(path1, path2 string) bool {
 	return err1 == nil && err2 == nil && hash1 == hash2
 }
 
-// DefaultConfig returns a sensible default config
 func DefaultConfig() *Config {
 	browserPath := getDefaultBrowserPath()
 
@@ -121,12 +120,11 @@ func DefaultConfig() *Config {
 
 	if browserPath == "" {
 		browserPath = `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`
-		// Also check 64-bit path if needed
 		if _, err := os.Stat(browserPath); os.IsNotExist(err) {
 			browserPath = `C:\Program Files\Microsoft\Edge\Application\msedge.exe`
 		}
 		if _, err := os.Stat(browserPath); os.IsNotExist(err) {
-			browserPath = "" // leave empty if Edge not found
+			browserPath = ""
 		}
 	}
 
@@ -134,7 +132,7 @@ func DefaultConfig() *Config {
 		Global: GlobalConfig{
 			DefaultBrowserPath: browserPath,
 			DefaultBrowserArgs: "{URL}",
-			InteractiveMode:    true,
+			InteractiveMode:    false,
 			LaunchAtStartup:    false,
 			DaemonMode:         false,
 			SupportedProtocols: []string{"http://", "https://"},
@@ -143,14 +141,12 @@ func DefaultConfig() *Config {
 	}
 }
 
-// LoadConfig loads config from file next to the executable
 func LoadConfig() (*Config, error) {
 	exePath, _ := os.Executable()
 	configPath := filepath.Join(filepath.Dir(exePath), "config.json")
 
 	data, err := os.ReadFile(configPath)
 	if os.IsNotExist(err) {
-		// Create default config
 		cfg := DefaultConfig()
 		cfg.Save(configPath)
 		return cfg, nil
@@ -175,7 +171,6 @@ func LoadConfig() (*Config, error) {
 	return &cfg, nil
 }
 
-// Save writes config to file
 func (c *Config) Save(path string) error {
 	data, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {

@@ -17,7 +17,7 @@ const appDescription = "Smart link router with custom rules"
 
 func getExePath() string {
 	exe, _ := os.Executable()
-	return exe // Already uses \ on Windows
+	return exe
 }
 
 func parseProtocol(proto string) string {
@@ -35,7 +35,6 @@ func parseProtocol(proto string) string {
 func getSupportedProtocols() []string {
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		// Fallback to default
 		return []string{"http", "https"}
 	}
 	var protos []string
@@ -54,13 +53,9 @@ func RegisterApp() error {
 	exePath := getExePath()
 	cmd := fmt.Sprintf(`"%s" "%%1"`, exePath)
 
+	// Computer\HKEY_CURRENT_USER\Software\Clients\StartMenuInternet
 	protocols := getSupportedProtocols()
 	appPath := `Software\Clients\StartMenuInternet\` + appName
-	// fmt.Printf("  → Supported protocols: %v\n", protocols)
-	// fmt.Println("📝 Registering browser with:")
-	// fmt.Printf("  EXE: %s\n", exePath)
-	// fmt.Printf("  CMD: %s\n", cmd)
-	// fmt.Printf("  → HKCU\\%s\n", appPath)
 
 	k, _, err := registry.CreateKey(registry.CURRENT_USER, appPath, registry.ALL_ACCESS)
 	if err != nil {
@@ -73,52 +68,50 @@ func RegisterApp() error {
 	k.Close()
 
 	capPath := appPath + `\Capabilities`
-	// fmt.Printf("  → HKCU\\%s\n", capPath)
+	// Computer\HKEY_CURRENT_USER\Software\Clients\StartMenuInternet\LinkRouter\Capabilities
 	cap, _, _ := registry.CreateKey(registry.CURRENT_USER, capPath, registry.ALL_ACCESS)
 	cap.SetStringValue("ApplicationName", appName)
 	cap.SetStringValue("ApplicationIcon", exePath+",0")
 	cap.SetStringValue("ApplicationDescription", appDescription)
 
 	urlAssoc, _, _ := registry.CreateKey(cap, "URLAssociations", registry.ALL_ACCESS)
+
+	// Computer\HKEY_CURRENT_USER\Software\Classes
 	for _, proto := range protocols {
 		classPath := `Software\Classes\` + proto
 		k, _, err := registry.CreateKey(registry.CURRENT_USER, classPath, registry.ALL_ACCESS)
 		if err != nil {
-			continue // skip if fails
+			continue
 		}
 		k.SetStringValue("", "URL: "+proto+" Protocol")
 		k.SetStringValue("URL Protocol", "")
 		k.Close()
 
 		urlAssoc.SetStringValue(proto, appName+"HTML")
-		// fmt.Printf("    → %s → %sHTML\n", proto, appName)
+
 	}
 	cap.Close()
 
-	// fmt.Printf("  → HKCU\\Software\\RegisteredApplications (%s)\n", appName)
+	// Computer\HKEY_CURRENT_USER\Software\RegisteredApplications
 	regApps, _, _ := registry.CreateKey(registry.CURRENT_USER, `Software\RegisteredApplications`, registry.ALL_ACCESS)
 	regApps.SetStringValue(appName, capPath)
 	regApps.Close()
 
 	htmlClass := appName + "HTML"
-	// fmt.Printf("  → HKCU\\Software\\Classes\\%s\n", htmlClass)
+	// Computer\HKEY_CURRENT_USER\Software\Classes\LinkRouterHTML
 	html, _, _ := registry.CreateKey(registry.CURRENT_USER, `Software\Classes\`+htmlClass, registry.ALL_ACCESS)
 	html.SetStringValue("", appName+" Document")
 
 	shellPath := `Software\Classes\` + htmlClass + `\shell\open\command`
-	// fmt.Printf("    → CMD: %s\n", shellPath)
 	shell, _, _ := registry.CreateKey(registry.CURRENT_USER, shellPath, registry.ALL_ACCESS)
 	shell.SetStringValue("", cmd)
 	shell.Close()
 	html.Close()
-
-	// fmt.Println("✅ Registration complete.")
-	// fmt.Println("👉 Go to Settings → Default apps → Web browser → Choose LinkRouter")
 	return nil
 }
 
 func UnregisterApp() error {
-	// 1. Remove StartMenuInternet entry (and all children)
+	// Computer\HKEY_CURRENT_USER\Software\Clients\StartMenuInternet\LinkRouter
 	registry.DeleteKey(
 		registry.CURRENT_USER,
 		`Software\Clients\StartMenuInternet\`+appName+`\Capabilities\URLAssociations`)
@@ -127,26 +120,21 @@ func UnregisterApp() error {
 		`Software\Clients\StartMenuInternet\`+appName+`\Capabilities`)
 	registry.DeleteKey(registry.CURRENT_USER, `Software\Clients\StartMenuInternet\`+appName)
 
-	// 2. Recursively remove LinkRouterHTML class
+	// Computer\HKEY_CURRENT_USER\Software\Classes\LinkRouterHTML
 	htmlClass := appName + "HTML"
 	htmlPath := `Software\Classes\` + htmlClass
 
-	// Delete 'shell\open\command'
 	registry.DeleteKey(registry.CURRENT_USER, htmlPath+`\shell\open\command`)
-	// Delete 'shell\open'
 	registry.DeleteKey(registry.CURRENT_USER, htmlPath+`\shell\open`)
-	// Delete 'shell'
 	registry.DeleteKey(registry.CURRENT_USER, htmlPath+`\shell`)
-	// Now delete the root class
 	registry.DeleteKey(registry.CURRENT_USER, htmlPath)
 
-	// 3. Remove from RegisteredApplications
+	// Computer\HKEY_CURRENT_USER\Software\RegisteredApplications
 	regAppsKey, err := registry.OpenKey(registry.CURRENT_USER, `Software\RegisteredApplications`, registry.SET_VALUE)
 	if err == nil {
 		regAppsKey.DeleteValue(appName)
 		regAppsKey.Close()
 	}
 
-	// fmt.Println("✅ Safely unregistered as browser.")
 	return nil
 }

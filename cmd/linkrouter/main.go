@@ -23,7 +23,6 @@ func main() {
 
 	args := flag.Args()
 
-	// Handle CLI flags first
 	if *register {
 		registry.RegisterApp()
 		return
@@ -33,13 +32,11 @@ func main() {
 		return
 	}
 
-	// Handle URL: exactly one non-flag arg
 	if len(args) == 1 && isCorrectURL(args[0]) {
 		handleURL(args[0])
 		return
 	}
 
-	// No valid args → user double-clicked the EXE
 	handleDoubleClick()
 }
 
@@ -63,8 +60,6 @@ func handleDoubleClick() {
 }
 
 func isCorrectURL(s string) bool {
-	// return len(s) > 3 && (s[:7] == "http://" || s[:8] == "https://")
-	// we don't need that check
 	return len(s) > 1
 }
 
@@ -109,18 +104,15 @@ func launchApp(programPath, argsTemplate, url string) error {
 	}
 	program := expandPath(programPath)
 
-	// Always quote the program path (handles spaces)
 	quotedProgram := strconv.Quote(program)
 
 	var argsLine string
 	if argsTemplate == "" {
 		argsLine = ""
 	} else {
-		// Substitute {URL} — and do NOT add extra quoting here
 		argsLine = strings.ReplaceAll(argsTemplate, "{URL}", url)
 	}
 
-	// Construct FULL command line: "program" args...
 	var fullCmdLine string
 	if argsLine == "" {
 		fullCmdLine = quotedProgram
@@ -128,9 +120,7 @@ func launchApp(programPath, argsTemplate, url string) error {
 		fullCmdLine = quotedProgram + " " + argsLine
 	}
 
-	// fmt.Fprintf(os.Stderr, "🚀 LAUNCH CMD: %s\n", fullCmdLine)
-
-	cmd := exec.Command(program) // still needed for Go internals
+	cmd := exec.Command(program)
 	cmd.Path = program
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		CmdLine: fullCmdLine,
