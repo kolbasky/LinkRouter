@@ -29,14 +29,24 @@
       "arguments": "steam://openurl/{URL}"
     },
     {
+      "regex": "ssh://(.*@(company1|company2).(com|ru))/",
+      "program": "C:\\Windows\\System32\\OpenSSH\\ssh.exe",
+      "arguments": "-i .ssh/id_rsa1 user1@$1"
+    },
+    {
       "regex": "ssh://(.*)/",
       "program": "C:\\Windows\\System32\\OpenSSH\\ssh.exe",
-      "arguments": "$1"
+      "arguments": "-i .ssh/id_rsa_personal biba@$1"
+    },
+    {
+      "regex": "mailto:.*@(company1|company2).(com|ru)",
+      "program": "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE",
+      "arguments": "/c ipm.note /profile \"work\" /m $1"
     },
     {
       "regex": "mailto:(.*)",
       "program": "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE",
-      "arguments": "/c ipm.note /m $1"
+      "arguments": "/c ipm.note /profile \"personal\" /m $1"
     }
   ]
 }

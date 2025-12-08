@@ -32,7 +32,7 @@ func HandleNoArgs() {
 }
 
 func IsCorrectURL(s string) bool {
-	return len(s) > 1
+	return len(strings.TrimSpace(s)) > 1
 }
 
 func HandleURL(url string) {

@@ -76,6 +76,7 @@ func RegisterApp() error {
 	urlAssoc, _, _ := registry.CreateKey(cap, "URLAssociations", registry.ALL_ACCESS)
 
 	// Computer\HKEY_CURRENT_USER\Software\Classes
+	// Here we make sure protocols are present in windows and announce our URLAssociations.
 	for _, proto := range protocols {
 		classPath := `Software\Classes\` + proto
 		k, _, err := registry.CreateKey(registry.CURRENT_USER, classPath, registry.ALL_ACCESS)
