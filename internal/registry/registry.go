@@ -49,6 +49,7 @@ func getSupportedProtocols() []string {
 }
 
 func RegisterApp() error {
+	UnregisterApp()
 	exePath := getExePath()
 	cmd := fmt.Sprintf(`"%s" "%%1"`, exePath)
 

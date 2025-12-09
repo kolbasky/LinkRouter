@@ -50,7 +50,7 @@ func HandleURL(url string) {
 		} else {
 			dialogs.ShowError(
 				fmt.Sprintf(
-					"Failed to launch app %s:\n %s",
+					"Failed to launch app %s:\n%s",
 					rule.Program,
 					err,
 				),
@@ -90,10 +90,15 @@ func expandPath(path string) string {
 
 func launchApp(programPath, argsTemplate, url string) error {
 	if programPath == "" {
-		dialogs.ShowError("Program path is empty!")
 		return fmt.Errorf("program path is empty")
 	}
 	program := expandPath(programPath)
+
+	if config.IsLinkRouter(program) {
+		return fmt.Errorf("recursion prevented. " +
+			"program specified in rule is linkrouter itself. " +
+			"using fallback browser")
+	}
 
 	quotedProgram := strconv.Quote(program)
 

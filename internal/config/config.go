@@ -98,23 +98,23 @@ func hashFile(path string) (string, error) {
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
-// isSameBinary checks if two paths point to the same executable content
-func isSameBinary(path1, path2 string) bool {
-	if path1 == "" || path2 == "" {
-		return false
+// still need a better way to identify ourselves
+func IsLinkRouter(path string) bool {
+	exePath, _ := os.Executable()
+	if strings.EqualFold(filepath.Clean(path), filepath.Clean(exePath)) {
+		return true
 	}
-	hash1, err1 := hashFile(path1)
-	hash2, err2 := hashFile(path2)
+
+	hash1, err1 := hashFile(path)
+	hash2, err2 := hashFile(exePath)
+
 	return err1 == nil && err2 == nil && hash1 == hash2
 }
 
 func DefaultConfig() *Config {
 	browserPath := getDefaultBrowserPath()
 
-	// get our executable path to avoid recursive launches
-	exePath, _ := os.Executable()
-	exePath = filepath.Clean(exePath)
-	if browserPath != "" && isSameBinary(exePath, browserPath) {
+	if browserPath != "" && IsLinkRouter(browserPath) {
 		browserPath = ""
 	}
 
@@ -161,10 +161,8 @@ func LoadConfig() (*Config, error) {
 		return nil, err
 	}
 
-	exePath = filepath.Clean(exePath)
-
-	if isSameBinary(exePath, cfg.Global.DefaultBrowserPath) {
-		dialogs.ShowError("Failback browser is set to linkrouter itself failing back to edge.")
+	if IsLinkRouter(cfg.Global.DefaultBrowserPath) {
+		dialogs.ShowError("Fallback browser is set to LinkRouter itself failing back to Edge.")
 		cfg.Global.DefaultBrowserPath = "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe"
 	}
 
