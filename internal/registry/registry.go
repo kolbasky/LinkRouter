@@ -19,7 +19,7 @@ func getExePath() string {
 	return exe
 }
 
-func parseProtocol(proto string) string {
+func ParseProtocol(proto string) string {
 	re := regexp.MustCompile(`^([a-zA-Z][a-zA-Z0-9+.-]*).*$`)
 	proto = strings.TrimSpace(proto)
 	match := re.FindStringSubmatch(proto)
@@ -38,7 +38,7 @@ func getSupportedProtocols() []string {
 	}
 	var protos []string
 	for _, p := range cfg.Global.SupportedProtocols {
-		if cleaned := parseProtocol(p); cleaned != "" {
+		if cleaned := ParseProtocol(p); cleaned != "" {
 			protos = append(protos, cleaned)
 		}
 	}

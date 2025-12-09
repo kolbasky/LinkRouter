@@ -1,11 +1,9 @@
 package config
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
-	"io"
 	"linkrouter/internal/dialogs"
+	"linkrouter/internal/utils"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -13,6 +11,8 @@ import (
 
 	"golang.org/x/sys/windows/registry"
 )
+
+var SupportedProtocols []string
 
 // Config represents the full configuration
 type Config struct {
@@ -84,37 +84,10 @@ func getDefaultBrowserPath() string {
 	return fallbackBrowser
 }
 
-func hashFile(path string) (string, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
-
-	h := sha256.New()
-	if _, err := io.Copy(h, f); err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(h.Sum(nil)), nil
-}
-
-// still need a better way to identify ourselves
-func IsLinkRouter(path string) bool {
-	exePath, _ := os.Executable()
-	if strings.EqualFold(filepath.Clean(path), filepath.Clean(exePath)) {
-		return true
-	}
-
-	hash1, err1 := hashFile(path)
-	hash2, err2 := hashFile(exePath)
-
-	return err1 == nil && err2 == nil && hash1 == hash2
-}
-
 func DefaultConfig() *Config {
 	browserPath := getDefaultBrowserPath()
 
-	if browserPath != "" && IsLinkRouter(browserPath) {
+	if browserPath != "" && utils.IsLinkRouter(browserPath) {
 		browserPath = ""
 	}
 
@@ -161,10 +134,12 @@ func LoadConfig() (*Config, error) {
 		return nil, err
 	}
 
-	if IsLinkRouter(cfg.Global.DefaultBrowserPath) {
+	if utils.IsLinkRouter(cfg.Global.DefaultBrowserPath) {
 		dialogs.ShowError("Fallback browser is set to LinkRouter itself failing back to Edge.")
-		cfg.Global.DefaultBrowserPath = "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe"
+		cfg.Global.DefaultBrowserPath = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
 	}
+
+	SupportedProtocols = cfg.Global.SupportedProtocols
 
 	return &cfg, nil
 }

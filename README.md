@@ -81,7 +81,7 @@ Here's a sample config to get the idea.
 }
 ```
 this config will make LinkRouter:
-- turn links like `https://store.steampowered.com/....` into `steam://openurl/https://store.steampowered.com/....` and open them in steam. Specify path to explrer.exe if you want windows to handle those links.
+- turn links like `https://store.steampowered.com/....` into `steam://openurl/https://store.steampowered.com/....` and open them in steam.
 - opens links like `ssh://.*.company1.com` in openssh with key id_rsa_work
 - opens all other links like `ssh://.*` in openssh with key id_rsa_personal
 - opens links like `mailto:.*@company1.com` by opening "New email" window in outlook with `work` profile and prefilled recipient filed.
@@ -92,7 +92,6 @@ Check more example rules in `config.json.example` in root of this repo. Maybe th
 
 Important: Figuring out the correct command-line arguments/switches for third-party programs is **entirely the user’s responsibility**. LinkRouter only launches whatever you tell it to launch.
 For testing regexes we recommend [this wonderfull website](https://regex101.com) (choose the Golang flavor).
-
 
 ## 🔒 Privacy & Security
 - Zero network access
@@ -105,3 +104,9 @@ Security note: Because LinkRouter can execute arbitrary programs with parameters
 
 ## 📦 Download
 See the [Releases page](https://github.com/kolbasky/link-router/releases/latest) for the latest linkrouter.exe.
+
+## 🛠️ Build from source
+```
+git clone https://github.com/kolbasky/LinkRouter.git
+go build -ldflags="-H windowsgui -s -w" -trimpath -o bin\ .\cmd\linkrouter\
+```

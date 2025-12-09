@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"linkrouter/internal/config"
 	"linkrouter/internal/dialogs"
+	"linkrouter/internal/registry"
+	"linkrouter/internal/utils"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -88,16 +91,34 @@ func expandPath(path string) string {
 	return ready_path
 }
 
+func containsSupportedProtocol(argsLine string) bool {
+	for _, proto := range config.SupportedProtocols {
+		cleanProto := registry.ParseProtocol(proto) // your existing func
+		if cleanProto == "" {
+			continue
+		}
+		pattern := `(^|[ \t])` + regexp.QuoteMeta(cleanProto) + `:`
+		if matched, _ := regexp.MatchString(pattern, argsLine); matched {
+			return true
+		}
+	}
+	return false
+}
+
+func isExplorer(path string) bool {
+	return strings.EqualFold(filepath.Base(path), "explorer.exe")
+}
+
 func launchApp(programPath, argsTemplate, url string) error {
 	if programPath == "" {
 		return fmt.Errorf("program path is empty")
 	}
 	program := expandPath(programPath)
 
-	if config.IsLinkRouter(program) {
+	if utils.IsLinkRouter(program) {
 		return fmt.Errorf("recursion prevented. " +
 			"program specified in rule is linkrouter itself. " +
-			"using fallback browser")
+			"skipping rule")
 	}
 
 	quotedProgram := strconv.Quote(program)
@@ -108,7 +129,9 @@ func launchApp(programPath, argsTemplate, url string) error {
 	} else {
 		argsLine = strings.ReplaceAll(argsTemplate, "{URL}", url)
 	}
-
+	if isExplorer(program) && containsSupportedProtocol(argsLine) {
+		return fmt.Errorf("recursion prevented. link is passed to explorer.exe and LinkRouter is default for this type of links")
+	}
 	var fullCmdLine string
 	if argsLine == "" {
 		fullCmdLine = quotedProgram
