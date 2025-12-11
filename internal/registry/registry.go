@@ -5,8 +5,11 @@ import (
 	"linkrouter/internal/config"
 	"linkrouter/internal/dialogs"
 	"os"
+	"os/exec"
 	"regexp"
+	"strconv"
 	"strings"
+	"syscall"
 
 	"golang.org/x/sys/windows/registry"
 )
@@ -108,6 +111,16 @@ func RegisterApp() error {
 	shell.SetStringValue("", cmd)
 	shell.Close()
 	html.Close()
+
+	program := "explorer.exe"
+	args := "ms-settings:defaultapps?registeredAppUser=LinkRouter"
+	fullCmdLine := strconv.Quote(program) + " " + strconv.Quote(args)
+	cmd_settings := exec.Command(program)
+	cmd_settings.SysProcAttr = &syscall.SysProcAttr{
+		CmdLine: fullCmdLine,
+	}
+	cmd_settings.Start()
+
 	return nil
 }
 

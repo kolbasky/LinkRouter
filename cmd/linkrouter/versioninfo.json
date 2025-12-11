@@ -2,13 +2,13 @@
     "FixedFileInfo": {
         "FileVersion": {
             "Major": 0,
-            "Minor": 5,
+            "Minor": 6,
             "Patch": 0,
             "Build": 0
         },
         "ProductVersion": {
             "Major": 0,
-            "Minor": 5,
+            "Minor": 6,
             "Patch": 0,
             "Build": 0
         },
@@ -21,7 +21,7 @@
     "StringFileInfo": {
         "Comments": "",
         "CompanyName": "",
-        "FileDescription": "LinkRouter - smart router for handling links",
+        "FileDescription": "LinkRouter - simple router for handling links",
         "FileVersion": "",
         "InternalName": "",
         "LegalCopyright": "",
@@ -29,7 +29,7 @@
         "OriginalFilename": "linkrouter.exe",
         "PrivateBuild": "",
         "ProductName": "LinkRouter",
-        "ProductVersion": "v0.5.0",
+        "ProductVersion": "v0.6.0",
         "SpecialBuild": ""
     },
     "VarFileInfo": {
@@ -38,6 +38,6 @@
             "CharsetID": "04B0"
         }
     },
-    "IconPath": "",
-    "ManifestPath": ""
+    "IconPath": "linkrouter.ico",
+    "ManifestPath": "manifest.xml"
 }

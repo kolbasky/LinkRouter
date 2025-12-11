@@ -11,9 +11,15 @@ import (
 func main() {
 	register := flag.Bool("register", false, "Register ourself in registry")
 	unregister := flag.Bool("unregister", false, "Unregister ourself in registry")
+	help := flag.Bool("help", false, "Show help message")
 	flag.Parse()
 
 	args := flag.Args()
+
+	if *help {
+		launcher.Help()
+		return
+	}
 
 	if *register {
 		registry.RegisterApp()

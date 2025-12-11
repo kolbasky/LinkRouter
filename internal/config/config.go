@@ -84,6 +84,23 @@ func getDefaultBrowserPath() string {
 	return fallbackBrowser
 }
 
+func getConfigPath() string {
+	localAppData := os.Getenv("LOCALAPPDATA")
+	if localAppData != "" {
+		userConfig := filepath.Join(localAppData, "LinkRouter", "linkrouter.json")
+		if _, err := os.Stat(userConfig); err == nil {
+			return userConfig
+		}
+		userConfig = filepath.Join(localAppData, "linkrouter.json")
+		if _, err := os.Stat(userConfig); err == nil {
+			return userConfig
+		}
+	}
+
+	exe, _ := os.Executable()
+	return filepath.Join(filepath.Dir(exe), "linkrouter.json")
+}
+
 func DefaultConfig() *Config {
 	browserPath := getDefaultBrowserPath()
 
@@ -115,8 +132,7 @@ func DefaultConfig() *Config {
 }
 
 func LoadConfig() (*Config, error) {
-	exePath, _ := os.Executable()
-	configPath := filepath.Join(filepath.Dir(exePath), "config.json")
+	configPath := getConfigPath()
 
 	data, err := os.ReadFile(configPath)
 	if os.IsNotExist(err) {

@@ -16,19 +16,24 @@ Windows lets you choose a program to handle specific protocols, but there is no 
 
 ## 🚀 Quick Start
 
-1. **Download** [`linkrouter.exe`](https://github.com/kolbasky/link-router/releases/latest)
-2. **Open PowerShell or Command Prompt** in the download folder
+1. **Download** [`linkrouter.exe`](https://github.com/kolbasky/link-router/releases/latest) 
+2. **Open PowerShell or Command Prompt** in folder with downloaded file
 3. Run:
    ```powershell
    .\linkrouter.exe --register
    ```
    this will create registry keys, necessary for setting LinkRouter as a browser. Use `--unregister` to remove the registry entries later.
-4. Go to `Windows Settings` → `Apps` → `Default apps` → `Choose defaults by link type` and select LinkRouter as the default handler for HTTP, HTTPS, or any other protocols you want it to handle.
-5. Run the .exe normally (or double-click it) → it will create config.json automatically. Edit the config and add your rules (see example below).
+4. Go to `Windows Settings` → `Apps` → `Default apps` and select LinkRouter as the default handler for HTTP, HTTPS, or any other protocols you want it to handle.
+5. Edit the config next to executable and add your rules (see example below). 
 
 
 ## ⚙️ Configuration
-The app auto-creates `config.json` on first normal launch and tries to detect your current default browser to use as the fallback one. If it fails, it defaults to Edge.
+The app auto-creates `linkrouter.json` next to executable on its first launch and tries to detect your current default browser to use as the fallback one. If it fails, it defaults to Edge.
+User may store config in one of these places:
+  - %LOCALAPPDATA%\LinkRouter\linkrouter.json
+  - %LOCALAPPDATA%\linkrouter.json
+  - .\linkrouter.json
+
 Every link passed to LinkRouter is tested against the rules in order. The first matching rule wins.
 
 - `regex` – Golang-flavored regular expression
@@ -88,7 +93,7 @@ this config will make LinkRouter:
 - opens all other links like `mailto:.*` by opening "New email" window in outlook with `personal` profile and prefilled recipient filed.
 - links that don't match any rule will be opened in chrome browser.
 
-Check more example rules in `config.json.example` in root of this repo. Maybe the app you need is already there.
+Check more example rules in `linkrouter.json.example` in root of this repo. Maybe the app you need is already there.
 
 Important: Figuring out the correct command-line arguments/switches for third-party programs is **entirely the user’s responsibility**. LinkRouter only launches whatever you tell it to launch.
 For testing regexes we recommend [this wonderfull website](https://regex101.com) (choose the Golang flavor).
@@ -100,7 +105,7 @@ For testing regexes we recommend [this wonderfull website](https://regex101.com)
 - Fully open-source
 - Single static binary, portable, no installer
 
-Security note: Because LinkRouter can execute arbitrary programs with parameters derived from URLs, only use rules you trust. Never download and run someone else’s config.json blindly — it could contain malicious commands.
+Security note: Because LinkRouter can execute arbitrary programs with parameters derived from URLs, only use rules you trust. Never download and run someone else’s linkrouter.json blindly — it could contain malicious commands.
 
 ## 📦 Download
 See the [Releases page](https://github.com/kolbasky/link-router/releases/latest) for the latest linkrouter.exe.
