@@ -13,7 +13,7 @@ var logFile *os.File
 var enabled bool
 
 func Init(logPath string) error {
-	if logPath == "" {
+	if strings.TrimSpace(logPath) == "" {
 		enabled = false
 		return nil
 	}

@@ -85,6 +85,7 @@ func IsCorrectURL(s string) bool {
 }
 
 func HandleURL(url string) {
+	url = strings.TrimSpace(url)
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		dialogs.ShowError("config error:\n" + err.Error())

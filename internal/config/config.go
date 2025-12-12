@@ -168,8 +168,11 @@ func LoadConfig() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	logger.Init(cfg.Global.LogPath)
+	err_init := logger.Init(cfg.Global.LogPath)
+	if err_init != nil {
+		logger.Log(fmt.Sprintf("Error: can't open global.logPath %q, %s", cfg.Global.LogPath, err_init))
+		dialogs.ShowError(fmt.Sprintf("can't open global.logPath %q, %s", cfg.Global.LogPath, err_init))
+	}
 
 	if utils.IsLinkRouter(cfg.Global.DefaultBrowserPath) {
 		dialogs.ShowError("fallback browser is set to LinkRouter itself.\nusing Edge as fallback")

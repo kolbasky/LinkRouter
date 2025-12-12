@@ -40,6 +40,7 @@ Every link passed to LinkRouter is tested against the rules in order. The first 
 - `arguments` – command-line arguments; `{URL}` is replaced with the original link, `$1`, `$2`… are replaced with capture-group contents
 
 You can handle any protocol (mailto, ssh, steam, spotify, etc.). Just add the protocol to `global.supportedProtocols` and re-run `--register`.
+You can set global.logPath to enable logging. Maybe absolute ot relative to exe file. Leave empty to disable (default).
 
 Here's a sample config to get the idea. Notice, that all backslashes `\` have to be escaped like this `\\` in JSON.
 
