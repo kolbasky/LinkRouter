@@ -1,14 +1,14 @@
 {
     "FixedFileInfo": {
         "FileVersion": {
-            "Major": 0,
-            "Minor": 7,
+            "Major": 1,
+            "Minor": 0,
             "Patch": 0,
             "Build": 0
         },
         "ProductVersion": {
-            "Major": 0,
-            "Minor": 7,
+            "Major": 1,
+            "Minor": 0,
             "Patch": 0,
             "Build": 0
         },
@@ -29,7 +29,7 @@
         "OriginalFilename": "linkrouter.exe",
         "PrivateBuild": "",
         "ProductName": "LinkRouter",
-        "ProductVersion": "v0.7.0",
+        "ProductVersion": "v1.0.0",
         "SpecialBuild": ""
     },
     "VarFileInfo": {

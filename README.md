@@ -1,4 +1,4 @@
-# LinkRouter
+# ![alt text](/resources/icon/32.png?raw=true) LinkRouter 
 
 A lightweight portable Windows app that routes links to specific applications based on **regex rules**.
 
