@@ -2,7 +2,9 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"linkrouter/internal/dialogs"
+	"linkrouter/internal/logger"
 	"linkrouter/internal/utils"
 	"os"
 	"path/filepath"
@@ -24,9 +26,7 @@ type Config struct {
 type GlobalConfig struct {
 	DefaultBrowserPath string   `json:"defaultBrowserPath"`
 	DefaultBrowserArgs string   `json:"defaultBrowserArgs"`
-	InteractiveMode    bool     `json:"interactiveMode"`
-	LaunchAtStartup    bool     `json:"launchAtStartup"`
-	DaemonMode         bool     `json:"daemonMode"`
+	LogPath            string   `json:"logPath"`
 	SupportedProtocols []string `json:"supportedProtocols"`
 }
 
@@ -143,9 +143,7 @@ func DefaultConfig() *Config {
 		Global: GlobalConfig{
 			DefaultBrowserPath: browserPath,
 			DefaultBrowserArgs: "{URL}",
-			InteractiveMode:    false,
-			LaunchAtStartup:    false,
-			DaemonMode:         false,
+			LogPath:            "",
 			SupportedProtocols: []string{"http://", "https://"},
 		},
 		Rules: []Rule{},
@@ -171,6 +169,8 @@ func LoadConfig() (*Config, error) {
 		return nil, err
 	}
 
+	logger.Init(cfg.Global.LogPath)
+
 	if utils.IsLinkRouter(cfg.Global.DefaultBrowserPath) {
 		dialogs.ShowError("fallback browser is set to LinkRouter itself.\nusing Edge as fallback")
 		cfg.Global.DefaultBrowserPath = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
@@ -189,16 +189,19 @@ func (c *Config) Save(path string) error {
 	return os.WriteFile(path, data, 0600)
 }
 
-func (c *Config) MatchRule(url string) (*Rule, []string) {
-	for _, rule := range c.Rules {
+func (c *Config) MatchRule(url string) (*Rule, []string, int) {
+	for i, rule := range c.Rules {
 		re, err := regexp.Compile(rule.Regex)
 		if err != nil {
+			logger.Log("Invalid regex: " + err.Error())
+			logger.Log(fmt.Sprintf("Failed rule: regex=%q", rule.Regex))
 			dialogs.ShowError("invalid regex:\n" + err.Error())
 			continue
 		}
 		if matches := re.FindStringSubmatch(url); len(matches) > 0 {
-			return &rule, matches
+			return &rule, matches, i
 		}
 	}
-	return nil, nil
+	logger.Log("Matched rule: None")
+	return nil, nil, -1
 }

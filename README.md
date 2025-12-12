@@ -72,7 +72,7 @@ Here's a sample config to get the idea. Notice, that all backslashes `\` have to
       "arguments": "-i .ssh/id_rsa_personal user2@$1"
     },
     {
-      "regex": "mailto:.*@company1\\.com",
+      "regex": "mailto:(.*@company1\\.com)",
       "program": "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE",
       "arguments": "/c ipm.note /profile \"work\" /m $1"
     },

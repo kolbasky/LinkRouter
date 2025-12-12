@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"linkrouter/internal/config"
 	"linkrouter/internal/dialogs"
+	"linkrouter/internal/logger"
 	"linkrouter/internal/registry"
 	"linkrouter/internal/utils"
 	"os"
@@ -22,6 +23,7 @@ func HandleNoArgs() {
 		os.Exit(1)
 	}
 
+	logger.Log("Handling URL: None")
 	if cfg.Global.DefaultBrowserPath != "" {
 		argsTemplate := cfg.Global.DefaultBrowserArgs
 		if !strings.Contains(argsTemplate, "{URL}") {
@@ -29,6 +31,7 @@ func HandleNoArgs() {
 		}
 		launchApp(cfg.Global.DefaultBrowserPath, argsTemplate, "")
 	} else {
+		logger.Log("Error: defaultBrowserPath in linkrouter.json is empty")
 		dialogs.ShowError("defaultBrowserPath in linkrouter.json is empty")
 	}
 	os.Exit(0)
@@ -88,41 +91,44 @@ func HandleURL(url string) {
 		return
 	}
 
-	if rule, matches := cfg.MatchRule(url); rule != nil {
+	logger.Log(fmt.Sprintf("Handling URL: %s", url))
+	if rule, matches, ruleIndex := cfg.MatchRule(url); rule != nil {
+		logger.Log(fmt.Sprintf("Matched rule #%d: regex=%q", ruleIndex, rule.Regex))
+		logger.Log(fmt.Sprintf("Captured groups: %s", logger.FormatCaptureGroups(matches)))
+
 		expandedArgs := expandPlaceholders(rule.Arguments, matches)
 		err := launchApp(rule.Program, expandedArgs, url)
 		if err == nil {
 			return
 		} else {
-			dialogs.ShowError(
-				fmt.Sprintf(
-					"failed to launch app\n%s:\n%s",
-					rule.Program,
-					err,
-				),
-			)
+			dialogs.ShowError(fmt.Sprintf(
+				"failed to launch app\n%s:\n%s",
+				rule.Program,
+				err,
+			))
 		}
 	}
 
 	if cfg.Global.DefaultBrowserPath != "" {
 		argsTemplate := cfg.Global.DefaultBrowserArgs
 		if argsTemplate == "" {
+			logger.Log("Arguments are empty appending {URL}")
 			argsTemplate = "{URL}"
 		}
 		err := launchApp(cfg.Global.DefaultBrowserPath, argsTemplate, url)
 		if err == nil {
 			return
 		} else {
-			dialogs.ShowError(
-				fmt.Sprintf(
-					"failed to launch fallback browser:\n%s:\n%s",
-					cfg.Global.DefaultBrowserPath,
-					err,
-				),
-			)
+			logger.Log(fmt.Sprintf("Error: failed to launch fallback browser. %s", err))
+			dialogs.ShowError(fmt.Sprintf(
+				"failed to launch fallback browser:\n%s:\n%s",
+				cfg.Global.DefaultBrowserPath,
+				err))
 		}
 	} else {
-		dialogs.ShowError("no rule matched and no default browser configured")
+		errorText := "Error: no rule matched and no default browser configured"
+		logger.Log(errorText)
+		dialogs.ShowError(errorText)
 	}
 }
 
@@ -138,6 +144,7 @@ func containsSupportedProtocol(argsLine string) bool {
 	for _, proto := range config.SupportedProtocols {
 		cleanProto := registry.ParseProtocol(proto)
 		if cleanProto == "" {
+			logger.Log("Got empty protocol from SupportedProtocols. Skipping")
 			continue
 		}
 		pattern := `(^|[ \t])` + regexp.QuoteMeta(cleanProto) + `:`
@@ -154,11 +161,15 @@ func isExplorer(path string) bool {
 
 func launchApp(programPath, argsTemplate, url string) error {
 	if programPath == "" {
+		logger.Log("Error: program path is empty")
 		return fmt.Errorf("program path is empty")
 	}
 	program := expandPath(programPath)
 
 	if utils.IsLinkRouter(program) {
+		logger.Log(fmt.Sprintf(
+			"Recursion: program %q specified in rule is linkrouter itself. skipping rule.",
+			program))
 		return fmt.Errorf("recursion prevented.\n" +
 			"program specified in rule is linkrouter itself.\n" +
 			"skipping rule")
@@ -171,8 +182,10 @@ func launchApp(programPath, argsTemplate, url string) error {
 		argsLine = ""
 	} else {
 		argsLine = strings.ReplaceAll(argsTemplate, "{URL}", url)
+		logger.Log(fmt.Sprintf("Expanded arguments: %s", argsLine))
 	}
 	if isExplorer(program) && containsSupportedProtocol(argsLine) {
+		logger.Log("Recursion: URL is passed to explorer.exe and LinkRouter is set as default for this type of links")
 		return fmt.Errorf("recursion prevented.\n" +
 			"link is passed to explorer.exe and LinkRouter is set as default for this type of links")
 	}
@@ -182,6 +195,8 @@ func launchApp(programPath, argsTemplate, url string) error {
 	} else {
 		fullCmdLine = quotedProgram + " " + argsLine
 	}
+
+	logger.Log(fmt.Sprintf("Launching: %s", fullCmdLine))
 
 	cmd := exec.Command(program)
 	cmd.Path = program

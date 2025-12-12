@@ -5,6 +5,7 @@ import (
 	"flag"
 
 	"linkrouter/internal/launcher"
+	"linkrouter/internal/logger"
 	"linkrouter/internal/registry"
 )
 
@@ -23,18 +24,22 @@ func main() {
 
 	if *register {
 		registry.RegisterApp()
+		defer logger.Close()
 		return
 	}
 
 	if *unregister {
 		registry.UnregisterApp()
+		defer logger.Close()
 		return
 	}
 
 	if len(args) == 1 && launcher.IsCorrectURL(args[0]) {
 		launcher.HandleURL(args[0])
+		defer logger.Close()
 		return
 	}
 
 	launcher.HandleNoArgs()
+	defer logger.Close()
 }
