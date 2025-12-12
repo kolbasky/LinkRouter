@@ -39,8 +39,8 @@ Every link passed to LinkRouter is tested against the rules in order. The first 
 - `program` – full path to the target executable
 - `arguments` – command-line arguments; `{URL}` is replaced with the original link, `$1`, `$2`… are replaced with capture-group contents
 
-You can handle any protocol (mailto, ssh, steam, spotify, etc.). Just add the protocol to `global.supportedProtocols` and re-run `--register`.
-You can set global.logPath to enable logging. Maybe absolute ot relative to exe file. Leave empty to disable (default).
+You can handle any protocol (mailto, ssh, steam, spotify, etc.). Just add the protocol to `global.supportedProtocols` and re-run `--register`.<br>
+You can set `global.logPath` to enable logging. Maybe absolute ot relative to exe file. Leave empty to disable (default).
 
 Here's a sample config to get the idea. Notice, that all backslashes `\` have to be escaped like this `\\` in JSON.
 
@@ -49,6 +49,7 @@ Here's a sample config to get the idea. Notice, that all backslashes `\` have to
   "global": {
     "defaultBrowserPath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
     "defaultBrowserArgs": "{URL}",
+    "logPath": "",
     "supportedProtocols": [
       "http",
       "https",
@@ -92,6 +93,7 @@ this config will make LinkRouter:
 - opens links like `mailto:.*@company1.com` by opening "New email" window in outlook with `work` profile and prefilled recipient field.
 - opens all other links like `mailto:.*` by opening "New email" window in outlook with `personal` profile and prefilled recipient field.
 - links that don't match any rule will be opened in chrome browser.
+- do not write any logs
 > [!Note]
 > While LinkRouter works just fine without running as administrator, if a program from config is being run as admin, LinkRouter can't launch such program unless also launched with admin privileges. Go to linkrouter.exe properties - Compatibility and check "Run this programm as an administrator"
 
