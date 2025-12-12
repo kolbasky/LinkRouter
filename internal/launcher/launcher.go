@@ -36,7 +36,7 @@ func HandleNoArgs() {
 
 func Help() {
 	program := "explorer.exe"
-	args := "https://github.com/kolbasky/LinkRouter/blob/main/README.md#linkrouter"
+	args := "https://github.com/kolbasky/LinkRouter/blob/main/README.md#-linkrouter"
 	fullCmdLine := strconv.Quote(program) + " " + strconv.Quote(args)
 	cmd_help := exec.Command(program)
 	cmd_help.SysProcAttr = &syscall.SysProcAttr{
