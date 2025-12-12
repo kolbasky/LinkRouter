@@ -18,7 +18,7 @@ import (
 func HandleNoArgs() {
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		dialogs.ShowError("Failed to load config:\n" + err.Error())
+		dialogs.ShowError("failed to load config:\n" + err.Error())
 		os.Exit(1)
 	}
 
@@ -29,7 +29,7 @@ func HandleNoArgs() {
 		}
 		launchApp(cfg.Global.DefaultBrowserPath, argsTemplate, "")
 	} else {
-		dialogs.ShowError("DefaultBrowserPath in linkrouter.json is empty!")
+		dialogs.ShowError("defaultBrowserPath in linkrouter.json is empty")
 	}
 	os.Exit(0)
 }
@@ -44,7 +44,7 @@ func Help() {
 	}
 	cmd_help.Start()
 	os.Exit(0)
-	// helpText := `LinkRouter – simple router for handlinkg links based on custom regex rules.
+	// helpText := `LinkRouter – regex-based router for handlinkg links.
 
 	// USAGE:
 	//   linkrouter.exe [URL]           Handle a link
@@ -84,7 +84,7 @@ func IsCorrectURL(s string) bool {
 func HandleURL(url string) {
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		dialogs.ShowError("Config error:\n" + err.Error())
+		dialogs.ShowError("config error:\n" + err.Error())
 		return
 	}
 
@@ -96,7 +96,7 @@ func HandleURL(url string) {
 		} else {
 			dialogs.ShowError(
 				fmt.Sprintf(
-					"Failed to launch app %s:\n%s",
+					"failed to launch app\n%s:\n%s",
 					rule.Program,
 					err,
 				),
@@ -115,14 +115,14 @@ func HandleURL(url string) {
 		} else {
 			dialogs.ShowError(
 				fmt.Sprintf(
-					"Failed to launch fallback browser:\n%s\nProgram: %s",
-					err,
+					"failed to launch fallback browser:\n%s:\n%s",
 					cfg.Global.DefaultBrowserPath,
+					err,
 				),
 			)
 		}
 	} else {
-		dialogs.ShowError("No rule matched and no default browser configured.")
+		dialogs.ShowError("no rule matched and no default browser configured")
 	}
 }
 
@@ -159,8 +159,8 @@ func launchApp(programPath, argsTemplate, url string) error {
 	program := expandPath(programPath)
 
 	if utils.IsLinkRouter(program) {
-		return fmt.Errorf("recursion prevented. " +
-			"program specified in rule is linkrouter itself. " +
+		return fmt.Errorf("recursion prevented.\n" +
+			"program specified in rule is linkrouter itself.\n" +
 			"skipping rule")
 	}
 
@@ -173,7 +173,8 @@ func launchApp(programPath, argsTemplate, url string) error {
 		argsLine = strings.ReplaceAll(argsTemplate, "{URL}", url)
 	}
 	if isExplorer(program) && containsSupportedProtocol(argsLine) {
-		return fmt.Errorf("recursion prevented. link is passed to explorer.exe and LinkRouter is default for this type of links")
+		return fmt.Errorf("recursion prevented.\n" +
+			"link is passed to explorer.exe and LinkRouter is set as default for this type of links")
 	}
 	var fullCmdLine string
 	if argsLine == "" {

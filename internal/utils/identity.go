@@ -1,4 +1,3 @@
-// internal/utils/identity.go
 package utils
 
 import (

@@ -17,7 +17,7 @@ Windows lets you choose a program to handle specific protocols, but there is no 
 ## 🚀 Quick Start
 
 1. **Download** [`linkrouter.exe`](https://github.com/kolbasky/link-router/releases/latest) 
-2. **Open PowerShell or Command Prompt** in folder with downloaded file
+2. **Open PowerShell or Command Prompt** in folder where linkrouter.exe is placed
 3. Run:
    ```powershell
    .\linkrouter.exe --register
@@ -38,9 +38,9 @@ Every link passed to LinkRouter is tested against the rules in order. The first 
 
 - `regex` – Golang-flavored regular expression
 - `program` – full path to the target executable
-- `arguments` – command-line arguments; {URL} is replaced with the original link, $1, $2… are replaced with capture-group contents
+- `arguments` – command-line arguments; `{URL}` is replaced with the original link, `$1`, `$2`… are replaced with capture-group contents
 
-You can handle any protocol (mailto, ssh, steam, spotify, etc.). Just add the protocol to global.supportedProtocols and re-run --register.
+You can handle any protocol (mailto, ssh, steam, spotify, etc.). Just add the protocol to `global.supportedProtocols` and re-run `--register`.
 
 Here's a sample config to get the idea.
 
@@ -93,7 +93,7 @@ this config will make LinkRouter:
 - opens all other links like `mailto:.*` by opening "New email" window in outlook with `personal` profile and prefilled recipient filed.
 - links that don't match any rule will be opened in chrome browser.
 
-Check more example rules in `linkrouter.json.example` in root of this repo. Maybe the app you need is already there.
+Check more example rules in [linkrouter.json.example](https://github.com/kolbasky/LinkRouter/blob/main/linkrouter.json.example) in root of this repo. Maybe the app you need is already there.
 
 Important: Figuring out the correct command-line arguments/switches for third-party programs is **entirely the user’s responsibility**. LinkRouter only launches whatever you tell it to launch.
 For testing regexes we recommend [this wonderfull website](https://regex101.com) (choose the Golang flavor).
@@ -105,7 +105,7 @@ For testing regexes we recommend [this wonderfull website](https://regex101.com)
 - Fully open-source
 - Single static binary, portable, no installer
 
-Security note: Because LinkRouter can execute arbitrary programs with parameters derived from URLs, only use rules you trust. Never download and run someone else’s linkrouter.json blindly — it could contain malicious commands.
+Security note: Because LinkRouter can execute arbitrary programs, only use rules you trust. Never download and run someone else’s linkrouter.json blindly — it could contain malicious commands.
 
 ## 📦 Download
 See the [Releases page](https://github.com/kolbasky/link-router/releases/latest) for the latest linkrouter.exe.

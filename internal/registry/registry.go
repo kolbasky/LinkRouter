@@ -15,7 +15,7 @@ import (
 )
 
 const appName = "LinkRouter"
-const appDescription = "Smart link router with custom rules"
+const appDescription = "regex-based router for links"
 
 func getExePath() string {
 	exe, _ := os.Executable()
@@ -27,7 +27,7 @@ func ParseProtocol(proto string) string {
 	proto = strings.TrimSpace(proto)
 	match := re.FindStringSubmatch(proto)
 	if len(match) < 2 {
-		dialogs.ShowError("Wrong proto name: " + proto)
+		dialogs.ShowError("wrong proto name:\n" + proto)
 		return ""
 	}
 
@@ -62,8 +62,8 @@ func RegisterApp() error {
 
 	k, _, err := registry.CreateKey(registry.CURRENT_USER, appPath, registry.ALL_ACCESS)
 	if err != nil {
-		dialogs.ShowError("Failed to create StartMenuInternet key:\n" + err.Error())
-		return fmt.Errorf("failed to create StartMenuInternet key: %w", err)
+		dialogs.ShowError("failed to create StartMenuInternet key:\n" + err.Error())
+		return fmt.Errorf("failed to create StartMenuInternet key:\n%w", err)
 	}
 	k.SetStringValue("DisplayName", appName)
 	k.SetStringValue("ApplicationName", appName)
@@ -105,6 +105,7 @@ func RegisterApp() error {
 	// Computer\HKEY_CURRENT_USER\Software\Classes\LinkRouterHTML
 	html, _, _ := registry.CreateKey(registry.CURRENT_USER, `Software\Classes\`+htmlClass, registry.ALL_ACCESS)
 	html.SetStringValue("", appName+" Document")
+	html.SetStringValue("FriendlyTypeName", appName)
 
 	shellPath := `Software\Classes\` + htmlClass + `\shell\open\command`
 	shell, _, _ := registry.CreateKey(registry.CURRENT_USER, shellPath, registry.ALL_ACCESS)

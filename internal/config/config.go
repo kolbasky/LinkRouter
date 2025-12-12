@@ -38,7 +38,28 @@ type Rule struct {
 }
 
 func getDefaultBrowserPath() string {
-	fallbackBrowser := "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+	fallbackBrowser := ""
+	// if not found in registry - search known file locations
+	fallback_candidates := []string{
+		`C:\Program Files\Google\Chrome\Application\chrome.exe`,
+		`C:\Program Files (x86)\Google\Chrome\Application\chrome.exe`,
+		`C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe`,
+		`C:\Program Files (x86)\BraveSoftware\Brave-Browser\Application\brave.exe`,
+		`C:\Program Files\Mozilla Firefox\firefox.exe`,
+		`C:\Program Files (x86)\Mozilla Firefox\firefox.exe`,
+		`C:\Program Files\Microsoft\Edge\Application\msedge.exe`,
+		`C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`,
+		`C:\Program Files\Internet Explorer\iexplore.exe`,
+		`C:\Program Files (x86)\Internet Explorer\iexplore.exe`,
+	}
+	for _, path := range fallback_candidates {
+		if _, err := os.Stat(path); err == nil {
+			fallbackBrowser = path
+			break
+		}
+	}
+
+	// try to get default browser from registry
 	// Step 1: Get ProgId from UserChoice for .html
 	userChoiceKey, err := registry.OpenKey(registry.CURRENT_USER,
 		`Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice`,
@@ -81,7 +102,7 @@ func getDefaultBrowserPath() string {
 		return parts[0]
 	}
 
-	return fallbackBrowser
+	return ""
 }
 
 func getConfigPath() string {
@@ -151,7 +172,7 @@ func LoadConfig() (*Config, error) {
 	}
 
 	if utils.IsLinkRouter(cfg.Global.DefaultBrowserPath) {
-		dialogs.ShowError("Fallback browser is set to LinkRouter itself failing back to Edge.")
+		dialogs.ShowError("fallback browser is set to LinkRouter itself.\nusing Edge as fallback")
 		cfg.Global.DefaultBrowserPath = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
 	}
 
@@ -172,7 +193,7 @@ func (c *Config) MatchRule(url string) (*Rule, []string) {
 	for _, rule := range c.Rules {
 		re, err := regexp.Compile(rule.Regex)
 		if err != nil {
-			dialogs.ShowError("Invalid regex:\n" + err.Error())
+			dialogs.ShowError("invalid regex:\n" + err.Error())
 			continue
 		}
 		if matches := re.FindStringSubmatch(url); len(matches) > 0 {
