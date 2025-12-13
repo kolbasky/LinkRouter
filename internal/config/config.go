@@ -38,57 +38,26 @@ type Rule struct {
 }
 
 func getDefaultBrowserPath() string {
-	fallbackBrowser := ""
-	// if not found in registry - search known file locations
-	fallback_candidates := []string{
-		`C:\Program Files\Google\Chrome\Application\chrome.exe`,
-		`C:\Program Files (x86)\Google\Chrome\Application\chrome.exe`,
-		`C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe`,
-		`C:\Program Files (x86)\BraveSoftware\Brave-Browser\Application\brave.exe`,
-		`C:\Program Files\Mozilla Firefox\firefox.exe`,
-		`C:\Program Files (x86)\Mozilla Firefox\firefox.exe`,
-		`C:\Program Files\Microsoft\Edge\Application\msedge.exe`,
-		`C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`,
-		`C:\Program Files\Internet Explorer\iexplore.exe`,
-		`C:\Program Files (x86)\Internet Explorer\iexplore.exe`,
-	}
-	for _, path := range fallback_candidates {
-		if _, err := os.Stat(path); err == nil {
-			fallbackBrowser = path
-			break
-		}
-	}
-
 	// try to get default browser from registry
 	// Step 1: Get ProgId from UserChoice for .html
 	userChoiceKey, err := registry.OpenKey(registry.CURRENT_USER,
 		`Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice`,
 		registry.READ)
-	if err != nil {
-		return fallbackBrowser
+	if err == nil {
+		defer userChoiceKey.Close()
 	}
-	defer userChoiceKey.Close()
+	err = nil
 
-	progId, _, err := userChoiceKey.GetStringValue("Progid")
-	if err != nil || progId == "" {
-		return fallbackBrowser
-	}
+	progId, _, _ := userChoiceKey.GetStringValue("Progid")
 
 	// Step 2: Get command from HKCR\<ProgId>\shell\open\command
 	cmdKey, err := registry.OpenKey(registry.CLASSES_ROOT, progId+`\shell\open\command`, registry.READ)
-	if err != nil {
-		return fallbackBrowser
-	}
-	defer cmdKey.Close()
-
-	cmdLine, _, err := cmdKey.GetStringValue("")
-	if err != nil {
-		return fallbackBrowser
+	if err == nil {
+		defer userChoiceKey.Close()
 	}
 
-	if strings.Contains(strings.ToLower(cmdLine), "cmd.exe") {
-		return fallbackBrowser
-	}
+	cmdLine, _, _ := cmdKey.GetStringValue("")
+
 	// Step 3: Extract quoted executable
 	re := regexp.MustCompile(`^"([^"]+)"`)
 	matches := re.FindStringSubmatch(cmdLine)
@@ -100,6 +69,47 @@ func getDefaultBrowserPath() string {
 	parts := strings.Fields(cmdLine)
 	if len(parts) > 0 {
 		return parts[0]
+	}
+
+	// if not found in registry - search known file locations
+	fallback_candidates := []string{
+		// Chrome
+		`${ProgramFiles}\Google\Chrome\Application\chrome.exe`,
+		`${ProgramFiles(x86)}\Google\Chrome\Application\chrome.exe`,
+		`${LOCALAPPDATA}\Google\Chrome\Application\chrome.exe`,
+		// Chrome canary
+		`${ProgramFiles}\Google\Chrome SxS\Application\chrome.exe`,
+		`${ProgramFiles(x86)}\Google\Chrome SxS\Application\chrome.exe`,
+		`${LOCALAPPDATA}\Google\Chrome SxS\Application\chrome.exe`,
+		// Brave
+		`${ProgramFiles}\BraveSoftware\Brave-Browser\Application\brave.exe`,
+		`${ProgramFiles(x86)}\BraveSoftware\Brave-Browser\Application\brave.exe`,
+		`${LOCALAPPDATA}\BraveSoftware\Brave-Browser\Application\brave.exe`,
+		// Firefox
+		`${ProgramFiles}\Mozilla Firefox\firefox.exe`,
+		`${ProgramFiles(x86)}\Mozilla Firefox\firefox.exe`,
+		`${LOCALAPPDATA}\Mozilla Firefox\firefox.exe`,
+		// Yandex Browser
+		`${LOCALAPPDATA}\Yandex\YandexBrowser\Application\browser.exe`,
+		// Vivaldi
+		`${LOCALAPPDATA}\Vivaldi\Application\vivaldi.exe`,
+		`${ProgramFiles}\Vivaldi\Application\vivaldi.exe`,
+		`${ProgramFiles(x86)}\Vivaldi\Application\vivaldi.exe`,
+		// Opera
+		`${LOCALAPPDATA}\Programs\Opera\launcher.exe`,
+		`${ProgramFiles}\Opera\launcher.exe`,
+		// Edge
+		`${ProgramFiles}\Microsoft\Edge\Application\msedge.exe`,
+		`${ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe`,
+		`${LOCALAPPDATA}\Microsoft\Edge\Application\msedge.exe`,
+		// iexplorer
+		`${ProgramFiles}\Internet Explorer\iexplore.exe`,
+		`${ProgramFiles(x86)}\Internet Explorer\iexplore.exe`,
+	}
+	for _, path := range fallback_candidates {
+		if _, err := os.Stat(os.ExpandEnv(path)); err == nil {
+			return os.ExpandEnv(path)
+		}
 	}
 
 	return ""
@@ -127,16 +137,6 @@ func DefaultConfig() *Config {
 
 	if browserPath != "" && utils.IsLinkRouter(browserPath) {
 		browserPath = ""
-	}
-
-	if browserPath == "" {
-		browserPath = `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`
-		if _, err := os.Stat(browserPath); os.IsNotExist(err) {
-			browserPath = `C:\Program Files\Microsoft\Edge\Application\msedge.exe`
-		}
-		if _, err := os.Stat(browserPath); os.IsNotExist(err) {
-			browserPath = ""
-		}
 	}
 
 	return &Config{
@@ -175,8 +175,8 @@ func LoadConfig() (*Config, error) {
 	}
 
 	if utils.IsLinkRouter(cfg.Global.DefaultBrowserPath) {
-		dialogs.ShowError("fallback browser is set to LinkRouter itself.\nusing Edge as fallback")
-		cfg.Global.DefaultBrowserPath = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+		dialogs.ShowError("fallback browser is set to LinkRouter itself.\nusing fallback")
+		cfg.Global.DefaultBrowserPath = getDefaultBrowserPath()
 	}
 
 	SupportedProtocols = cfg.Global.SupportedProtocols

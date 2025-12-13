@@ -4,6 +4,7 @@ package main
 import (
 	"flag"
 
+	"linkrouter/internal/dialogs"
 	"linkrouter/internal/launcher"
 	"linkrouter/internal/logger"
 	"linkrouter/internal/registry"
@@ -13,12 +14,18 @@ func main() {
 	register := flag.Bool("register", false, "Register ourself in registry")
 	unregister := flag.Bool("unregister", false, "Unregister ourself in registry")
 	help := flag.Bool("help", false, "Show help message")
+	version := flag.Bool("version", false, "Show version")
 	flag.Parse()
 
 	args := flag.Args()
 
 	if *help {
 		launcher.Help()
+		return
+	}
+
+	if *version {
+		dialogs.ShowMessageBox("LinkRouter", "version 0.8.0", 0x00000040)
 		return
 	}
 
