@@ -15,7 +15,7 @@ Windows lets you choose a program to handle specific protocols, but there is no 
 
 ## 🚀 Quick Start
 
-1. **Download** [`linkrouter.exe`](releases/latest) 
+1. **Download** [`linkrouter.exe`](https://github.com/kolbasky/link-router/releases/latest) 
 2. **Open PowerShell or Command Prompt** in folder where `linkrouter.exe` is placed
 3. Run:
    ```powershell
@@ -117,7 +117,7 @@ For testing regexes we recommend [this wonderful website](https://regex101.com/?
 > Because LinkRouter can execute arbitrary programs, only use rules you trust. Never download and run someone else’s linkrouter.json blindly — it could contain malicious commands. LinkRouter doesn't launch any programs except for those, specified in your config.
 
 ## 📦 Download
-See the [Releases page](releases/latest) for the latest linkrouter.exe.
+See the [Releases page](https://github.com/kolbasky/link-router/releases/latest) for the latest linkrouter.exe.
 
 ## 🛠️ Build from source
 ```
