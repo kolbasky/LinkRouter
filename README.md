@@ -28,7 +28,7 @@ Windows lets you choose a program to handle specific protocols, but there is no 
 
 
 ## ⚙️ Configuration
-The app auto-creates `linkrouter.json` next to executable on its first launch and tries to detect your current default browser to use as the fallback one. If it fails, it defaults to Edge.
+The app auto-creates `linkrouter.json` next to executable on its first launch and tries to detect your current default browser to use as the fallback one. If it fails, it tries to guess one from a list of know popular browsers locations.
 User may store config in one of these places (searched in this order):
   - %LOCALAPPDATA%\LinkRouter\linkrouter.json
   - .\linkrouter.json
@@ -39,17 +39,19 @@ Every link passed to LinkRouter is tested against the rules in order. The first 
 - `program` – full path to the target executable
 - `arguments` – command-line arguments; `{URL}` is replaced with the original link, `$1`, `$2`… are replaced with capture-group contents
 
+Links that do not match any rule are passed to `global.fallbackBrowserPath` with `global.fallbackBrowserArgs` as arguments.
+
 You can handle any protocol (mailto, ssh, steam, spotify, etc.). Just add the protocol to `global.supportedProtocols` and re-run `--register`.<br>
-You can set `global.logPath` to enable logging. Path may be absolute ot relative. Leave empty to disable (default). It is very helpful when composing new rules, since you can see captured groups, arguments and resulting commandline.
+You can set `global.logPath` to enable logging. Path may be absolute or relative. Leave empty to disable (default). It is very helpful when composing new rules, since you can see captured groups, arguments and resulting commandline.
 
 Here's a sample config to get the idea. Notice, that all backslashes `\` have to be escaped like this `\\` in JSON.
 
 ```json
 {
   "global": {
-    "defaultBrowserPath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-    "defaultBrowserArgs": "{URL}",
-    "logPath": "",
+    "fallbackBrowserPath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "fallbackBrowserArgs": "{URL}",
+    "logPath": "linkrouter.log",
     "supportedProtocols": [
       "http",
       "https",
@@ -93,7 +95,7 @@ this config will make LinkRouter:
 - opens links like `mailto:.*@company1.com` by opening "New email" window in outlook with prefilled recipient field.
 - opens all other links like `mailto:.*` in gmail in chrome.
 - links that don't match any rule will be opened in chrome browser.
-- do not write any logs
+- write log to `linkrouter.log` next to `linkrouter.exe`
 
 Tip: you can specify `explorer.exe` in program and pass link to it, if you want Windows to handle that link. i.e. passing steam:// link to explorer will open Steam, since Steam is registered in Windows as the default handler for that protocol.
 

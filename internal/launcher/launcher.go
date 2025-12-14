@@ -24,15 +24,15 @@ func HandleNoArgs() {
 	}
 
 	logger.Log("Handling URL: None")
-	if cfg.Global.DefaultBrowserPath != "" {
-		argsTemplate := cfg.Global.DefaultBrowserArgs
+	if cfg.Global.FallbackBrowserPath != "" {
+		argsTemplate := cfg.Global.FallbackBrowserArgs
 		if !strings.Contains(argsTemplate, "{URL}") {
 			argsTemplate += " {URL}"
 		}
-		launchApp(cfg.Global.DefaultBrowserPath, argsTemplate, "")
+		launchApp(cfg.Global.FallbackBrowserPath, argsTemplate, "")
 	} else {
-		logger.Log("Error: defaultBrowserPath in linkrouter.json is empty")
-		dialogs.ShowError("defaultBrowserPath in linkrouter.json is empty")
+		logger.Log("Error: fallbackBrowserPath in linkrouter.json is empty")
+		dialogs.ShowError("fallbackBrowserPath in linkrouter.json is empty")
 	}
 	os.Exit(0)
 }
@@ -108,20 +108,20 @@ func HandleURL(url string) {
 		}
 	}
 
-	if cfg.Global.DefaultBrowserPath != "" {
-		argsTemplate := cfg.Global.DefaultBrowserArgs
+	if cfg.Global.FallbackBrowserPath != "" {
+		argsTemplate := cfg.Global.FallbackBrowserArgs
 		if argsTemplate == "" {
 			logger.Log("Arguments are empty appending {URL}")
 			argsTemplate = "{URL}"
 		}
-		err := launchApp(cfg.Global.DefaultBrowserPath, argsTemplate, url)
+		err := launchApp(cfg.Global.FallbackBrowserPath, argsTemplate, url)
 		if err == nil {
 			return
 		} else {
 			logger.Log(fmt.Sprintf("Error: failed to launch fallback browser. %s", err))
 			dialogs.ShowError(fmt.Sprintf(
 				"failed to launch fallback browser:\n%s:\n%s",
-				cfg.Global.DefaultBrowserPath,
+				cfg.Global.FallbackBrowserPath,
 				err))
 		}
 	} else {

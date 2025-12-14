@@ -1,7 +1,7 @@
 {
   "global": {
-    "defaultBrowserPath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-    "defaultBrowserArgs": "{URL}",
+    "fallbackBrowserPath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "fallbackBrowserArgs": "{URL}",
     "interactiveMode": false,
     "launchAtStartup": false,
     "daemonMode": false,

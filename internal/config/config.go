@@ -24,10 +24,10 @@ type Config struct {
 
 // GlobalConfig holds global settings
 type GlobalConfig struct {
-	DefaultBrowserPath string   `json:"defaultBrowserPath"`
-	DefaultBrowserArgs string   `json:"defaultBrowserArgs"`
-	LogPath            string   `json:"logPath"`
-	SupportedProtocols []string `json:"supportedProtocols"`
+	FallbackBrowserPath string   `json:"fallbackBrowserPath"`
+	FallbackBrowserArgs string   `json:"fallbackBrowserArgs"`
+	LogPath             string   `json:"logPath"`
+	SupportedProtocols  []string `json:"supportedProtocols"`
 }
 
 // Rule defines a URL routing rule
@@ -146,10 +146,10 @@ func DefaultConfig() *Config {
 
 	return &Config{
 		Global: GlobalConfig{
-			DefaultBrowserPath: browserPath,
-			DefaultBrowserArgs: "{URL}",
-			LogPath:            "",
-			SupportedProtocols: []string{"http", "https"},
+			FallbackBrowserPath: browserPath,
+			FallbackBrowserArgs: "{URL}",
+			LogPath:             "",
+			SupportedProtocols:  []string{"http", "https"},
 		},
 		Rules: []Rule{
 			{
@@ -185,9 +185,9 @@ func LoadConfig() (*Config, error) {
 		dialogs.ShowError(fmt.Sprintf("can't open global.logPath %q, %s", cfg.Global.LogPath, err_init))
 	}
 
-	if utils.IsLinkRouter(cfg.Global.DefaultBrowserPath) {
+	if utils.IsLinkRouter(cfg.Global.FallbackBrowserPath) {
 		dialogs.ShowError("fallback browser is set to LinkRouter itself.\nusing fallback")
-		cfg.Global.DefaultBrowserPath = getDefaultBrowserPath()
+		cfg.Global.FallbackBrowserPath = getDefaultBrowserPath()
 	}
 
 	SupportedProtocols = cfg.Global.SupportedProtocols
