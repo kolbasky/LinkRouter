@@ -15,12 +15,12 @@
   "rules": [
     {
       "regex": "https://music\\.yandex\\.(ru|com)/album/(\\d+)/track/(\\d+).*",
-      "program": "%LOCALAPPDATA%\\Programs\\YandexMusic\\Яндекс Музыка.exe",
+      "program": "C:\\Windows\\explorer.exe",
       "arguments": "yandexmusic://album/$2/track/$3"
     },
     {
       "regex": "https://music\\.yandex\\.(ru|com)/album/(\\d+).*",
-      "program": "%LOCALAPPDATA%\\Programs\\YandexMusic\\Яндекс Музыка.exe",
+      "program": "C:\\Windows\\explorer.exe",
       "arguments": "yandexmusic://album/$2"
     },
     {
@@ -41,12 +41,12 @@
     {
       "regex": "mailto:.*@(company1|company2).(com|ru)",
       "program": "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE",
-      "arguments": "/c ipm.note /profile \"work\" /m $1"
+      "arguments": "/c ipm.note /m $1"
     },
     {
       "regex": "mailto:(.*)",
-      "program": "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE",
-      "arguments": "/c ipm.note /profile \"personal\" /m $1"
+      "program": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "arguments": "https://mail.google.com/mail/?view=cm&fs=1&to=$1"
     }
   ]
 }

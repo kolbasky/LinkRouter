@@ -62,7 +62,7 @@ func RegisterApp() error {
 	logger.Log("LinkRouter was launched with --register key")
 	var criticalError error
 	appPath := `Software\Clients\StartMenuInternet\` + appName
-	htmlClass := appName + "HTML"
+	linkrouterClass := appName
 
 	logger.Log(fmt.Sprintf("Creating: HKEY_CURRENT_USER\\%s", appPath))
 	k, _, err := registry.CreateKey(registry.CURRENT_USER, appPath, registry.ALL_ACCESS)
@@ -123,7 +123,7 @@ func RegisterApp() error {
 			k.SetStringValue("URL Protocol", "")
 			k.Close()
 			logger.Log(fmt.Sprintf("Setting: HKEY_CURRENT_USER\\%s\\URLAssociations\\%s\\(Default)", capPath, proto))
-			urlAssoc.SetStringValue(proto, appName+"HTML")
+			urlAssoc.SetStringValue(proto, appName)
 		}
 	}
 	cap.Close()
@@ -141,20 +141,20 @@ func RegisterApp() error {
 		regApps.Close()
 	}
 
-	// Computer\HKEY_CURRENT_USER\Software\Classes\LinkRouterHTML
-	logger.Log(fmt.Sprintf("Creating: HKEY_CURRENT_USER\\Software\\Classes\\%s", htmlClass))
-	html, _, err := registry.CreateKey(registry.CURRENT_USER, `Software\Classes\`+htmlClass, registry.ALL_ACCESS)
+	// Computer\HKEY_CURRENT_USER\Software\Classes\LinkRouter
+	logger.Log(fmt.Sprintf("Creating: HKEY_CURRENT_USER\\Software\\Classes\\%s", linkrouterClass))
+	html, _, err := registry.CreateKey(registry.CURRENT_USER, `Software\Classes\`+linkrouterClass, registry.ALL_ACCESS)
 	if err != nil {
 		criticalError = fmt.Errorf("failed to create registry key: %w", err)
 		logger.Log(criticalError.Error())
 		err = nil
 	} else {
-		logger.Log(fmt.Sprintf("Setting: HKEY_CURRENT_USER\\Software\\Classes\\%s\\(Default)", htmlClass))
+		logger.Log(fmt.Sprintf("Setting: HKEY_CURRENT_USER\\Software\\Classes\\%s\\(Default)", linkrouterClass))
 		html.SetStringValue("", appName+" Document")
-		logger.Log(fmt.Sprintf("Setting: HKEY_CURRENT_USER\\Software\\Classes\\%s\\FriendlyTypeName", htmlClass))
+		logger.Log(fmt.Sprintf("Setting: HKEY_CURRENT_USER\\Software\\Classes\\%s\\FriendlyTypeName", linkrouterClass))
 		html.SetStringValue("FriendlyTypeName", appName)
 
-		shellPath := `Software\Classes\` + htmlClass + `\shell\open\command`
+		shellPath := `Software\Classes\` + linkrouterClass + `\shell\open\command`
 		logger.Log(fmt.Sprintf("Creating: HKEY_CURRENT_USER\\%s", shellPath))
 		shell, _, err := registry.CreateKey(registry.CURRENT_USER, shellPath, registry.ALL_ACCESS)
 		if err != nil {
@@ -213,9 +213,9 @@ func UnregisterApp() error {
 		"Removing: HKEY_CURRENT_USER\\Software\\Clients\\StartMenuInternet\\" + appName)
 	registry.DeleteKey(registry.CURRENT_USER, `Software\Clients\StartMenuInternet\`+appName)
 
-	// Computer\HKEY_CURRENT_USER\Software\Classes\LinkRouterHTML
-	htmlClass := appName + "HTML"
-	htmlPath := `Software\Classes\` + htmlClass
+	// Computer\HKEY_CURRENT_USER\Software\Classes\LinkRouter
+	linkrouterClass := appName
+	htmlPath := `Software\Classes\` + linkrouterClass
 
 	logger.Log(
 		"Removing: HKEY_CURRENT_USER\\" + htmlPath + "\\shell\\open\\command")

@@ -15,7 +15,7 @@ Windows lets you choose a program to handle specific protocols, but there is no 
 
 ## 🚀 Quick Start
 
-1. **Download** [`linkrouter.exe`](https://github.com/kolbasky/link-router/releases/latest) 
+1. **Download** [`linkrouter.exe`](releases/latest) 
 2. **Open PowerShell or Command Prompt** in folder where `linkrouter.exe` is placed
 3. Run:
    ```powershell
@@ -76,12 +76,12 @@ Here's a sample config to get the idea. Notice, that all backslashes `\` have to
     {
       "regex": "mailto:(.*@company1\\.com)",
       "program": "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE",
-      "arguments": "/c ipm.note /profile \"work\" /m $1"
+      "arguments": "/c ipm.note /m $1"
     },
     {
       "regex": "mailto:(.*)",
-      "program": "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE",
-      "arguments": "/c ipm.note /profile \"personal\" /m $1"
+      "program": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "arguments": "https://mail.google.com/mail/?view=cm&fs=1&to=$1"
     }
   ]
 }
@@ -90,14 +90,17 @@ this config will make LinkRouter:
 - turn links like `https://store.steampowered.com/....` into `steam://openurl/https://store.steampowered.com/....` and open them in Steam.
 - opens links like `ssh://.*.company1.com` in openssh using key id_rsa_work
 - opens all other links like `ssh://.*` in openssh using key id_rsa_personal
-- opens links like `mailto:.*@company1.com` by opening "New email" window in outlook with `work` profile and prefilled recipient field.
-- opens all other links like `mailto:.*` by opening "New email" window in outlook with `personal` profile and prefilled recipient field.
+- opens links like `mailto:.*@company1.com` by opening "New email" window in outlook with prefilled recipient field.
+- opens all other links like `mailto:.*` in gmail in chrome.
 - links that don't match any rule will be opened in chrome browser.
 - do not write any logs
-> [!Note]
-> While LinkRouter works just fine without running as administrator, if a program from config is being run as admin, LinkRouter can't launch such program unless also launched with admin privileges. Go to linkrouter.exe properties - Compatibility and check "Run this programm as an administrator"
 
-Check more example rules in [linkrouter.json.example](https://github.com/kolbasky/LinkRouter/blob/main/linkrouter.json.example) in root of this repo. Maybe the app you need is already there.
+Tip: you can specify `explorer.exe` in program and pass link to it, if you want Windows to handle that link. i.e. passing steam:// link to explorer will open Steam, since Steam is registered in Windows as the default handler for that protocol.
+
+> [!Note]
+> While LinkRouter works just fine without running as an administrator, if a program from config is being run as admin, LinkRouter can't launch such program unless also launched with admin privileges. In this case go to `linkrouter.exe` `Properties` - `Compatibility` and check `Run this programm as an administrator`.
+
+Check more example rules in [linkrouter.json.example](linkrouter.json.example) in root of this repo. Maybe the app you need is already there.
 
 > [!Note]
 > Figuring out the correct command-line arguments/switches for third-party programs is **entirely the user’s responsibility**. LinkRouter only launches whatever you tell it to launch.
@@ -114,10 +117,11 @@ For testing regexes we recommend [this wonderful website](https://regex101.com/?
 > Because LinkRouter can execute arbitrary programs, only use rules you trust. Never download and run someone else’s linkrouter.json blindly — it could contain malicious commands. LinkRouter doesn't launch any programs except for those, specified in your config.
 
 ## 📦 Download
-See the [Releases page](https://github.com/kolbasky/link-router/releases/latest) for the latest linkrouter.exe.
+See the [Releases page](releases/latest) for the latest linkrouter.exe.
 
 ## 🛠️ Build from source
 ```
 git clone https://github.com/kolbasky/LinkRouter.git
+cd LinkRouter
 go build -ldflags="-H windowsgui -s -w" -trimpath -o bin\ .\cmd\linkrouter\
 ```
