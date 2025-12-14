@@ -61,14 +61,19 @@ func getDefaultBrowserPath() string {
 	// Step 3: Extract quoted executable
 	re := regexp.MustCompile(`^"([^"]+)"`)
 	matches := re.FindStringSubmatch(cmdLine)
-	if len(matches) > 1 {
+	if len(matches) > 1 && !utils.IsLinkRouter(matches[1]) {
 		return matches[1]
 	}
 
 	// Fallback: first token
 	parts := strings.Fields(cmdLine)
-	if len(parts) > 0 {
+	first_token := strings.ReplaceAll(parts[0], "\"", "")
+	if len(parts) > 0 && !utils.IsLinkRouter(first_token) {
 		return parts[0]
+	}
+
+	if utils.IsLinkRouter(first_token) || utils.IsLinkRouter(matches[1]) {
+		dialogs.ShowError("LinkRouter is already set as default browser. Trying to guess fallback browser.")
 	}
 
 	// if not found in registry - search known file locations
@@ -144,9 +149,15 @@ func DefaultConfig() *Config {
 			DefaultBrowserPath: browserPath,
 			DefaultBrowserArgs: "{URL}",
 			LogPath:            "",
-			SupportedProtocols: []string{"http://", "https://"},
+			SupportedProtocols: []string{"http", "https"},
 		},
-		Rules: []Rule{},
+		Rules: []Rule{
+			{
+				Regex:     `https://(.*)`,
+				Program:   browserPath,
+				Arguments: "{URL}",
+			},
+		},
 	}
 }
 
