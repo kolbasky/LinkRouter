@@ -194,7 +194,6 @@ func RegisterApp() error {
 }
 
 func UnregisterApp() error {
-	config.LoadConfig()
 	// Computer\HKEY_CURRENT_USER\Software\Clients\StartMenuInternet\LinkRouter
 	logger.Log("LinkRouter was launched with --unregister key")
 	logger.Log(

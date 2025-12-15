@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
 
 	"golang.org/x/sys/windows/registry"
 )
@@ -59,21 +58,15 @@ func getDefaultBrowserPath() string {
 	cmdLine, _, _ := cmdKey.GetStringValue("")
 
 	// Step 3: Extract quoted executable
-	re := regexp.MustCompile(`^"([^"]+)"`)
-	matches := re.FindStringSubmatch(cmdLine)
-	if len(matches) > 1 && !utils.IsLinkRouter(matches[1]) {
-		return matches[1]
-	}
-
-	// Fallback: first token
-	parts := strings.Fields(cmdLine)
-	first_token := strings.ReplaceAll(parts[0], "\"", "")
-	if len(parts) > 0 && !utils.IsLinkRouter(first_token) {
-		return parts[0]
-	}
-
-	if utils.IsLinkRouter(first_token) || utils.IsLinkRouter(matches[1]) {
-		dialogs.ShowError("LinkRouter is already set as default browser. Trying to guess fallback browser.")
+	if len(cmdLine) > 0 {
+		re := regexp.MustCompile(`^"([^"]+)"`)
+		matches := re.FindStringSubmatch(cmdLine)
+		if len(matches) > 1 && !utils.IsLinkRouter(matches[1]) {
+			return matches[1]
+		}
+		if utils.IsLinkRouter(matches[1]) {
+			dialogs.ShowError("LinkRouter is already set as default browser. Trying to guess fallback browser.")
+		}
 	}
 
 	// if not found in registry - search known file locations
@@ -120,21 +113,45 @@ func getDefaultBrowserPath() string {
 	return ""
 }
 
+func canWrite(path string) bool {
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		return false
+	}
+	f.Close()
+	os.Remove(path)
+	return true
+}
+
 func getConfigPath() string {
+	exe, _ := os.Executable()
+	exeDir := filepath.Dir(exe)
+	candidateExe := filepath.Join(exeDir, "linkrouter.json")
+
 	localAppData := os.Getenv("LOCALAPPDATA")
-	if localAppData != "" {
-		userConfig := filepath.Join(localAppData, "LinkRouter", "linkrouter.json")
-		if _, err := os.Stat(userConfig); err == nil {
-			return userConfig
-		}
-		userConfig = filepath.Join(localAppData, "linkrouter.json")
-		if _, err := os.Stat(userConfig); err == nil {
-			return userConfig
-		}
+	if localAppData == "" {
+		return candidateExe
+	}
+	candidateAppData := filepath.Join(localAppData, "LinkRouter", "linkrouter.json")
+
+	// Prefer AppData if exists
+	if _, err := os.Stat(candidateAppData); err == nil {
+		return candidateAppData
+	}
+	if _, err := os.Stat(candidateExe); err == nil {
+		return candidateExe
 	}
 
-	exe, _ := os.Executable()
-	return filepath.Join(filepath.Dir(exe), "linkrouter.json")
+	// No config exists exist. Try exedir first
+	// But may fail when in Program Files and without admin privs
+	testFile := filepath.Join(exeDir, "linkrouter_write_test.9a928eb3-bfa9-4736-a262-00274e36d973")
+	if canWrite(testFile) {
+		return candidateExe
+	}
+	// Use localappdata then
+	dialogs.ShowError("Unable to create config next to exe file. Config will be created in " + candidateAppData)
+	os.MkdirAll(filepath.Dir(candidateAppData), 0755)
+	return candidateAppData
 }
 
 func DefaultConfig() *Config {
