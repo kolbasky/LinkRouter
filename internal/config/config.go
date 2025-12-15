@@ -39,6 +39,7 @@ type Rule struct {
 func getDefaultBrowserPath() string {
 	// try to get default browser from registry
 	// Step 1: Get ProgId from UserChoice for .html
+	logger.Log("Trying to get default system browser.")
 	userChoiceKey, err := registry.OpenKey(registry.CURRENT_USER,
 		`Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice`,
 		registry.READ)
@@ -48,7 +49,7 @@ func getDefaultBrowserPath() string {
 	err = nil
 
 	progId, _, _ := userChoiceKey.GetStringValue("Progid")
-
+	logger.Log("Got browser progid from registry: " + progId)
 	// Step 2: Get command from HKCR\<ProgId>\shell\open\command
 	cmdKey, err := registry.OpenKey(registry.CLASSES_ROOT, progId+`\shell\open\command`, registry.READ)
 	if err == nil {
@@ -56,15 +57,17 @@ func getDefaultBrowserPath() string {
 	}
 
 	cmdLine, _, _ := cmdKey.GetStringValue("")
-
+	logger.Log("Got cmdline from registry: " + cmdLine)
 	// Step 3: Extract quoted executable
 	if len(cmdLine) > 0 {
 		re := regexp.MustCompile(`^"([^"]+)"`)
 		matches := re.FindStringSubmatch(cmdLine)
 		if len(matches) > 1 && !utils.IsLinkRouter(matches[1]) {
+			logger.Log("Found " + matches[1])
 			return matches[1]
 		}
 		if utils.IsLinkRouter(matches[1]) {
+			logger.Log("LinkRouter is already set as default browser. Trying to guess fallback browser.")
 			dialogs.ShowError("LinkRouter is already set as default browser. Trying to guess fallback browser.")
 		}
 	}
@@ -106,7 +109,9 @@ func getDefaultBrowserPath() string {
 	}
 	for _, path := range fallback_candidates {
 		if _, err := os.Stat(os.ExpandEnv(path)); err == nil {
-			return os.ExpandEnv(path)
+			defaultBrowser := os.ExpandEnv(path)
+			logger.Log("Found " + defaultBrowser)
+			return defaultBrowser
 		}
 	}
 
@@ -203,7 +208,8 @@ func LoadConfig() (*Config, error) {
 	}
 
 	if utils.IsLinkRouter(cfg.Global.FallbackBrowserPath) {
-		dialogs.ShowError("fallback browser is set to LinkRouter itself.\nusing fallback")
+		dialogs.ShowError("Fallback browser is set to LinkRouter itself.\nTrying to guess fallback browser.")
+		logger.Log("Error: Fallback browser is set to LinkRouter itself. Trying to guess fallback browser.")
 		cfg.Global.FallbackBrowserPath = getDefaultBrowserPath()
 	}
 
