@@ -1,15 +1,16 @@
-# ![LinkRouter icon](resources/icon/48.png?raw=true) LinkRouter 
+# ![LinkRouter icon](resources/icon/48.png?raw=true) LinkRouter
 
 A lightweight portable Windows app that routes links to specific applications based on **regex rules**.
 
 Windows lets you choose a program to handle specific protocols, but there is no way to choose an app based on link contents. This app aims to fill that gap and suits power users who want **total control** over how links open on their machine.
 
-- ✅ Open links like `https://store.steampowered.com/…`, `https://music.yandex.ru/…` etc. directly in their native apps  
-- ✅ Route different domains to different browsers, browser profiles, or open them in incognito/private mode  
-- ✅ Add custom regex rules for **any app** and **any protocol**  
-- ✅ Use capture groups to reformat the URL any way you want  
-- ✅ All unhandled links fall back to your default browser (unchanged behavior)  
-- ✅ **No installer**, **no telemetry**, **no network access whatsoever**  
+- ✅ Open links like `https://store.steampowered.com/…`, `https://music.yandex.ru/…` etc. directly in their native apps (Steam, Discord, Spotify, YaMusic etc)
+- ✅ Route different domains to different browsers, browser profiles, or open them in incognito/private mode
+- ✅ Open mailto and ssh links from different companies in different apps or with different args
+- ✅ Add custom regex rules for **any app** and **any protocol**
+- ✅ Use capture groups to reformat the URL any way you want
+- ✅ All unhandled links fall back to your default browser (unchanged behavior)
+- ✅ **No installer**, **no telemetry**, **no network access**
 - ✅ Tiny, fast, single .exe
 - ✅ Zero memory footprint - fire and exit.
 
@@ -18,7 +19,7 @@ Windows lets you choose a program to handle specific protocols, but there is no 
 
 ## 🚀 Quick Start
 
-1. **Download** [`linkrouter.exe`](https://github.com/kolbasky/link-router/releases/latest) 
+1. **Download** [`linkrouter.exe`](https://github.com/kolbasky/link-router/releases/latest)
 2. **Open PowerShell or Command Prompt** in folder where `linkrouter.exe` is placed
 3. Run:
    ```powershell
@@ -109,7 +110,7 @@ Check more example rules in [linkrouter.example.json](linkrouter.example.json) i
 
 > [!Note]
 > Figuring out the correct command-line arguments/switches for third-party programs is **entirely the user’s responsibility**. LinkRouter only launches whatever you tell it to launch.
-For testing regexes we recommend [this wonderful website](https://regex101.com/?flavor=golang) (choose the Golang flavor).
+For testing regexes we recommend enabling logging via `global.logPath` or using [this wonderful website](https://regex101.com/?flavor=golang) (choose the Golang flavor).
 
 ## 🔒 Privacy & Security
 - Zero network access
@@ -125,8 +126,13 @@ For testing regexes we recommend [this wonderful website](https://regex101.com/?
 See the [Releases page](https://github.com/kolbasky/link-router/releases/latest) for the latest linkrouter.exe.
 
 ## 🛠️ Build from source
+For building you'll need to install Go and MinGW-w64 (needed for gcc compiler).
+
 ```
 git clone https://github.com/kolbasky/LinkRouter.git
 cd LinkRouter
+# this step is optional, to embed icon, manifest and metadata
+go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo@latest
+go generate .\cmd\linkrouter\
 go build -ldflags="-H windowsgui -s -w" -trimpath -o bin\ .\cmd\linkrouter\
 ```
