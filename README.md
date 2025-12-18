@@ -102,7 +102,7 @@ Tip: you can specify `explorer.exe` in program and pass link to it, if you want 
 > [!Note]
 > While LinkRouter works just fine without running as an administrator, if a program from config is being run as admin, LinkRouter can't launch such program unless also launched with admin privileges. In this case go to `linkrouter.exe` `Properties` - `Compatibility` and check `Run this programm as an administrator`.
 
-Check more example rules in [linkrouter.json.example](linkrouter.json.example) in root of this repo. Maybe the app you need is already there.
+Check more example rules in [linkrouter.example.json](linkrouter.example.json) in root of this repo. Maybe the app you need is already there.
 
 > [!Note]
 > Figuring out the correct command-line arguments/switches for third-party programs is **entirely the user’s responsibility**. LinkRouter only launches whatever you tell it to launch.

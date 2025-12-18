@@ -1,0 +1,83 @@
+// JSON does not allow comments we keep it here for simplicity
+// Remove lines starting with // when composing a real config
+// Also note that JOSN requires all backslashes to be escaped (basically, doubled). Like so \\
+{
+  "global": {
+    // full path to browser which will be used as a fallback one. i.e. when URL doesn't match any rule
+    "fallbackBrowserPath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    // arguments for fallback browser. these do not support any captured groups
+    "fallbackBrowserArgs": "{URL}",
+    // path to logfile. relative to exe file or absolute. logging is desabled when empty ""
+    // it can be useful for troublshooting new rules. pls attach logs when submitting an issue
+    "logPath": "",
+    // list of handlers that we decalre support of. if changed --register should be run again
+    "supportedProtocols": [
+      "http",
+      "https",
+      "ssh",
+      "mailto"
+    ]
+  },
+  // rules:
+  //  Each rule has three fields:
+  //    regex
+  //      Go-flavored regular expression. Supports capturing groups
+  //    program
+  //      path to executable that will be launched when rule matches.
+  //    arguments
+  //      string of arguments that will be passed to program.
+  //      {URL} will be replaced with full URL
+  //      contents of captured groups  may also be referenced here: $1, $2 ...
+  //  Rules are processed in order processing stops on first match.
+  "rules": [
+    // Yandex music desktop app
+    {
+      "regex": "https://music\\.yandex\\.(ru|com)/album/(\\d+)/track/(\\d+).*",
+      "program": "C:\\Windows\\explorer.exe",
+      "arguments": "yandexmusic://album/$2/track/$3"
+    },
+    {
+      "regex": "https://music\\.yandex\\.(ru|com)/album/(\\d+).*",
+      "program": "C:\\Windows\\explorer.exe",
+      "arguments": "yandexmusic://album/$2"
+    },
+    // Open steam urls in steam. Note, a url may be passed to explorer to let windows handle the link
+    // system env vars may be used for better config portability
+    {
+      "regex": "https://store.steampowered.com.*",
+      "program": "%SYSTEMROOT%\\explorer.exe",
+      "arguments": "steam://openurl/{URL}"
+    },
+    // open ssh:// links with hosts from company1 in a new window of tmux inside wsl
+    {
+      "regex": "ssh://.*@company1.com/",
+      "program": "%SYSTEMROOT%\\System32\\wsl.exe",
+      "arguments": "tmux new-window -t 0: -n ssh \"ssh $1\""
+    },
+    // open all other ssh:// links in windows ssh client
+    // it is always a good idea to catch "all others" for certaion protocol
+    {
+      "regex": "ssh://(.*)/",
+      "program": "%SYSTEMROOT%\\System32\\OpenSSH\\ssh.exe",
+      "arguments": "user@$1"
+    },
+    // open mailto links from company1 or company2 in outlook "new mail" window
+    {
+      "regex": "mailto:.*@(company1|company2).(com|org)",
+      "program": "%ProgramFiles%\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE",
+      "arguments": "/c ipm.note /m $1"
+    },
+    // open all other mailto links in chrome in gmail web interface
+    {
+      "regex": "mailto:(.*)",
+      "program": "%ProgramFiles%\\Google\\Chrome\\Application\\chrome.exe",
+      "arguments": "https://mail.google.com/mail/?view=cm&fs=1&to=$1"
+    },
+    // open http links to domain.com in incognito mode in chrome
+    {
+      "regex": "http[s]?://.*domain\\.com.*",
+      "program": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "arguments": "--incognito {URL}"
+    }
+  ]
+}
