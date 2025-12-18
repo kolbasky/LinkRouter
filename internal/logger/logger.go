@@ -22,6 +22,13 @@ func Init(logPath string) error {
 	re := regexp.MustCompile(`%([_a-zA-Z][_a-zA-Z0-9\-]*)%`)
 	converted := re.ReplaceAllString(logPath, `$${$1}`)
 	logPath = os.ExpandEnv(converted)
+
+	if !filepath.IsAbs(logPath) {
+		exe, _ := os.Executable()
+		exeDir := filepath.Dir(exe)
+		logPath = filepath.Join(exeDir, logPath)
+	}
+
 	dir := filepath.Dir(logPath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
