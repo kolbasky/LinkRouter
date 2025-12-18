@@ -1,13 +1,13 @@
 // JSON does not allow comments we keep it here for simplicity
 // Remove lines starting with // when composing a real config
-// Also note that JOSN requires all backslashes to be escaped (basically, doubled). Like so \\
+// Also note that JSON requires all backslashes to be escaped (basically, doubled). Like so \\
 {
   "global": {
     // full path to browser which will be used as a fallback one. i.e. when URL doesn't match any rule
     "fallbackBrowserPath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
     // arguments for fallback browser. these do not support any captured groups
     "fallbackBrowserArgs": "{URL}",
-    // path to logfile. relative to exe file or absolute. logging is desabled when empty ""
+    // path to logfile. relative to exe file or absolute. logging is disabled when empty ""
     // it can be useful for troublshooting new rules. pls attach logs when submitting an issue
     "logPath": "",
     // list of handlers that we decalre support of. if changed --register should be run again
@@ -27,8 +27,8 @@
   //    arguments
   //      string of arguments that will be passed to program.
   //      {URL} will be replaced with full URL
-  //      contents of captured groups  may also be referenced here: $1, $2 ...
-  //  Rules are processed in order processing stops on first match.
+  //      contents of captured groups may also be referenced here: $1, $2 ...
+  //  Rules are processed in order, processing stops on the first match.
   "rules": [
     // Yandex music desktop app
     {
@@ -75,7 +75,7 @@
     },
     // open http links to domain.com in incognito mode in chrome
     {
-      "regex": "http[s]?://.*domain\\.com.*",
+      "regex": "https?://.*domain\\.com.*",
       "program": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
       "arguments": "--incognito {URL}"
     }
