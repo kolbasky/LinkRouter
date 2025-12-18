@@ -13,6 +13,9 @@ Windows lets you choose a program to handle specific protocols, but there is no 
 - ✅ Tiny, fast, single .exe
 - ✅ Zero memory footprint - fire and exit.
 
+> [!WARNING]
+> There are some false-positives on VirusTotal for this program: [3 out of 72 AVs mark this file suspicious](https://www.virustotal.com/gui/file/a2cb8889cfe9ba54d0e8f9ad629e6c3ff00101efca6d58641161c33af65e0523?nocache=1). We can do nothing about it at the moment without sacrificing functionality. If the project lives we will try code signing and contacting AV vendors.
+
 ## 🚀 Quick Start
 
 1. **Download** [`linkrouter.exe`](https://github.com/kolbasky/link-router/releases/latest) 
