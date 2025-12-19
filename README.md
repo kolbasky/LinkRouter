@@ -70,9 +70,9 @@ Here's a sample config to get the idea. Notice, that all backslashes `\` have to
       "arguments": "steam://openurl/{URL}"
     },
     {
-      "regex": "ssh://(.*@company1\\.com)/",
-      "program": "C:\\Windows\\System32\\OpenSSH\\ssh.exe",
-      "arguments": "-i .ssh/id_rsa_work user1@$1"
+      "regex": "ssh://(.*@company1\\.com).*",
+      "program": "C:\\Windows\\System32\\wsl.exe",
+      "arguments": "ssh $1"
     },
     {
       "regex": "ssh://(.*)/",
@@ -94,8 +94,8 @@ Here's a sample config to get the idea. Notice, that all backslashes `\` have to
 ```
 this config will make LinkRouter:
 - turn links like `https://store.steampowered.com/....` into `steam://openurl/https://store.steampowered.com/....` and open them in Steam.
-- opens links like `ssh://.*.company1.com` in openssh using key id_rsa_work
-- opens all other links like `ssh://.*` in openssh using key id_rsa_personal
+- opens links like `ssh://.*.company1.com` in wsl in ssh
+- opens all other links like `ssh://.*` in windows openssh using key id_rsa_personal
 - opens links like `mailto:.*@company1.com` by opening "New email" window in outlook with prefilled recipient field.
 - opens all other links like `mailto:.*` in gmail in chrome.
 - links that don't match any rule will be opened in chrome browser.
