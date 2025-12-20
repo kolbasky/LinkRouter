@@ -35,14 +35,16 @@ Windows lets you choose a program to handle specific protocols, but there is no 
 > - Help with LinkRouter
 
 ## 💻 Command line usage
+```
 linkrouter.exe
-  `no parameters` - asks to registration if not registered. If registered - runs `--edit`
-  `--register` - register app in system (also available via right-click menu)
-  `--unregister` - unregister app in system (also available via right-click menu)
-  `--edit` - open `linkrouter.json` in `global.defaultConfigEditor` (also available via right-click menu)
-  `--help` - open the online README.md from this repo in `global.fallbackBrowserPath` (also available via right-click menu)
-  `--version` - show dialog window with version number
-  any other parameter is treated as a link and is matched against Rule-list or opened in `global.fallbackBrowserPath`
+  no parameters - asks to register if not registered. If registered - runs --edit
+  --register - register app in system (also available via right-click menu)
+  --unregister - unregister app in system (also available via right-click menu)
+  --edit - open linkrouter.json in global.defaultConfigEditor (also available via right-click menu)
+  --help - open the online README.md from this repo in global.fallbackBrowserPath (also available via right-click menu)
+  --version - show dialog window with version number
+  any parameter not starting with -- is treated as a link and is matched against Rule-list or opened in global.fallbackBrowserPath
+```
 
 ## ⚙️ Configuration
 The app auto-creates `linkrouter.json` next to executable on its first launch and tries to detect your current default browser to use as the fallback one. If it fails, it tries to guess one from a list of known popular browsers locations.
