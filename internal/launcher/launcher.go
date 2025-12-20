@@ -23,13 +23,14 @@ func HandleNoArgs() {
 		os.Exit(1)
 	}
 
-	logger.Log("Handling URL: None")
+	url := "https://github.com/kolbasky/LinkRouter/blob/main/README.md#-quick-start"
+	logger.Log("Handling URL: " + url)
 	if cfg.Global.FallbackBrowserPath != "" {
 		argsTemplate := cfg.Global.FallbackBrowserArgs
 		if !strings.Contains(argsTemplate, "{URL}") {
 			argsTemplate += " {URL}"
 		}
-		launchApp(cfg.Global.FallbackBrowserPath, argsTemplate, "")
+		launchApp(cfg.Global.FallbackBrowserPath, argsTemplate, url)
 	} else {
 		logger.Log("Error: fallbackBrowserPath in linkrouter.json is empty")
 		dialogs.ShowError("fallbackBrowserPath in linkrouter.json is empty")
