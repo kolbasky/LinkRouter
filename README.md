@@ -28,7 +28,7 @@ Windows lets you choose a program to handle specific protocols, but there is no 
 
 > [!NOTE]
 > When registered, double-clicking `linkrouter.exe` opens the config for editing.
-> Additional right-click menu entries are available on `linkrouter.exe` for you convenience after registration:
+> Additional right-click menu entries are available on `linkrouter.exe` for you convenience after registration (may be hidden inside "show more options"):
 > - Register LinkRouter
 > - Unregister LinkRouter
 > - Edit LinkRouter config
@@ -61,7 +61,7 @@ Links that do not match any rule are passed to `global.fallbackBrowserPath` with
 
 You can handle any protocol (mailto, ssh, steam, spotify, etc.). Just add the protocol to `global.supportedProtocols` and re-run `--register`.<br>
 You can set `global.logPath` to enable logging. Path may be absolute or relative. Leave empty to disable (default). It is very helpful when composing new rules, since you can see captured groups, arguments and resulting commandline.<br>
-In `global.defaultConfigEditor` parameter you can specify path to you preferred text-editor. It will be used to open `linkrouter.json` when double-clicking `linkrouter.exe` or when selecting `Edit LinkRouter config` in right-click menu of executable. If empty - an attempt to find any known text-editor in PATH is made.<br>
+In `global.defaultConfigEditor` parameter you can specify path to you preferred text-editor. It will be used to open `linkrouter.json` when double-clicking `linkrouter.exe` or when selecting `Edit LinkRouter config` in right-click menu of executable (may be hidden inside "show more options"). If empty - an attempt to find any known text-editor in PATH is made.<br>
 
 Here's a sample config to get the idea. Notice, that all backslashes `\` have to be escaped like this `\\` in JSON.
 

@@ -269,9 +269,13 @@ func RegisterApp() error {
 		return criticalError
 	}
 
+	cfg, err := config.LoadConfig()
+	configPath := config.GetConfigPath()
+	cfg.Save(configPath)
+
 	dialogs.ShowMessageBox(
 		"LinkRouter registration",
-		"Registration sucessfull.\nYou can now right-click exe file for more actions.",
+		"Registration sucessfull!\nYou can now right-click exe file for more actions.",
 		0x00000040)
 	logger.Log("Registration completed successfully")
 	return nil
