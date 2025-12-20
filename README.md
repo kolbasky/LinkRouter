@@ -15,7 +15,7 @@ Windows lets you choose a program to handle specific protocols, but there is no 
 - ✅ Zero memory footprint - fire and exit.
 
 > [!WARNING]
-> There are some false-positives on VirusTotal for this program: [3 out of 72 AVs mark this file suspicious](https://www.virustotal.com/gui/file/a2cb8889cfe9ba54d0e8f9ad629e6c3ff00101efca6d58641161c33af65e0523?nocache=1). We can do nothing about it at the moment without sacrificing functionality. If the project lives we will try code signing and contacting AV vendors.
+> There are some false-positives on VirusTotal for this program: [3 out of 72 AVs mark this file suspicious](https://www.virustotal.com/gui/file/22e1ce428e06fce8556077a719db7830c7b32627d7face91b5c59e28d6c9a18e). We can do nothing about it at the moment without sacrificing functionality. If the project lives we will try code signing and contacting AV vendors.
 
 ## 🚀 Quick Start
 
@@ -129,10 +129,15 @@ See the [Releases page](https://github.com/kolbasky/link-router/releases/latest)
 For building you'll need to install Go and MinGW-w64 (needed for gcc compiler).
 
 ```
+# clone
 git clone https://github.com/kolbasky/LinkRouter.git
 cd LinkRouter
-# this step is optional, to embed icon, manifest and metadata
+
+# this steps are optional, to embed icon, manifest and metadata.
+# note, that recursive launch protection will not work without proper metadata.
 go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo@latest
 go generate .\cmd\linkrouter\
+
+# build
 go build -ldflags="-H windowsgui -s -w" -trimpath -o bin\ .\cmd\linkrouter\
 ```
