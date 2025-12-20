@@ -17,23 +17,73 @@ import (
 )
 
 func HandleNoArgs() {
-	cfg, err := config.LoadConfig()
-	if err != nil {
-		dialogs.ShowError("failed to load config:\n" + err.Error())
-		os.Exit(1)
+	if !registry.IsRegistered() {
+		result := dialogs.ShowMessageBox(
+			"LinkRouter Setup",
+			"LinkRouter is not properly registered in your system.\n\nWould you like to register it now?",
+			0x00000024,
+		)
+		if result == 6 {
+			registry.RegisterApp()
+		}
+	} else {
+		EditConfig()
+		// cfg, err := config.LoadConfig()
+		// if err != nil {
+		// 	dialogs.ShowError("failed to load config:\n" + err.Error())
+		// 	os.Exit(1)
+		// }
+
+		// url := ""
+		// logger.Log("Handling URL: " + url)
+		// if cfg.Global.FallbackBrowserPath != "" {
+		// 	argsTemplate := cfg.Global.FallbackBrowserArgs
+		// 	if !strings.Contains(argsTemplate, "{URL}") {
+		// 		argsTemplate += " {URL}"
+		// 	}
+		// 	launchApp(cfg.Global.FallbackBrowserPath, argsTemplate, url)
+		// } else {
+		// 	logger.Log("Error: fallbackBrowserPath in linkrouter.json is empty")
+		// 	dialogs.ShowError("fallbackBrowserPath in linkrouter.json is empty")
+		// }
+	}
+	os.Exit(0)
+}
+
+func EditConfig() {
+	cfg, _ := config.LoadConfig()
+	editor := cfg.Global.DefaultConfigEditor
+
+	if editor == "" {
+		for _, e := range []string{
+			"code.exe",
+			"subl.exe",
+			"atom.exe",
+			"webstorm.exe",
+			"phpstorm.exe",
+			"pycharm.exe",
+			"idea64.exe",
+			"notepad++.exe",
+			"notepad2.exe",
+			"notepad3.exe",
+			"notepad.exe",
+		} {
+			if path, err := exec.LookPath(e); err == nil {
+				editor = path
+				break
+			}
+		}
+		if editor == "" {
+			editor = "notepad.exe"
+		}
 	}
 
-	url := "https://github.com/kolbasky/LinkRouter/blob/main/README.md#-quick-start"
-	logger.Log("Handling URL: " + url)
-	if cfg.Global.FallbackBrowserPath != "" {
-		argsTemplate := cfg.Global.FallbackBrowserArgs
-		if !strings.Contains(argsTemplate, "{URL}") {
-			argsTemplate += " {URL}"
-		}
-		launchApp(cfg.Global.FallbackBrowserPath, argsTemplate, url)
-	} else {
-		logger.Log("Error: fallbackBrowserPath in linkrouter.json is empty")
-		dialogs.ShowError("fallbackBrowserPath in linkrouter.json is empty")
+	configPath := config.GetConfigPath()
+	err := exec.Command(editor, configPath).Start()
+	if err != nil {
+		dialogs.ShowError("Failed to find any known text editor in PATH.\n" +
+			"Your config is at " + configPath + "\n" +
+			"Set global.defaultConfigEditor manually.")
 	}
 	os.Exit(0)
 }

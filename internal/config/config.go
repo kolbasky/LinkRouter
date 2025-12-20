@@ -25,6 +25,7 @@ type Config struct {
 type GlobalConfig struct {
 	FallbackBrowserPath string   `json:"fallbackBrowserPath"`
 	FallbackBrowserArgs string   `json:"fallbackBrowserArgs"`
+	DefaultConfigEditor string   `json:"defaultConfigEditor"`
 	LogPath             string   `json:"logPath"`
 	SupportedProtocols  []string `json:"supportedProtocols"`
 }
@@ -128,7 +129,7 @@ func canWrite(path string) bool {
 	return true
 }
 
-func getConfigPath() string {
+func GetConfigPath() string {
 	exe, _ := os.Executable()
 	exeDir := filepath.Dir(exe)
 	candidateExe := filepath.Join(exeDir, "linkrouter.json")
@@ -170,6 +171,7 @@ func DefaultConfig() *Config {
 		Global: GlobalConfig{
 			FallbackBrowserPath: browserPath,
 			FallbackBrowserArgs: "{URL}",
+			DefaultConfigEditor: "",
 			LogPath:             "",
 			SupportedProtocols:  []string{"http", "https"},
 		},
@@ -184,7 +186,7 @@ func DefaultConfig() *Config {
 }
 
 func LoadConfig() (*Config, error) {
-	configPath := getConfigPath()
+	configPath := GetConfigPath()
 
 	data, err := os.ReadFile(configPath)
 	if os.IsNotExist(err) {

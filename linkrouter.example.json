@@ -7,6 +7,10 @@
     "fallbackBrowserPath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
     // arguments for fallback browser. these do not support any captured groups
     "fallbackBrowserArgs": "{URL}",
+    // path to default config editor
+    // needed only if you use "Edit Linkrouter config" via right-click menu or --edit argument
+    // if empty we look up known editors in PATH
+    "defaultConfigEditor": "C:\\Program Files\\Microsoft VS Code\\Code.exe",
     // path to logfile. relative to exe file or absolute. logging is disabled when empty ""
     // it can be useful for troublshooting new rules. pls attach logs when submitting an issue
     "logPath": "",

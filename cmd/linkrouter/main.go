@@ -15,6 +15,7 @@ func main() {
 	unregister := flag.Bool("unregister", false, "Unregister ourself in registry")
 	help := flag.Bool("help", false, "Show help message")
 	version := flag.Bool("version", false, "Show version")
+	edit := flag.Bool("edit", false, "Edit config")
 	flag.Parse()
 
 	args := flag.Args()
@@ -25,7 +26,12 @@ func main() {
 	}
 
 	if *version {
-		dialogs.ShowMessageBox("LinkRouter", "version 1.1.0", 0x00000040)
+		dialogs.ShowMessageBox("LinkRouter", "version 2.0.0", 0x00000040)
+		return
+	}
+
+	if *edit {
+		launcher.EditConfig()
 		return
 	}
 

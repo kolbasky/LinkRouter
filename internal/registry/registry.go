@@ -7,6 +7,7 @@ import (
 	"linkrouter/internal/logger"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -17,6 +18,40 @@ import (
 
 const appName = "LinkRouter"
 const appDescription = "regex-based router for links"
+
+func IsRegistered() bool {
+	currentExe, err := os.Executable()
+	if err != nil {
+		return false
+	}
+	currentExe = filepath.Clean(currentExe)
+
+	cmdKey, err := registry.OpenKey(
+		registry.CURRENT_USER,
+		`Software\Classes\`+appName+`\shell\open\command`,
+		registry.READ,
+	)
+	if err != nil {
+		return false
+	}
+	defer cmdKey.Close()
+
+	// Get command line: `"C:\path\linkrouter.exe" "%1"`
+	cmdLine, _, err := cmdKey.GetStringValue("")
+	if err != nil {
+		return false
+	}
+
+	// Extract quoted executable path
+	re := regexp.MustCompile(`^"([^"]+)"`)
+	matches := re.FindStringSubmatch(cmdLine)
+	if len(matches) < 2 {
+		return false
+	}
+	registeredExe := filepath.Clean(matches[1])
+
+	return strings.EqualFold(currentExe, registeredExe)
+}
 
 func getExePath() string {
 	exe, _ := os.Executable()
@@ -89,6 +124,8 @@ func RegisterApp() error {
 		logger.Log(criticalError.Error())
 		err = nil
 	} else {
+		logger.Log(fmt.Sprintf("Setting: HKEY_CURRENT_USER\\%s\\FriendlyAppName", capPath))
+		cap.SetStringValue("FriendlyAppName", appName)
 		logger.Log(fmt.Sprintf("Setting: HKEY_CURRENT_USER\\%s\\ApplicationName", capPath))
 		cap.SetStringValue("ApplicationName", appName)
 		logger.Log(fmt.Sprintf("Setting: HKEY_CURRENT_USER\\%s\\ApplicationIcon", capPath))
@@ -168,6 +205,49 @@ func RegisterApp() error {
 		html.Close()
 	}
 
+	exeName := filepath.Base(exePath)
+
+	// adding right-click menu entry for our exe
+	shellPath := `Software\Classes\exefile\shell`
+	createVerb := func(verbName, displayName, argument string) {
+		logger.Log(
+			"Creating: HKEY_CURRENT_USER\\" + shellPath + `\` + verbName)
+		verbKey, _, err := registry.CreateKey(registry.CURRENT_USER, shellPath+`\`+verbName, registry.ALL_ACCESS)
+		if err != nil {
+			criticalError = fmt.Errorf("failed to create registry key: %w", err)
+			logger.Log("failed to create registry key: " + err.Error())
+			err = nil
+		}
+		logger.Log(
+			"Setting: HKEY_CURRENT_USER\\" + shellPath + `\` + verbName + `\(Default)`)
+		verbKey.SetStringValue("", displayName)
+		logger.Log(
+			"Setting: HKEY_CURRENT_USER\\" + shellPath + `\` + verbName + `\AppliesTo`)
+		verbKey.SetStringValue("AppliesTo", `System.ItemName:"`+exeName+`"`)
+		logger.Log(
+			"Setting: HKEY_CURRENT_USER\\" + shellPath + `\` + verbName + `\Icon`)
+		verbKey.SetStringValue("Icon", exePath+",0")
+
+		logger.Log(
+			"Creating: HKEY_CURRENT_USER\\" + shellPath + `\` + verbName + `\command`)
+		cmdKey, _, err := registry.CreateKey(verbKey, `command`, registry.ALL_ACCESS)
+		if err != nil {
+			criticalError = fmt.Errorf("failed to create registry key: %w", err)
+			logger.Log("failed to create registry key: " + err.Error())
+			err = nil
+		}
+		logger.Log(
+			"Setting: HKEY_CURRENT_USER\\" + shellPath + `\` + verbName + `\command\(Default)`)
+		cmdKey.SetStringValue("", `"`+exePath+`" `+argument)
+		cmdKey.Close()
+		verbKey.Close()
+	}
+
+	createVerb("linkrouter_register", "Register LinkRouter", "--register")
+	createVerb("linkrouter_unregister", "Unregister LinkRouter", "--unregister")
+	createVerb("linkrouter_help", "Help with LinkRouter", "--help")
+	createVerb("linkrouter_edit", "Edit LinkRouter config", "--edit")
+
 	program := `${SYSTEMROOT}\explorer.exe`
 	args := "ms-settings:defaultapps?registeredAppUser=LinkRouter"
 	fullCmdLine := strconv.Quote(os.ExpandEnv(program)) + " " + strconv.Quote(args)
@@ -189,6 +269,10 @@ func RegisterApp() error {
 		return criticalError
 	}
 
+	dialogs.ShowMessageBox(
+		"LinkRouter registration",
+		"Registration sucessfull.\nYou can now right-click exe file for more actions.",
+		0x00000040)
 	logger.Log("Registration completed successfully")
 	return nil
 }
@@ -237,6 +321,22 @@ func UnregisterApp() error {
 		regAppsKey.DeleteValue(appName)
 		regAppsKey.Close()
 	}
+
+	// right-click menu entries Computer\HKEY_CURRENT_USER\Software\Classes\exefile\shell
+	deleteVerb := func(verbName string) {
+		verbPath := `Software\Classes\exefile\shell\` + verbName
+		logger.Log(
+			"Removing: HKEY_CURRENT_USER\\" + verbPath + `\command`)
+		registry.DeleteKey(registry.CURRENT_USER, verbPath+`\command`)
+		logger.Log(
+			"Removing: HKEY_CURRENT_USER\\" + verbPath)
+		registry.DeleteKey(registry.CURRENT_USER, verbPath)
+	}
+
+	deleteVerb("linkrouter_register")
+	deleteVerb("linkrouter_unregister")
+	deleteVerb("linkrouter_help")
+	deleteVerb("linkrouter_edit")
 
 	return nil
 }

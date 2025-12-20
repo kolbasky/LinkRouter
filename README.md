@@ -20,22 +20,36 @@ Windows lets you choose a program to handle specific protocols, but there is no 
 ## 🚀 Quick Start
 
 1. **Download** [`linkrouter.exe`](https://github.com/kolbasky/link-router/releases/latest)
-2. **Open PowerShell or Command Prompt** in folder where `linkrouter.exe` is placed
-3. Run:
-   ```powershell
-   .\linkrouter.exe --register
-   ```
-   this will create registry keys, necessary for setting LinkRouter as a browser. Use `--unregister` to remove the registry entries later.
-4. Go to `Windows Settings` → `Apps` → `Default apps` and **select LinkRouter as the default handler for HTTP, HTTPS, or any other protocols** you want it to handle. You only need to do this once; LinkRouter will then intercept links for those protocols.
-5. **Edit the config** next to executable and add your rules (see example below).
-6. **Optionally**, move config to `%LOCALAPPDATA%\LinkRouter\linkrouter.json`
+2. Place `linkrouter.exe` where you want and **run it** by double-clicking.
+3. Select "Yes" in dialog to register the app in the system.
+4. `Windows Settings` → `Apps` → `Default apps` dialog should pop-up automatically. If not press `Win+I` and start typing "default".
+5. **select LinkRouter as the default handler for HTTP, HTTPS, or any other protocols** you want it to handle.
+6. **Edit the config** by double-clicking `linkrouter.exe` again.
 
+> [!NOTE]
+> When registered, double-clicking `linkrouter.exe` opens the config for editing.
+> Additional right-click menu entries are available on `linkrouter.exe` for you convenience after registration:
+> - Register LinkRouter
+> - Unregister LinkRouter
+> - Edit LinkRouter config
+> - Help with LinkRouter
+
+## 💻 Command line usage
+linkrouter.exe
+  `no parameters` - asks to registration if not registered. If registered - runs `--edit`
+  `--register` - register app in system (also available via right-click menu)
+  `--unregister` - unregister app in system (also available via right-click menu)
+  `--edit` - open `linkrouter.json` in `global.defaultConfigEditor` (also available via right-click menu)
+  `--help` - open the online README.md from this repo in `global.fallbackBrowserPath` (also available via right-click menu)
+  `--version` - show dialog window with version number
+  any other parameter is treated as a link and is matched against Rule-list or opened in `global.fallbackBrowserPath`
 
 ## ⚙️ Configuration
-The app auto-creates `linkrouter.json` next to executable on its first launch and tries to detect your current default browser to use as the fallback one. If it fails, it tries to guess one from a list of know popular browsers locations.
-User may store config in one of these places (searched in this order):
-  - %LOCALAPPDATA%\LinkRouter\linkrouter.json
-  - .\linkrouter.json
+The app auto-creates `linkrouter.json` next to executable on its first launch and tries to detect your current default browser to use as the fallback one. If it fails, it tries to guess one from a list of known popular browsers locations.
+When loading config, LinkRouter checks:
+- `%LOCALAPPDATA%\LinkRouter\linkrouter.json`
+- `linkrouter.json` in the same folder as the executable
+When creating a new config, it tries to create it next to the executable first. If that fails (e.g., in Program Files without admin rights), it falls back to `%LOCALAPPDATA%\LinkRouter\linkrouter.json`.
 
 Every link passed to LinkRouter is tested against the rules in order. The first matching rule wins.
 
@@ -46,7 +60,8 @@ Every link passed to LinkRouter is tested against the rules in order. The first 
 Links that do not match any rule are passed to `global.fallbackBrowserPath` with `global.fallbackBrowserArgs` as arguments.
 
 You can handle any protocol (mailto, ssh, steam, spotify, etc.). Just add the protocol to `global.supportedProtocols` and re-run `--register`.<br>
-You can set `global.logPath` to enable logging. Path may be absolute or relative. Leave empty to disable (default). It is very helpful when composing new rules, since you can see captured groups, arguments and resulting commandline.
+You can set `global.logPath` to enable logging. Path may be absolute or relative. Leave empty to disable (default). It is very helpful when composing new rules, since you can see captured groups, arguments and resulting commandline.<br>
+In `global.defaultConfigEditor` parameter you can specify path to you preferred text-editor. It will be used to open `linkrouter.json` when double-clicking `linkrouter.exe` or when selecting `Edit LinkRouter config` in right-click menu of executable. If empty - an attempt to find any known text-editor in PATH is made.<br>
 
 Here's a sample config to get the idea. Notice, that all backslashes `\` have to be escaped like this `\\` in JSON.
 
@@ -55,6 +70,7 @@ Here's a sample config to get the idea. Notice, that all backslashes `\` have to
   "global": {
     "fallbackBrowserPath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
     "fallbackBrowserArgs": "{URL}",
+    "defaultConfigEditor": "C:\\Program Files\\Microsoft VS Code\\Code.exe",
     "logPath": "linkrouter.log",
     "supportedProtocols": [
       "http",
@@ -100,11 +116,12 @@ this config will make LinkRouter:
 - opens all other links like `mailto:.*` in gmail in chrome.
 - links that don't match any rule will be opened in chrome browser.
 - write log to `linkrouter.log` next to `linkrouter.exe`
+- open config for editing in VSCode
 
 Tip: you can specify `explorer.exe` in program and pass link to it, if you want Windows to handle that link. i.e. passing steam:// link to explorer will open Steam, since Steam is registered in Windows as the default handler for that protocol.
 
 > [!Note]
-> While LinkRouter works just fine without running as an administrator, if a program from config is being run as admin, LinkRouter can't launch such program unless also launched with admin privileges. In this case go to `linkrouter.exe` `Properties` - `Compatibility` and check `Run this programm as an administrator`.
+> While LinkRouter works just fine without running as an administrator, if a program from config is being run as admin, LinkRouter can't launch such program unless also launched with admin privileges. In this case go to `linkrouter.exe` `Properties` - `Compatibility` and check `Run this program as an administrator`.
 
 Check more example rules in [linkrouter.example.json](linkrouter.example.json) in root of this repo. Maybe the app you need is already there.
 
