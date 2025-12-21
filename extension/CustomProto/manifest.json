@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "LinkRouter",
   "version": "0.0.1",
-  "description": "Companion extension for LinkRouter – route web links to custom apps using regex rules. Requires the LinkRouter Windows app. Download from https://github.com/kolbasky/LinkRouter",
+  "description": "Companion extension for LinkRouter – route web links to custom apps using regex rules. Requires the LinkRouter Windows app.",
   "homepage_url": "https://github.com/kolbasky/LinkRouter",
   "icons": {
     "16": "icons/16.png",
