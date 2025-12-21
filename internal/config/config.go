@@ -173,7 +173,7 @@ func DefaultConfig() *Config {
 			FallbackBrowserArgs: "{URL}",
 			DefaultConfigEditor: "",
 			LogPath:             "",
-			SupportedProtocols:  []string{"http", "https"},
+			SupportedProtocols:  []string{"http", "https", "linkrouter-ext"},
 		},
 		Rules: []Rule{
 			{
