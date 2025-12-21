@@ -14,7 +14,7 @@
     // path to logfile. relative to exe file or absolute. logging is disabled when empty ""
     // it can be useful for troublshooting new rules. pls attach logs when submitting an issue
     "logPath": "",
-    // list of handlers that we decalre support of. if changed --register should be run again
+    // list of protocols that we decalre support of. if changed --register should be run again
     "supportedProtocols": [
       "http",
       "https",
