@@ -209,6 +209,9 @@ func LoadConfig() (*Config, error) {
 		dialogs.ShowError(fmt.Sprintf("can't open global.logPath %q, %s", cfg.Global.LogPath, err_init))
 	}
 
+	cfg.Global.FallbackBrowserPath, _ = utils.LookupInPATH(cfg.Global.FallbackBrowserPath)
+	cfg.Global.DefaultConfigEditor, _ = utils.LookupInPATH(cfg.Global.DefaultConfigEditor)
+
 	if utils.IsLinkRouter(cfg.Global.FallbackBrowserPath) {
 		dialogs.ShowError("Fallback browser is set to LinkRouter itself.\nTrying to guess fallback browser.")
 		logger.Log("Error: Fallback browser is set to LinkRouter itself. Trying to guess fallback browser.")

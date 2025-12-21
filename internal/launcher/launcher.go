@@ -1,12 +1,16 @@
 package launcher
 
 import (
+	"encoding/binary"
+	"encoding/json"
 	"fmt"
+	"io"
 	"linkrouter/internal/config"
 	"linkrouter/internal/dialogs"
 	"linkrouter/internal/logger"
 	"linkrouter/internal/registry"
 	"linkrouter/internal/utils"
+	urlpkg "net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -16,11 +20,102 @@ import (
 	"syscall"
 )
 
+func HandleStdIn() {
+	config.LoadConfig()
+	var length uint32
+	if err := binary.Read(os.Stdin, binary.LittleEndian, &length); err != nil {
+		logger.Log("Error reading length from stdin:" + err.Error())
+		os.Exit(1)
+	}
+
+	// Safety: limit message size
+	if length > 1024*1024 { // 1 MB
+		logger.Log("Error: Message exceeds 1MB")
+		dialogs.ShowError("Message exceeds 1MB")
+		os.Exit(1)
+	}
+
+	// Read JSON payload
+	msg := make([]byte, length)
+	if _, err := io.ReadFull(os.Stdin, msg); err != nil {
+		logger.Log("Error: couldn't read JSON payload:" + err.Error())
+		dialogs.ShowError("Couldn't read JSON payload")
+		os.Exit(1)
+	}
+
+	// Parse JSON
+	var req struct {
+		URL    string `json:"url"`
+		Action string `json:"action"`
+	}
+	if err := json.Unmarshal(msg, &req); err != nil {
+		logger.Log("Error: unable to unmarshal message:" + err.Error())
+		os.Exit(1)
+	}
+
+	// Prepare default response (in case of URL or unknown action)
+	var resp map[string]interface{}
+
+	switch req.Action {
+	case "ping":
+		exePath, _ := os.Executable()
+		resp = map[string]interface{}{
+			"status":  "ok",
+			"exePath": exePath,
+		}
+
+	case "shouldHandle":
+		// Check if ANY rule matches — don't launch anything
+		handled := shouldHandleURL(req.URL)
+		resp = map[string]interface{}{
+			"handled": handled,
+		}
+
+	default:
+		HandleURL(req.URL)
+		resp = map[string]interface{}{
+			"status": "processed",
+		}
+	}
+
+	// Send response (always LittleEndian on Windows)
+	respBytes, err := json.Marshal(resp)
+	if err != nil {
+		logger.Log("Error marshaling response:" + err.Error())
+		os.Exit(1)
+	}
+
+	if err := binary.Write(os.Stdout, binary.LittleEndian, uint32(len(respBytes))); err != nil {
+		logger.Log("Error writing response length:" + err.Error())
+		os.Exit(1)
+	}
+	if _, err := os.Stdout.Write(respBytes); err != nil {
+		logger.Log("Error writing response:" + err.Error())
+		os.Exit(1)
+	}
+	os.Stdout.Sync()
+}
+
+func shouldHandleURL(rawURL string) bool {
+	cfg, _ := config.LoadConfig()
+	for _, rule := range cfg.Rules {
+		re, err := regexp.Compile(rule.Regex)
+		if err != nil {
+			continue
+		}
+		if re.MatchString(rawURL) {
+			HandleURL(rawURL)
+			return true
+		}
+	}
+	return false
+}
+
 func HandleNoArgs() {
 	if !registry.IsRegistered() {
 		result := dialogs.ShowMessageBox(
 			"LinkRouter Setup",
-			"LinkRouter is not properly registered in your system.\n\nWould you like to register it now?",
+			"Would you like to register LinkRouter in your system?",
 			0x00000024,
 		)
 		if result == 6 {
@@ -142,6 +237,15 @@ func HandleURL(url string) {
 	}
 
 	logger.Log(fmt.Sprintf("Handling URL: %s", url))
+	if strings.HasPrefix(strings.ToLower(url), "linkrouter-ext://") {
+		url = strings.TrimPrefix(url, "linkrouter-ext://")
+		logger.Log(fmt.Sprintf("Trimmed URL: %s", url))
+	}
+
+	if decoded, err := urlpkg.QueryUnescape(url); err == nil {
+		url = decoded
+	}
+
 	if rule, matches, ruleIndex := cfg.MatchRule(url); rule != nil {
 		logger.Log(fmt.Sprintf("Matched rule #%d: regex=%q", ruleIndex, rule.Regex))
 		logger.Log(fmt.Sprintf("Captured groups: %s", logger.FormatCaptureGroups(matches)))
@@ -214,7 +318,7 @@ func launchApp(programPath, argsTemplate, url string) error {
 		logger.Log("Error: program path is empty")
 		return fmt.Errorf("program path is empty")
 	}
-	program := expandPath(programPath)
+	program, _ := utils.LookupInPATH(expandPath(programPath))
 
 	if utils.IsLinkRouter(program) {
 		logger.Log(fmt.Sprintf(

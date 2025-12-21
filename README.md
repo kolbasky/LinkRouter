@@ -19,7 +19,7 @@ Windows lets you choose a program to handle specific protocols, but there is no 
 
 ## 🚀 Quick Start
 
-1. **Download** [`linkrouter.exe`](https://github.com/kolbasky/link-router/releases/latest)
+1. **Download** [`linkrouter.exe`](https://github.com/kolbasky/LinkRouter/releases/latest)
 2. Place `linkrouter.exe` where you want and **run it** by double-clicking.
 3. Select "Yes" in dialog to register the app in the system.
 4. `Windows Settings` → `Apps` → `Default apps` dialog should pop-up automatically. If not press `Win+I` and start typing "default".
@@ -142,7 +142,7 @@ For testing regexes we recommend enabling logging via `global.logPath` or using 
 > Because LinkRouter can execute arbitrary programs, only use rules you trust. Never download and run someone else’s linkrouter.json blindly — it could contain malicious commands. LinkRouter doesn't launch any programs except for those, specified in your config.
 
 ## 📦 Download
-See the [Releases page](https://github.com/kolbasky/link-router/releases/latest) for the latest linkrouter.exe.
+See the [Releases page](https://github.com/kolbasky/LinkRouter/releases/latest) for the latest linkrouter.exe.
 
 ## 🛠️ Build from source
 For building you'll need to install Go and MinGW-w64 (needed for gcc compiler).

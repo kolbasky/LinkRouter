@@ -2,6 +2,12 @@ package utils
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
+	"linkrouter/internal/logger"
+	"os/exec"
+	"path/filepath"
+	"strings"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -70,4 +76,23 @@ func queryStringValue(data []byte, subBlock string) ([]byte, bool) {
 		}
 	}
 	return []byte(windows.UTF16ToString(utf16)), true
+}
+
+func LookupInPATH(program string) (string, error) {
+	if program == "" {
+		return "", errors.New("program path is empty")
+	}
+	if strings.ContainsAny(program, "\\/") || filepath.IsAbs(program) {
+		return program, nil
+	} else {
+		var err error
+		var program_full string
+		program_full, err = exec.LookPath(program)
+		if err != nil {
+			logger.Log(fmt.Sprintf("Error: executable not found in PATH: %s (%v)", program_full, err))
+			return program, err
+		}
+		logger.Log(fmt.Sprintf("Resolved via PATH: %s → %s", program_full, program))
+		return program_full, nil
+	}
 }
