@@ -16,7 +16,7 @@
       "32": "icons/32.png",
       "48": "icons/48.png"
     },
-    "default_title": "Open current page in LinkRouter",
+    "default_title": "LinkRouter",
     "default_popup": "popup/popup.html"
   },
   "permissions": [
@@ -25,7 +25,8 @@
     "storage"
   ],
   "background": {
-    "service_worker": "background.js"
+  "service_worker": "background.js",
+  "scripts": ["background.js"]
   },
   "content_scripts": [
     {
@@ -34,5 +35,11 @@
       "run_at": "document_start",
       "all_frames": true
     }
-  ]
+  ],
+  "browser_specific_settings": {
+  "gecko": {
+    "id": "linkrouter@kolbasky",
+    "strict_min_version": "109.0"
+  }
+  }
 }

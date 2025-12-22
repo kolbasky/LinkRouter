@@ -1,6 +1,6 @@
 const PROTOCOL = "linkrouter-ext://";
 
-let modifiers = { alt: true, ctrl: false, shift: false };
+let modifiers = { alt: true, ctrl: true, shift: false };
 
 // Load saved modifiers only if storage API is available
 if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {

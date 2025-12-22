@@ -4,7 +4,7 @@ body {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   margin: 0;
   min-width: 240px;
-  max-width: 300px;
+  max-width: 280px;
 }
 
 .container {
@@ -16,7 +16,7 @@ body {
 
 /* Header – rich blue with subtle inner glow */
 h2 {
-  background: #0f172a;
+  background: linear-gradient(to bottom, #1e40af, #1e3a8a);
   border-radius: 0 0 8px 8px;
   box-shadow: 
     0 4px 12px rgba(0, 0, 0, 0.4),
@@ -24,8 +24,8 @@ h2 {
   color: #e2e8f0;
   cursor: default;
   display: inline-block;
-  font-size: 1.2em;
-  font-weight: 600;
+  font-size: 1.6em;
+  font-weight: 700;
   margin: 0 0 12px;
   padding-top: 4px;
   padding-bottom: 8px;
@@ -35,7 +35,7 @@ h2 {
 
 /* Section headers */
 h3 {
-  font-size: 1.4em;
+  font-size: 1.6em;
   font-weight: 600;
   margin: 0;
   text-align: center;
@@ -85,7 +85,7 @@ input[type="checkbox"] {
   color: #94a3b8;
   cursor: default;
   font-size: 1.20em;
-  margin: -12px 8px 8px 8px;
+  margin: -12px 0 8px 0;
   text-align: center;
 }
 

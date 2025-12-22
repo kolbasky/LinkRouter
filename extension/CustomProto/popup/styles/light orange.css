@@ -1,10 +1,10 @@
 body {
-  background: #0f172a; /* Deep midnight blue */
-  color: #e2e8f0;      /* Soft light gray for text */
+  background: #EEEEFF;
+  color: #1a1a1a;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   margin: 0;
   min-width: 240px;
-  max-width: 300px;
+  max-width: 280px;
 }
 
 .container {
@@ -14,14 +14,28 @@ body {
   padding: 0 0 8px 0;
 }
 
-/* Header – rich blue with subtle inner glow */
+.header {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.header-icon {
+  border-radius: 8px;
+  height: 32px;
+  width: 32px;
+} 
+
 h2 {
-  background: #0f172a;
+  background: #CC6600;
   border-radius: 0 0 8px 8px;
   box-shadow: 
     0 4px 12px rgba(0, 0, 0, 0.4),
     inset 0 1px 4px rgba(255, 255, 255, 0.15);
-  color: #e2e8f0;
+  color: #FFFFFF;
+  /* color: #e2e8f0; */
   cursor: default;
   display: inline-block;
   font-size: 1.2em;
@@ -30,19 +44,16 @@ h2 {
   padding-top: 4px;
   padding-bottom: 8px;
   text-align: center;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  /* text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); */
 }
 
-/* Section headers */
 h3 {
   font-size: 1.4em;
   font-weight: 600;
   margin: 0;
   text-align: center;
-  color: #a5b4fc; /* Soft indigo for emphasis */
 }
 
-/* Modifier keys section */
 .modifiers-header {
   cursor: default;
   display: flex;
@@ -51,7 +62,6 @@ h3 {
   gap: 20px;
   justify-content: center;
   margin: 8px 0 -12px 0;
-  color: #cbd5e1;
 }
 
 .modifiers {
@@ -62,80 +72,76 @@ h3 {
 }
 
 input[type="checkbox"] {
-  accent-color: #f97316; /* Warm orange accent */
-  cursor: pointer;
+  cursor: default;
+  accent-color: #BB5500;
+}
+
+input[type="checkbox"]:hover {
+  cursor: default;
+  accent-color: #BB5500;
+  color: #BB5500;
 }
 
 .modifiers label {
   align-items: center;
-  cursor: pointer;
+  cursor: default;
   display: flex;
   font-size: 1.2em;
   gap: 4px;
-  color: #e2e8f0;
-  transition: color 0.2s;
 }
 
-.modifiers label:hover {
-  color: #ffffff;
-}
-
-/* Hint text */
 .hint {
-  color: #94a3b8;
+  color: #666;
   cursor: default;
   font-size: 1.20em;
-  margin: -12px 8px 8px 8px;
+  margin: -12px 0 8px 0;
   text-align: center;
 }
 
-/* Big beautiful button – warm amber with glow */
 .big-button {
-  background: linear-gradient(to bottom, #ea580c, #c2410c);
-  border-top: 4px solid #fb923c;
-  border-right: 4px solid #fb923c;
-  border-left: 4px solid #fb923c;
-  border-bottom: 4px solid #9a3412;
+  background: #CC6600;
+  border-top: 4px solid #DD7700;
+  border-right: 4px solid #DD7700;
+  border-left: 4px solid #DD7700;
+  border-bottom: 4px solid #BB5500;
   border-radius: 50px;
-  box-shadow: 
-    0 6px 16px rgba(0, 0, 0, 0.5),
-    inset 0 1px 4px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.6);
   color: white;
-  cursor: pointer;
+  cursor: default;
   font-size: 1.4em;
   font-weight: 600;
   margin: -8px auto -8px auto;
   padding: 24px;
-  text-shadow: 1px 2px 3px rgba(0, 0, 0, 0.4);
-  transition: all 0.25s ease;
+  text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s;
   width: 70%;
 }
 
 .big-button:hover {
-  background: linear-gradient(to bottom, #fb923c, #ea580c);
-  border-top-color: #fdba74;
-  border-right-color: #fdba74;
-  border-left-color: #fdba74;
-  border-bottom-color: #c2410c;
-  box-shadow: 
-    0 10px 24px rgba(0, 0, 0, 0.6),
-    inset 0 1px 6px rgba(255, 255, 255, 0.3);
+  background: #DD7700;
+  border-top: 4px solid #EE8800;
+  border-right: 4px solid #EE8800;
+  border-left: 4px solid #EE8800;
+  border-bottom: 4px solid #CC6600; 
+  /* background: #CE6E00;
+  border-top: 4px solid #DF7F00;
+  border-right: 4px solid #DF7F00;
+  border-left: 4px solid #DF7F00;
+  border-bottom: 4px solid #BD5D00;  */
+  box-shadow: 0 6px 16px rgba(0, 102, 204, 0.5);
   transform: translateY(-3px);
 }
 
 .big-button:active {
-  background: linear-gradient(to bottom, #c2410c, #9a3412);
-  border-top-color: #ea580c;
-  border-right-color: #ea580c;
-  border-left-color: #ea580c;
-  border-bottom-color: #7c2d12;
-  box-shadow: 
-    0 3px 8px rgba(0, 0, 0, 0.6),
-    inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  background: #BB5500;
+  border-top: 4px solid #CC6600;
+  border-right: 4px solid #CC6600;
+  border-left: 4px solid #CC6600;
+  border-bottom: 4px solid #AA4400;  
+  box-shadow: 0 3px 6px rgba(0, 102, 204, 0.7);
   transform: translateY(2px);
 }
 
-/* Quick links */
 .quick-links {
   margin: auto auto auto auto;
   display: flex;
@@ -145,22 +151,19 @@ input[type="checkbox"] {
 }
 
 .quick-links a {
-  color: #60a5fa;
+  color: #BB5500;
   font-size: 0.8em;
   font-weight: 500;
   text-decoration: none;
   margin-top: -6px;
-  transition: color 0.2s;
 }
 
 .quick-links a:hover {
-  color: #93bbfc;
   text-decoration: underline;
 }
 
-/* Footer */
 .footer {
-  color: #64748b;
+  color: #888;
   font-size: 0.8em;
   justify-content: right;
   margin-top: auto;

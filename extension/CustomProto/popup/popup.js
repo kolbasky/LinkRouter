@@ -1,5 +1,5 @@
 const MODIFIERS_KEY = 'modifiers';
-const DEFAULT_MODIFIERS = { alt: true, ctrl: false, shift: false };
+const DEFAULT_MODIFIERS = { alt: true, ctrl: true, shift: false };
 
 document.addEventListener('DOMContentLoaded', () => {
   chrome.storage.sync.get([MODIFIERS_KEY], (result) => {

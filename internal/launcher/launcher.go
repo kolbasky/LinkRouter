@@ -229,6 +229,7 @@ func IsCorrectURL(s string) bool {
 }
 
 func HandleURL(url string) {
+	from_extension := false
 	url = strings.TrimSpace(url)
 	cfg, err := config.LoadConfig()
 	if err != nil {
@@ -238,12 +239,17 @@ func HandleURL(url string) {
 
 	logger.Log(fmt.Sprintf("Handling URL: %s", url))
 	if strings.HasPrefix(strings.ToLower(url), "linkrouter-ext://") {
+		from_extension = true
 		url = strings.TrimPrefix(url, "linkrouter-ext://")
 		logger.Log(fmt.Sprintf("Trimmed URL: %s", url))
 	}
 
 	if decoded, err := urlpkg.QueryUnescape(url); err == nil {
 		url = decoded
+	}
+
+	if from_extension && strings.HasSuffix(url, "//") {
+		url = url[:len(url)-1]
 	}
 
 	if rule, matches, ruleIndex := cfg.MatchRule(url); rule != nil {
