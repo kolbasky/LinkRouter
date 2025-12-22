@@ -20,12 +20,6 @@ func main() {
 
 	args := flag.Args()
 
-	// when laucnhed via NativeMessagingHosts from browsers
-	if len(args) == 2 {
-		launcher.HandleStdIn()
-		return
-	}
-
 	if *help {
 		launcher.Help()
 		return
