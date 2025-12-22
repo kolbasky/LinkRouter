@@ -343,6 +343,9 @@ func launchApp(programPath, argsTemplate, url string) error {
 		return fmt.Errorf("recursion prevented.\n" +
 			"link is passed to explorer.exe and LinkRouter is set as default for this type of links")
 	}
+	if isExplorer(program) {
+		argsLine = strconv.Quote(argsLine)
+	}
 	var fullCmdLine string
 	if argsLine == "" {
 		fullCmdLine = quotedProgram
