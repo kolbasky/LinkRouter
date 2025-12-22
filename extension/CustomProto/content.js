@@ -28,15 +28,17 @@ document.addEventListener('mousedown', (e) => {
     shift: e.shiftKey
   };
 
-  // Must match ALL checked modifiers
+  if (!required.alt && !required.ctrl && !required.shift) {
+    return;
+  }
+
   if (required.alt !== pressed.alt ||
       required.ctrl !== pressed.ctrl ||
       required.shift !== pressed.shift) {
     return;
   }
 
-  // If no modifiers required, only trigger on left click
-  if (!required.alt && !required.ctrl && !required.shift && e.button !== 0) {
+  if (e.button !== 0) {
     return;
   }
 

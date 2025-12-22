@@ -2,7 +2,7 @@ body {
   background: #EEEEFF;
   /* border: 1px solid #0066CC; */
   color: #1a1a1a;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   margin: 0;
   width: 320px;
 }
@@ -31,7 +31,7 @@ body {
 h2 {
   background: #0066CC;
   border-radius: 0 0 8px 8px;
-  box-shadow: 0 0px 6px 6px rgba(0, 102, 204, 0.30);
+  box-shadow: 0 0 4px 4px rgba(0, 102, 204, 0.30);
   color: white;
   display: inline-block;
   font-size: 1.8em;
@@ -67,6 +67,7 @@ h3 {
 }
 
 input[type="checkbox"] {
+  cursor: pointer;
   accent-color: #0066CC;
 }
 
@@ -87,8 +88,11 @@ input[type="checkbox"] {
 
 .big-button {
   background: #CC6600;
+  border-top: 4px solid #DD7700;
+  border-right: 4px solid #DD7700;
+  border-left: 4px solid #DD7700;
+  border-bottom: 4px solid #BB5500;
   border-radius: 50px;
-  border: none;
   box-shadow: 0 4px 12px rgba(0, 102, 204, 0.6);
   color: white;
   cursor: pointer;
@@ -102,17 +106,32 @@ input[type="checkbox"] {
 }
 
 .big-button:hover {
-  background: #BB5500;
-  box-shadow: 0 6px 16px rgba(0, 102, 204, 0.7);
+  background: #DD7700;
+  border-top: 4px solid #EE8800;
+  border-right: 4px solid #EE8800;
+  border-left: 4px solid #EE8800;
+  border-bottom: 4px solid #CC6600; 
+  /* background: #CE6E00;
+  border-top: 4px solid #DF7F00;
+  border-right: 4px solid #DF7F00;
+  border-left: 4px solid #DF7F00;
+  border-bottom: 4px solid #BD5D00;  */
+  box-shadow: 0 6px 16px rgba(0, 102, 204, 0.5);
   transform: translateY(-1px);
 }
 
 .big-button:active {
-  box-shadow: 0 3px 8px rgba(0, 102, 204, 0.7);
+  background: #BB5500;
+  border-top: 4px solid #CC6600;
+  border-right: 4px solid #CC6600;
+  border-left: 4px solid #CC6600;
+  border-bottom: 4px solid #AA4400;  
+  box-shadow: 0 3px 6px rgba(0, 102, 204, 0.7);
   transform: translateY(1px);
 }
 
 .quick-links {
+  margin: auto auto auto auto;
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
