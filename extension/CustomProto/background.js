@@ -29,10 +29,15 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === "open-in-linkrouter" && info.linkUrl) {
-
+  if (info.menuItemId === "open-in-linkrouter" && info.linkUrl && tab?.id) {
+    const originalUrl = tab.url || '';  // fallback
     const routed = PROTOCOL + encodeURIComponent(info.linkUrl);
-    chrome.tabs.create({ url: routed });
+
+    chrome.tabs.update(tab.id, { url: routed }, (updatedTab) => {
+      if (chrome.runtime.lastError || !updatedTab) {
+        chrome.tabs.update(tab.id, { url: originalUrl });
+      }
+    });
   }
   else if (info.menuItemId === "visit-releases") {
     chrome.tabs.create({ url: "https://github.com/kolbasky/LinkRouter/releases/latest" });
@@ -50,6 +55,11 @@ chrome.action.onClicked.addListener((tab) => {
     return; // Ignore chrome://, about:, extension pages, etc.
   }
 
+  const originalUrl = tab.url
   const routed = PROTOCOL + encodeURIComponent(tab.url);
-  chrome.tabs.create({ url: routed });
+  chrome.tabs.update(tab.id, { url: routed }, (updatedTab) => {
+    if (chrome.runtime.lastError || !updatedTab) {
+      chrome.tabs.update(tab.id, { url: originalUrl });
+    }
+  });
 });

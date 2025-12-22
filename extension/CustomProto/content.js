@@ -1,7 +1,44 @@
 const PROTOCOL = "linkrouter-ext://";
 
-document.addEventListener('click', (e) => {
-  if (!e.altKey) return;
+let modifiers = { alt: true, ctrl: false, shift: false };
+
+// Load saved modifiers only if storage API is available
+if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+  chrome.storage.sync.get(['modifiers'], (result) => {
+    if (result.modifiers) {
+      modifiers = result.modifiers;
+    }
+  });
+
+  // Also listen for updates
+  chrome.runtime.onMessage.addListener((message) => {
+    if (message.action === 'updateModifiers') {
+      modifiers = message.modifiers;
+    }
+  });
+}
+
+// Fallback: use default if on restricted page (no storage access)
+
+document.addEventListener('mousedown', (e) => {
+  const required = modifiers;
+  const pressed = {
+    alt: e.altKey,
+    ctrl: e.ctrlKey,
+    shift: e.shiftKey
+  };
+
+  // Must match ALL checked modifiers
+  if (required.alt !== pressed.alt ||
+      required.ctrl !== pressed.ctrl ||
+      required.shift !== pressed.shift) {
+    return;
+  }
+
+  // If no modifiers required, only trigger on left click
+  if (!required.alt && !required.ctrl && !required.shift && e.button !== 0) {
+    return;
+  }
 
   const a = e.target.closest('a');
   if (!a || !/^https?:\/\//i.test(a.href)) return;

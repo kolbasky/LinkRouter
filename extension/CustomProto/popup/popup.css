@@ -1,0 +1,140 @@
+body {
+  background: #EEEEFF;
+  /* border: 1px solid #0066CC; */
+  color: #1a1a1a;
+  font-family: system-ui, -apple-system, sans-serif;
+  margin: 0;
+  width: 320px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 0 8px 0;
+}
+
+.header {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.header-icon {
+  border-radius: 8px;
+  height: 32px;
+  width: 32px;
+} 
+
+h2 {
+  background: #0066CC;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 0px 6px 6px rgba(0, 102, 204, 0.30);
+  color: white;
+  display: inline-block;
+  font-size: 1.8em;
+  font-weight: 700;
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  padding-top: 4px;
+  text-align: center;
+  text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.15);
+}
+
+h3 {
+  font-size: 1.6em;
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+}
+
+.modifiers-header {
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 1.4em;
+  gap: 20px;
+  justify-content: center;
+  margin: 8px 0 -12px 0;
+}
+
+.modifiers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  justify-content: center;
+}
+
+input[type="checkbox"] {
+  accent-color: #0066CC;
+}
+
+.modifiers label {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  font-size: 1.2em;
+  gap: 4px;
+}
+
+.hint {
+  color: #666;
+  font-size: 1.00em;
+  margin: -12px 0 8px 0;
+  text-align: center;
+}
+
+.big-button {
+  background: #CC6600;
+  border-radius: 50px;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.6);
+  color: white;
+  cursor: pointer;
+  font-size: 1.4em;
+  font-weight: 600;
+  margin: 8px auto 8px auto;
+  padding: 24px;
+  text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s;
+  width: 70%;
+}
+
+.big-button:hover {
+  background: #BB5500;
+  box-shadow: 0 6px 16px rgba(0, 102, 204, 0.7);
+  transform: translateY(-1px);
+}
+
+.big-button:active {
+  box-shadow: 0 3px 8px rgba(0, 102, 204, 0.7);
+  transform: translateY(1px);
+}
+
+.quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.quick-links a {
+  color: #0066cc;
+  font-size: 1.00em;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.quick-links a:hover {
+  text-decoration: underline;
+}
+
+.footer {
+  color: #888;
+  font-size: 0.8em;
+  justify-content: right;
+  margin-top: auto;
+  text-align: right;
+  text-decoration: underline;
+}
