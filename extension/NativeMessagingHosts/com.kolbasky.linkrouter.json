@@ -1,9 +1,0 @@
-{
-  "name": "com.kolbasky.linkrouter",
-  "description": "LinkRouter Native Host",
-  "path": "C:\\Users\\user\\git\\LinkRouter\\bin\\linkrouter.exe",
-  "type": "stdio",
-  "allowed_origins": [
-    "chrome-extension://mjdamkledekfnngigaekapliiibcbchg/"
-  ]
-}

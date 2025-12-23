@@ -1,7 +1,0 @@
-Windows Registry Editor Version 5.00
-
-[HKEY_CURRENT_USER\SOFTWARE\Google\Chrome\NativeMessagingHosts\com.kolbasky.linkrouter]
-@="C:\\Users\\user\\git\\LinkRouter\\extension\\com.kolbasky.linkrouter.json"
-
-[HKEY_CURRENT_USER\SOFTWARE\BraveSoftware\Brave-Browser\NativeMessagingHosts\com.kolbasky.linkrouter]
-@="C:\\Users\\user\\git\\LinkRouter\\extension\\com.kolbasky.linkrouter.json"
