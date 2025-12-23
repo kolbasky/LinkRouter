@@ -23,8 +23,12 @@ Windows lets you choose a program to handle specific protocols, but there is no 
 2. Place `linkrouter.exe` where you want and **run it** by double-clicking.
 3. Select "Yes" in dialog to register the app in the system.
 4. `Windows Settings` → `Apps` → `Default apps` dialog should pop-up automatically. If not press `Win+I` and start typing "default".
-5. **select LinkRouter as the default handler for HTTP, HTTPS, or any other protocols** you want it to handle.
-6. **Edit the config** by double-clicking `linkrouter.exe` again.
+5. **select LinkRouter as the default handler for protocols** you want it to handle. `linkrouter-ext` protocol is created by default and is mandatory for browser-extension to work.
+6. **optionally**, install the browser extension from chrome or mozilla stores (in progress) or add it manually. Extensions are  available on Releases page.
+7. **Edit the config** by double-clicking `linkrouter.exe` again.
+
+Without the browser extension, LinkRouter intercepts clicked links **outside** your browser (e.g., from other apps) if set as default handler for those protocols.<br>
+To send links to LinkRouter **from inside** your browser, install the companion extension (available on Releases page or addons.mozilla.org / chromewebstore.google.com when approved). The extension requires LinkRouter to be the default handler for the `linkrouter-ext://` protocol (registered automatically).<br>
 
 > [!NOTE]
 > When registered, double-clicking `linkrouter.exe` opens the config for editing.
@@ -120,7 +124,7 @@ this config will make LinkRouter:
 - write log to `linkrouter.log` next to `linkrouter.exe`
 - open config for editing in VSCode
 
-Tip: you can specify `explorer.exe` in `program` and pass link to it, if you want Windows to handle that link. i.e. passing `steam://` link to explorer will open Steam, since Steam is registered in Windows as the default handler for that protocol.<br>It is usually a good idea to quote resulting url in `arguments` to prevent breakage of complex links (i.e. with spaces).
+Tip: you can specify `explorer.exe` in `program` and pass link to it, if you want Windows to handle that link. e.g. passing `steam://` link to explorer will open Steam, since Steam is registered in Windows as the default handler for that protocol.<br>It is usually a good idea to quote resulting url in `arguments` to prevent breakage of complex links (e.g. with spaces).
 
 > [!Note]
 > While LinkRouter works just fine without running as an administrator, if a program from config is being run as admin, LinkRouter can't launch such program unless also launched with admin privileges. In this case go to `linkrouter.exe` `Properties` - `Compatibility` and check `Run this program as an administrator`.
