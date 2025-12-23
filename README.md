@@ -120,7 +120,7 @@ this config will make LinkRouter:
 - write log to `linkrouter.log` next to `linkrouter.exe`
 - open config for editing in VSCode
 
-Tip: you can specify `explorer.exe` in `program` and pass link to it, if you want Windows to handle that link. i.e. passing `steam://` link to explorer will open Steam, since Steam is registered in Windows as the default handler for that protocol. But beware, if explorer.exe is the `program`, the whole arguments string will be quoted implicitly to prevent injections. Since explorer has hard time parsing links with `&` in them.
+Tip: you can specify `explorer.exe` in `program` and pass link to it, if you want Windows to handle that link. i.e. passing `steam://` link to explorer will open Steam, since Steam is registered in Windows as the default handler for that protocol.<br>It is usually a good idea to quote resulting url in `arguments` to prevent breakage of complex links (i.e. with spaces).
 
 > [!Note]
 > While LinkRouter works just fine without running as an administrator, if a program from config is being run as admin, LinkRouter can't launch such program unless also launched with admin privileges. In this case go to `linkrouter.exe` `Properties` - `Compatibility` and check `Run this program as an administrator`.

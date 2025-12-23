@@ -1,26 +1,23 @@
 const PROTOCOL = "linkrouter-ext://";
 
-let modifiers = { alt: true, ctrl: true, shift: false };
+let modifiers = { alt: true, ctrl: false, shift: false };
 
-// Load saved modifiers only if storage API is available
 if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
   chrome.storage.sync.get(['modifiers'], (result) => {
-    if (result.modifiers) {
-      modifiers = result.modifiers;
-    }
+    if (result.modifiers) modifiers = result.modifiers;
   });
-
-  // Also listen for updates
-  chrome.runtime.onMessage.addListener((message) => {
-    if (message.action === 'updateModifiers') {
-      modifiers = message.modifiers;
-    }
+  chrome.runtime.onMessage.addListener((msg) => {
+    if (msg.action === 'updateModifiers') modifiers = msg.modifiers;
   });
 }
 
-// Fallback: use default if on restricted page (no storage access)
+const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.includes('Firefox');
 
-document.addEventListener('mousedown', (e) => {
+// Firefox somtimes lets ctrl+click through in case of 'mousedown'
+// Chrome sometimes doesn't work on first modifier+click with 'click'
+const eventType = isFirefox ? 'click' : 'mousedown';
+
+document.addEventListener(eventType, (e) => {
   const required = modifiers;
   const pressed = {
     alt: e.altKey,
@@ -28,25 +25,22 @@ document.addEventListener('mousedown', (e) => {
     shift: e.shiftKey
   };
 
-  if (!required.alt && !required.ctrl && !required.shift) {
-    return;
-  }
+  // Modifiers unset
+  if (!required.alt && !required.ctrl && !required.shift) return;
 
+  // Modifiers don't match
   if (required.alt !== pressed.alt ||
       required.ctrl !== pressed.ctrl ||
-      required.shift !== pressed.shift) {
-    return;
-  }
+      required.shift !== pressed.shift) return;
 
-  if (e.button !== 0) {
-    return;
-  }
+  if (e.button !== 0) return;
 
   const a = e.target.closest('a');
   if (!a || !/^https?:\/\//i.test(a.href)) return;
 
   e.preventDefault();
   e.stopPropagation();
+  if (e.stopImmediatePropagation) e.stopImmediatePropagation();
 
   const routed = PROTOCOL + encodeURIComponent(a.href);
   window.location.href = routed;

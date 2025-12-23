@@ -92,11 +92,11 @@ input[type="checkbox"] {
 /* Big beautiful button – warm amber with glow */
 .big-button {
   background: linear-gradient(to bottom, #ea580c, #c2410c);
-  border-top: 4px solid #fb923c;
-  border-right: 4px solid #fb923c;
-  border-left: 4px solid #fb923c;
+  border-top: 4px solid #ea812b;
+  border-right: 4px solid #9a3412;
+  border-left: 4px solid #ea812b;
   border-bottom: 4px solid #9a3412;
-  border-radius: 50px;
+  border-radius: 32px;
   box-shadow: 
     0 6px 16px rgba(0, 0, 0, 0.5),
     inset 0 1px 4px rgba(255, 255, 255, 0.2);
@@ -105,7 +105,7 @@ input[type="checkbox"] {
   font-size: 1.4em;
   font-weight: 600;
   margin: -8px auto -8px auto;
-  padding: 24px;
+  padding: 16px;
   text-shadow: 1px 2px 3px rgba(0, 0, 0, 0.4);
   transition: all 0.25s ease;
   width: 70%;
@@ -114,7 +114,7 @@ input[type="checkbox"] {
 .big-button:hover {
   background: linear-gradient(to bottom, #fb923c, #ea580c);
   border-top-color: #fdba74;
-  border-right-color: #fdba74;
+  border-right-color: #c2410c;
   border-left-color: #fdba74;
   border-bottom-color: #c2410c;
   box-shadow: 
@@ -126,7 +126,7 @@ input[type="checkbox"] {
 .big-button:active {
   background: linear-gradient(to bottom, #c2410c, #9a3412);
   border-top-color: #ea580c;
-  border-right-color: #ea580c;
+  border-right-color: #7c2d12;
   border-left-color: #ea580c;
   border-bottom-color: #7c2d12;
   box-shadow: 

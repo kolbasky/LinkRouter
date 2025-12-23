@@ -6,7 +6,9 @@
     // full path to browser which will be used as a fallback one. i.e. when URL doesn't match any rule
     "fallbackBrowserPath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
     // arguments for fallback browser. these do not support any captured groups
-    "fallbackBrowserArgs": "{URL}",
+    // note, it is ALWAYS a good idea to quote resulting url in arguments
+    // or some edge-case links may break (i.e. links with spaces)
+    "fallbackBrowserArgs": "\"{URL}\"",
     // path to default config editor
     // needed only if you use "Edit Linkrouter config" via right-click menu or --edit argument
     // if empty we look up known editors in PATH
@@ -38,19 +40,19 @@
     {
       "regex": "https://music\\.yandex\\.(ru|com)/album/(\\d+)/track/(\\d+).*",
       "program": "C:\\Windows\\explorer.exe",
-      "arguments": "yandexmusic://album/$2/track/$3"
+      "arguments": "\"yandexmusic://album/$2/track/$3\""
     },
     {
       "regex": "https://music\\.yandex\\.(ru|com)/album/(\\d+).*",
       "program": "C:\\Windows\\explorer.exe",
-      "arguments": "yandexmusic://album/$2"
+      "arguments": "\"yandexmusic://album/$2\""
     },
     // Open steam urls in steam. Note, a url may be passed to explorer to let windows handle the link
     // system env vars may be used for better config portability
     {
       "regex": "https://store.steampowered.com.*",
       "program": "%SYSTEMROOT%\\explorer.exe",
-      "arguments": "steam://openurl/{URL}"
+      "arguments": "\"steam://openurl/{URL}\""
     },
     // open ssh:// links with hosts from company1 in a new window of tmux inside wsl
     {
@@ -81,7 +83,7 @@
     {
       "regex": "https?://.*domain\\.com.*",
       "program": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-      "arguments": "--incognito {URL}"
+      "arguments": "--incognito \"{URL}\""
     }
   ]
 }

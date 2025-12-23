@@ -248,7 +248,8 @@ func HandleURL(url string) {
 		url = decoded
 	}
 
-	if from_extension && strings.HasSuffix(url, "//") {
+	// windows appends trailing slash in this case
+	if from_extension && strings.HasSuffix(url, "/") {
 		url = url[:len(url)-1]
 	}
 
@@ -350,7 +351,12 @@ func launchApp(programPath, argsTemplate, url string) error {
 			"link is passed to explorer.exe and LinkRouter is set as default for this type of links")
 	}
 	if isExplorer(program) {
-		argsLine = strconv.Quote(argsLine)
+		argsLine = strings.TrimSpace(argsLine)
+		if (strings.HasPrefix(argsLine, `"`) && strings.HasSuffix(argsLine, `"`)) ||
+			(strings.HasPrefix(argsLine, `'`) && strings.HasSuffix(argsLine, `'`)) {
+		} else {
+			argsLine = strconv.Quote(argsLine)
+		}
 	}
 	var fullCmdLine string
 	if argsLine == "" {
