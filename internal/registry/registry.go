@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"syscall"
@@ -73,7 +74,7 @@ func ParseProtocol(proto string) string {
 func getSupportedProtocols() []string {
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		return []string{"http", "https"}
+		return []string{"http", "https", "linkrouter-ext"}
 	}
 	var protos []string
 	for _, p := range cfg.Global.SupportedProtocols {
@@ -82,8 +83,13 @@ func getSupportedProtocols() []string {
 		}
 	}
 	if len(protos) == 0 {
-		protos = []string{"http", "https"}
+		protos = []string{"http", "https", "linkrouter-ext"}
 	}
+
+	if !slices.Contains(protos, "linkrouter-ext") {
+		protos = append(protos, "linkrouter-ext")
+	}
+
 	return protos
 }
 
