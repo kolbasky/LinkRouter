@@ -1,6 +1,6 @@
 body {
-  background: #0f172a; /* Deep midnight blue */
-  color: #e2e8f0;      /* Soft light gray for text */
+  background: #0f172a;
+  color: #e2e8f0;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   margin: 0;
   min-width: 240px;
@@ -14,7 +14,6 @@ body {
   padding: 0 0 8px 0;
 }
 
-/* Header – rich blue with subtle inner glow */
 h2 {
   background: #0f172a;
   border-radius: 0 0 8px 8px;
@@ -33,16 +32,14 @@ h2 {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
-/* Section headers */
 h3 {
   font-size: 1.4em;
   font-weight: 600;
   margin: 0;
   text-align: center;
-  color: #a5b4fc; /* Soft indigo for emphasis */
+  color: #a5b4fc;
 }
 
-/* Modifier keys section */
 .modifiers-header {
   cursor: default;
   display: flex;
@@ -62,7 +59,7 @@ h3 {
 }
 
 input[type="checkbox"] {
-  accent-color: #f97316; /* Warm orange accent */
+  accent-color: #f97316;
   cursor: pointer;
 }
 
@@ -80,7 +77,6 @@ input[type="checkbox"] {
   color: #ffffff;
 }
 
-/* Hint text */
 .hint {
   color: #94a3b8;
   cursor: default;
@@ -89,16 +85,15 @@ input[type="checkbox"] {
   text-align: center;
 }
 
-/* Big beautiful button – warm amber with glow */
 .big-button {
-  background: linear-gradient(to bottom, #ea580c, #c2410c);
+  background: linear-gradient(to bottom right, #ea580c, #c2410c);
   border-top: 4px solid #ea812b;
   border-right: 4px solid #9a3412;
   border-left: 4px solid #ea812b;
   border-bottom: 4px solid #9a3412;
   border-radius: 32px;
   box-shadow: 
-    0 6px 16px rgba(0, 0, 0, 0.5),
+    0 6px 16px rgba(0, 0, 0, 0.7),
     inset 0 1px 4px rgba(255, 255, 255, 0.2);
   color: white;
   cursor: pointer;
@@ -112,7 +107,7 @@ input[type="checkbox"] {
 }
 
 .big-button:hover {
-  background: linear-gradient(to bottom, #fb923c, #ea580c);
+  background: linear-gradient(to bottom right, #fb923c, #ea580c);
   border-top-color: #fdba74;
   border-right-color: #c2410c;
   border-left-color: #fdba74;
@@ -120,22 +115,21 @@ input[type="checkbox"] {
   box-shadow: 
     0 10px 24px rgba(0, 0, 0, 0.6),
     inset 0 1px 6px rgba(255, 255, 255, 0.3);
-  transform: translateY(-3px);
+  transform: translateY(-2px);
 }
 
 .big-button:active {
-  background: linear-gradient(to bottom, #c2410c, #9a3412);
+  background: linear-gradient(to bottom right, #c2410c, #9a3412);
   border-top-color: #ea580c;
   border-right-color: #7c2d12;
   border-left-color: #ea580c;
   border-bottom-color: #7c2d12;
   box-shadow: 
-    0 3px 8px rgba(0, 0, 0, 0.6),
+    0 3px 8px rgba(0, 0, 0, 0.8),
     inset 0 1px 2px rgba(255, 255, 255, 0.1);
   transform: translateY(2px);
 }
 
-/* Quick links */
 .quick-links {
   margin: auto auto auto auto;
   display: flex;
@@ -158,12 +152,11 @@ input[type="checkbox"] {
   text-decoration: underline;
 }
 
-/* Footer */
 .footer {
   color: #64748b;
   font-size: 0.8em;
   justify-content: right;
-  margin-top: auto;
+  margin-top: auto; 
   text-align: right;
   text-decoration: underline;
 }
