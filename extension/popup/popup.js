@@ -14,16 +14,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('ctrl').checked = !!saved.ctrl;
     document.getElementById('shift').checked = !!saved.shift;
 
-    // fixes Firefox first-load
     notifyAllTabs(saved);
   });
 
-  // Save + notify on change
   document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
     cb.addEventListener('change', saveAndNotify);
   });
 
-  // Big button
   document.getElementById('open-current').addEventListener('click', () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const currentTab = tabs[0];
