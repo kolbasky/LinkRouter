@@ -3,28 +3,27 @@ body {
   color: #e2e8f0;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   margin: 0;
-  min-width: 240px;
   max-width: 300px;
+  min-width: 240px;
 }
 
 .container {
+  align-items: center;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 0 0 8px 0;
-  align-items: center;
-  position: relative;
-  min-height: 220px;
   max-height: 250px;
+  min-height: 220px;
+  padding: 0 0 8px 0;
+  position: relative;
 }
 
 h2 {
-  width: 100%;
   background: #0f172a;
   border-radius: 0 0 8px 8px;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.4),
-    inset 0 1px 4px rgba(255, 255, 255, 0.15);
+  box-shadow:
+  0 4px 12px rgba(0, 0, 0, 0.4),
+  inset 0 1px 4px rgba(255, 255, 255, 0.15);
   color: #e2e8f0;
   cursor: default;
   display: inline-block;
@@ -35,31 +34,32 @@ h2 {
   padding-bottom: 8px;
   text-align: center;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  width: 100%;
 }
 
 h3 {
+  color: #a5b4fc;
   font-size: 1.4em;
   font-weight: 600;
-  text-align: center;
-  color: #a5b4fc;
   margin: 0;
+  text-align: center;
 }
 
 .modifiers-header {
+  color: #cbd5e1;
   cursor: default;
   display: flex;
   flex-wrap: wrap;
   font-size: 1.4em;
   justify-content: center;
   margin: 0;
-  color: #cbd5e1;
 }
 
 .modifiers {
-  height: 24px;
   display: flex;
   flex-wrap: wrap;
-  gap: 18px;
+  gap: 8px;
+  height: 24px;
   justify-content: center;
   margin-top: 2px;
 }
@@ -70,31 +70,32 @@ input[type="checkbox"] {
   margin: 0;
 }
 
+
 .modifiers label {
   align-items: center;
+  color: #e2e8f0;
   cursor: pointer;
   display: flex;
   font-size: 1.2em;
   gap: 4px;
-  color: #e2e8f0;
   transition: color 0.2s;
 }
 
 .modifiers label:hover {
   color: #ffffff;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
 }
 
 .hint {
   color: #94a3b8;
   cursor: default;
   font-size: 1.20em;
+  margin-bottom: 0.5%;
   margin: 0;
   text-align: center;
-  margin-bottom: 0.5%;
 }
 
 .quick-links {
-  margin-top: auto;
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
@@ -106,8 +107,8 @@ input[type="checkbox"] {
   color: #60a5fa;
   font-size: 0.8em;
   font-weight: 500;
-  text-decoration: none;
   margin-top: 0;
+  text-decoration: none;
   transition: color 0.2s;
 }
 
@@ -117,32 +118,32 @@ input[type="checkbox"] {
 }
 
 .icon-button {
-  position: relative;
-  width: 8px;
-  height: 8px;
+  align-items: center;
+  box-shadow: 0 0 48px 8px rgba(0, 102, 204, 0.85);
+  cursor: pointer;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   gap: 12px;
-  padding: 20px;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0 0 48px 8px rgba(0, 102, 204, 0.7);
-  user-select: none;
+  height: 10px;
+  justify-content: center;
   margin: 4% 0 -4.2%;
+  padding: 20px;
+  position: relative;
+  transition: all 0.2s ease-in-out;
+  user-select: none;
+  width: 10px;
 }
 
 .action-icon {
-  width: 64px;
-  height: 64px;
   border-radius: 20px;
+  height: 64px;
   transition: transform 0.2s ease-in-out;
+  width: 64px;
 }
 
 .icon-button:hover {
   animation: none;
-  box-shadow: 0 0 56px 8px rgba(0, 102, 204, 0.7);
+  box-shadow: 0 0 56px 12px rgba(0, 102, 204, 0.8);
   transform: translateY(0px);
 }
 
@@ -151,8 +152,8 @@ input[type="checkbox"] {
 }
 
 .icon-button:active {
+  box-shadow: 0 0 32px 4px rgba(0, 102, 204, 0.99);
   transform: translateY(1px);
-  box-shadow: 0 0 40px 8px rgba(0, 102, 204, 0.8);
 }
 
 .icon-button:active .action-icon {
@@ -160,52 +161,57 @@ input[type="checkbox"] {
 }
 
 .modifiers-hover-container {
+  align-items: center;
+  display: flex;
+  height: 100px;
+  justify-content: center;
   position: relative;
   width: 100%;
-  height: 100px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .hover-message {
   color: #cbd5e1;
+  cursor: default;
   font-size: 1.6em;
   font-weight: 600;
-  text-align: center;
+  left: 50%;
+  line-height: 1.3;
+  margin-top: -2px;
+  max-width: 260px;
   opacity: 0;
   pointer-events: none;
-  line-height: 1.3;
-  width: 90%;
-  max-width: 260px;
-  word-wrap: break-word;
-  white-space: normal;
-  transition: opacity 0.3s ease;
   position: absolute;
+  text-align: center;
   top: 50%;
-  left: 50%;
   transform: translate(-50%, -50%);
-  margin-top: -2px;
+  transition: opacity 0.3s ease-in-out;
+  white-space: normal;
+  width: 90%;
+  word-wrap: break-word;
 }
 
 .modifiers-section {
-  opacity: 1;
-  transition: opacity 0.3s ease;
-  position: absolute;
-  top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  text-align: center;
-}
-
-.icon-button:hover ~ .modifiers-hover-container .hover-message {
   opacity: 1;
+  position: absolute;
+  text-align: center;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s ease-in-out;
+  width: 100%;
 }
 
-.icon-button:hover ~ .modifiers-hover-container .modifiers-section {
+.icon-button:hover~.modifiers-hover-container .hover-message {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s ease-in-out;
+}
+
+.icon-button:hover~.modifiers-hover-container .modifiers-section {
   opacity: 0;
   pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s ease-in-out;
 }
 
 @supports (-moz-appearance: none) {
@@ -226,18 +232,19 @@ input[type="checkbox"] {
   }
 
   .modifiers-header {
-    font-size: 1.1em;
+    font-size: 1.05em;
   }
 
   .modifiers label {
-    font-size: 1.0em;
+    font-size: 0.85em;
   }
 
   .quick-links a {
     font-size: 0.6em;
-    margin-top: -8px;
+    font-weight: 600;
+    margin-top: -10px;
   }
-  
+
   .modifiers-hover-container {
     height: 120px;
   }
