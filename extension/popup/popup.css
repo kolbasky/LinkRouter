@@ -35,6 +35,7 @@ h2 {
   text-align: center;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   width: 100%;
+  z-index: 1000;
 }
 
 h3 {
@@ -248,4 +249,59 @@ input[type="checkbox"] {
   .modifiers-hover-container {
     height: 120px;
   }
+
+  .snowflakes {
+    scale: 0.75;
+  }
 }
+
+.snowflakes {
+  position: fixed;
+  inset: -17%;
+  pointer-events: none;
+  z-index: 999;
+  overflow: hidden;
+}
+
+@keyframes snowflakes-fall {
+  0%   { top: -10%; }
+  100% { top: 100%; }
+}
+
+@keyframes snowflakes-shake {
+  0%, 100% { transform: translateX(0); }
+  25%  { transform: translateX(30px); }
+  50%  { transform: translateX(-40px); }
+  75%  { transform: translateX(20px); }
+}
+
+.snowflake {
+  position: absolute;
+  color: #ffffff;
+  text-shadow: 0 0 2px #000;
+  user-select: none;
+  pointer-events: none;
+  animation: snowflakes-fall linear infinite, snowflakes-shake ease-in-out infinite;
+  animation-timing-function: linear, ease-in-out;
+}
+
+.snowflake:nth-child(1)  { left: 5%;   animation-duration: 15s, 6s;    animation-delay: 0s, 0s;      font-size: 1.1em; opacity: 0.72; }
+.snowflake:nth-child(2)  { left: 12%;  animation-duration: 18s, 8s;    animation-delay: -4s, -2s;    font-size: 0.9em; opacity: 0.58; }
+.snowflake:nth-child(3)  { left: 20%;  animation-duration: 13s, 5s;    animation-delay: -8s, -1s;    font-size: 1.4em; opacity: 0.85; }
+.snowflake:nth-child(4)  { left: 28%;  animation-duration: 20s, 9s;    animation-delay: -2s, -4s;    font-size: 1.0em; opacity: 0.63; }
+.snowflake:nth-child(5)  { left: 35%;  animation-duration: 16s, 7s;    animation-delay: -10s, -3s;   font-size: 1.2em; opacity: 0.79; }
+.snowflake:nth-child(6)  { left: 42%;  animation-duration: 14s, 6s;    animation-delay: -6s, -2.5s;  font-size: 0.8em; opacity: 0.52; }
+.snowflake:nth-child(7)  { left: 50%;  animation-duration: 19s, 8s;    animation-delay: -1s, -1.5s;  font-size: 1.5em; opacity: 0.88; }
+.snowflake:nth-child(8)  { left: 58%;  animation-duration: 12s, 5s;    animation-delay: -9s, -3.5s;  font-size: 1.1em; opacity: 0.67; }
+.snowflake:nth-child(9)  { left: 65%;  animation-duration: 17s, 7s;    animation-delay: -5s, -0.5s;  font-size: 1.3em; opacity: 0.81; }
+.snowflake:nth-child(10) { left: 72%;  animation-duration: 21s, 9s;    animation-delay: -7s, -4s;    font-size: 0.9em; opacity: 0.55; }
+.snowflake:nth-child(11) { left: 78%;  animation-duration: 13s, 6s;    animation-delay: -3s, -2s;    font-size: 1.2em; opacity: 0.74; }
+.snowflake:nth-child(12) { left: 85%;  animation-duration: 18s, 8s;    animation-delay: -11s, -1s;   font-size: 1.0em; opacity: 0.61; }
+.snowflake:nth-child(13) { left: 92%;  animation-duration: 16s, 7s;    animation-delay: -6s, -3s;    font-size: 1.4em; opacity: 0.83; }
+.snowflake:nth-child(14) { left: 8%;   animation-duration: 20s, 9s;    animation-delay: -9s, -4.5s;  font-size: 0.8em; opacity: 0.50; }
+.snowflake:nth-child(15) { left: 32%;  animation-duration: 14s, 5s;    animation-delay: -2s, -1s;    font-size: 1.3em; opacity: 0.77; }
+.snowflake:nth-child(16) { left: 48%;  animation-duration: 19s, 8s;    animation-delay: -5s, -2.5s;  font-size: 1.1em; opacity: 0.69; }
+.snowflake:nth-child(17) { left: 62%;  animation-duration: 15s, 6s;    animation-delay: -8s, -3s;    font-size: 1.5em; opacity: 0.90; }
+.snowflake:nth-child(18) { left: 75%;  animation-duration: 17s, 7s;    animation-delay: -1s, -1.5s;  font-size: 0.9em; opacity: 0.59; }
+.snowflake:nth-child(19) { left: 88%;  animation-duration: 12s, 5s;    animation-delay: -10s, -4s;   font-size: 1.2em; opacity: 0.71; }
+.snowflake:nth-child(20) { left: 95%;  animation-duration: 22s, 10s;   animation-delay: -4s, -2s;    font-size: 1.0em; opacity: 0.65; }
