@@ -24,11 +24,11 @@ Windows lets you choose a program to handle specific protocols, but there is no 
 3. Select "Yes" in dialog to register the app in the system.
 4. `Windows Settings` → `Apps` → `Default apps` dialog should pop-up automatically. If not press `Win+I` and start typing "default".
 5. **select LinkRouter as the default handler for protocols** you want it to handle. `linkrouter-ext` protocol is created by default and is mandatory for browser-extension to work.
-6. **optionally**, install the browser extension from chrome or mozilla stores (in progress) or add it manually. Extensions are  available on Releases page.
+6. **optionally**, install the browser extension from [mozilla addons](https://addons.mozilla.org/en-US/firefox/addon/linkrouter/) or add it manually. Extensions are  available on [Releases page](https://github.com/kolbasky/LinkRouter/releases/latest).
 7. **Edit the config** by double-clicking `linkrouter.exe` again.
 
 Without the browser extension, LinkRouter intercepts clicked links **outside** your browser (e.g., from other apps) if set as default handler for those protocols.<br>
-To send links to LinkRouter **from inside** your browser, install the companion extension (available on Releases page or addons.mozilla.org / chromewebstore.google.com when approved). The extension requires LinkRouter to be the default handler for the `linkrouter-ext://` protocol (registered automatically).<br>
+To send links to LinkRouter **from inside** your browser, install the companion extension. Available on [mozilla addons](https://addons.mozilla.org/en-US/firefox/addon/linkrouter/) and on [Releases page](https://github.com/kolbasky/LinkRouter/releases/latest). The extension requires LinkRouter to be the default handler for the `linkrouter-ext://` protocol (registered automatically).<br>
 
 > [!NOTE]
 > When registered, double-clicking `linkrouter.exe` opens the config for editing.
