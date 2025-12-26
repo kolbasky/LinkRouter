@@ -241,9 +241,12 @@ input[type="checkbox"] {
   }
 
   .quick-links a {
-    font-size: 0.6em;
     font-weight: 600;
-    margin-top: -10px;
+  }
+
+  .quick-links {
+    scale: 0.8;
+    margin-top: -26px;
   }
 
   .modifiers-hover-container {
