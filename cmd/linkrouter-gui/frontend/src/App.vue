@@ -39,9 +39,9 @@
         <table class="config-table">
           <thead>
             <tr>
-              <th style="width:3%;">#</th>
-              <th style="width:67%">Regex</th>
-              <th style="width:30%">Program</th>
+              <th style="width:3%; text-align: center;">#</th>
+              <th style="width:64%">Regex</th>
+              <th style="width:33%">Program</th>
             </tr>
           </thead>
           <tbody>

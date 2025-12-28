@@ -604,11 +604,10 @@ body {
   font-size: 12px;
   cursor: default;
   transition: 
-    opacity 0.2s ease,
-    color 0.2s ease,
-    background 0.2s ease-in-out;
+    opacity 0.1s ease,
+    color 0.1s ease,
+    background 0.1s ease-in-out;
   flex-shrink: 0;
-  /* display: flex; */
   align-items: center;
   justify-content: center;
   padding: 0;
@@ -625,24 +624,6 @@ body {
 }
 
 .copy-btn:active {
-  background: rgba(71, 85, 105, 0.9);
-  animation: copyPulse 0.1s ease-out;
-}
-
-
-@keyframes copyPulse {
-  0% {
-    background: rgba(71, 85, 105, 0.9);
-    color: #64748b;
-  }
-  50% {
-    background: rgba(255, 255, 255, 0.3);
-    color: #f1f5f9;
-    transform: scale(1.1);
-  }
-  100% {
-    background: transparent;
-    color: #64748b;
-    transform: scale(1);
-  }
+  background: rgba(255, 255, 255, 0.3);
+  scale: 1.1;
 }
