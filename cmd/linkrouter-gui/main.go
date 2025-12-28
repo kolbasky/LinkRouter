@@ -12,6 +12,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 //go:embed all:frontend/dist
@@ -90,4 +91,42 @@ func main() {
 	if err != nil {
 		println("Error:", err.Error())
 	}
+}
+
+func (a *App) OpenFileDialog() (string, error) {
+	filePath, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "Select LinkRouter Config File",
+		Filters: []runtime.FileFilter{
+			{
+				DisplayName: "JSON Files (*.json)",
+				Pattern:     "*.json",
+			},
+			{
+				DisplayName: "All Files (*.*)",
+				Pattern:     "*.*",
+			},
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+	if filePath == "" {
+		return "", nil // User cancelled
+	}
+	return filePath, nil
+}
+
+// LoadConfigFromPath loads config from a user-selected path
+func (a *App) LoadConfigFromPath(path string) (*Config, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var cfg Config
+	if err := json.Unmarshal(data, &cfg); err != nil {
+		return nil, err
+	}
+
+	return &cfg, nil
 }
