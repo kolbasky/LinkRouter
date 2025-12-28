@@ -8,7 +8,7 @@
           <tbody>
             <tr>
               <td><button class="close-btn" @click="minimizeWindow" style="scale:0.7">―</button></td> <!-- ― -->
-              <td><button class="close-btn" @click="maximizeWindow" style="scale:1.1">▢</button></td> <!--◻ □ ▢-->
+              <td><button class="close-btn" @click="maximizeWindow" style="scale:1.0">▢</button></td> <!--◻ □ ▢-->
               <td><button class="close-btn" @click="closeWindow" style="scale:0.6">╳</button></td> <!-- ╳⨯𐌗𐌢×-->
             </tr>
           </tbody>
@@ -16,39 +16,46 @@
       </div>
     </div>
 
-    <!-- Scrollable Content Area -->
-    <div class="content">
-      <!-- <h1>LinkRouter Config</h1> -->
-
+    <div class="header">
       <input
         v-model="search"
         placeholder="Search rules..."
         class="search-input"
       />
+    </div>
 
-      <table class="config-table">
-        <thead>
-          <tr>
-            <th>Pattern (Regex)</th>
-            <th>Program</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="rule in filteredRules" :key="rule.regex">
-            <td><code>{{ rule.regex }}</code></td>
-            <td><code>{{ basename(rule.program) }}</code></td>
-            <td style="text-align: right; padding: 0.5rem;">
-              <button class="edit-btn" @click="openEditModal(rule)">Edit</button>
-            </td>
-          </tr>
-          <tr v-if="filteredRules.length === 0">
-            <td colspan="3" style="text-align: center; padding: 2rem; color: #64748b;">
-              No rules found
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <table class="config-table-header">
+      <thead>
+        <tr>
+          <th style="width: 65%;">Regex</th>
+          <th style="width: 35%;">Program</th>
+        </tr>
+      </thead>
+    </table>
+
+    <!-- Scrollable Content Area -->
+    <div class="content">
+      <!-- Table wrapper for scrolling + sticky header -->
+        <table class="config-table">
+          <tbody>
+            <tr 
+              v-for="rule in filteredRules" 
+              :key="rule.regex"
+              class="rule-row"
+              @dblclick="openEditModal(rule)"
+            >
+              <td><code class="rule-row-tag" style="width: 75%;">{{ rule.regex }}</code></td>
+              <td><code class="rule-row-tag" style="width: 25%;">{{ basename(rule.program) }}</code></td>
+            </tr>
+            <tr v-if="filteredRules.length === 0">
+              <td colspan="2" style="text-align: center; padding: 2rem; color: #64748b;">
+                No rules found<br>
+                <small>Double-click a row to edit it</small>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
     </div>
 
     <!-- Fixed Bottom Bar -->
@@ -86,13 +93,12 @@
 
 <script setup>
 import { WindowMinimise, WindowToggleMaximise, Quit } from '../wailsjs/runtime';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { GetConfig } from '../wailsjs/go/main/App';
 import { OpenFileDialog, LoadConfigFromPath } from '../wailsjs/go/main/App';
 
 const config = ref({});
 const search = ref('');
-
 const closeWindow = () => Quit();
 const minimizeWindow = () => WindowMinimise();
 const maximizeWindow = () => WindowToggleMaximise();
@@ -102,6 +108,7 @@ GetConfig().then(c => config.value = c);
 
 const filteredRules = computed(() => {
   const query = search.value.toLowerCase();
+  if (query === '') return config.value.rules;
   return config.value.rules?.filter(r => 
     (r.regex && r.regex.toLowerCase().includes(query)) ||
     (r.program && r.program.toLowerCase().includes(query))
@@ -119,7 +126,7 @@ const loadConfig = async () => {
     const newConfig = await LoadConfigFromPath(filePath);
     if (newConfig) {
       config.value = newConfig;
-      configPath.value = basename(filePath);
+      configPath.value = filePath;
       search.value = ''; // optional: clear search
       // runtime.LogInfo(a.ctx, "Config loaded from: " + filePath); // optional logging
     }
@@ -181,7 +188,7 @@ const saveRule = () => {
 
 </script>
 
-
+<!-- 
 <style>
 #logo {
   display: block;
@@ -194,4 +201,4 @@ const saveRule = () => {
   background-size: 100% 100%;
   background-origin: content-box;
 }
-</style>
+</style> -->

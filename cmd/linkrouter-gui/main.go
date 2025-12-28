@@ -46,16 +46,18 @@ type Rule struct {
 func (a *App) GetConfig() (*Config, error) {
 	exe, _ := os.Executable()
 	confPath := filepath.Dir(exe)
-	data, err := os.ReadFile(filepath.Join(confPath, "linkrouter.json")) // adjust path as needed
+	data, err := os.ReadFile(filepath.Join(confPath, "linkrouter.json"))
 	if err != nil {
-		log.Println("Error reading config:", err)
-		return nil, err
+		return &Config{
+			Global: GlobalConfig{}, // explicit if needed
+			Rules:  []Rule{},
+		}, nil
 	}
 
 	var cfg Config
 	if err := json.Unmarshal(data, &cfg); err != nil {
 		log.Println("Error parsing config JSON:", err)
-		return nil, err
+		return &Config{}, nil
 	}
 
 	return &cfg, nil
