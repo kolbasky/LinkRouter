@@ -35,13 +35,12 @@ body {
   font-weight: 600;
   flex-shrink: 0;
   --wails-draggable: drag;
-  padding: 0 124px 0 2px;
+  padding: 0 0 0 2px;
   z-index: 1000;
 }
 
 .title-bar-buttons {
   --wails-draggable: no-drag;
-  /* margin-right: 10px; */
 }
 
 .title {
@@ -49,23 +48,44 @@ body {
   margin-bottom: 2px;
 }
 
-.close-btn {
-  width: 32px;
-  height: 32px;
+.titlebar-btn {
+  width: 46px;                  /* Fixed width for perfect alignment */
+  height: 32px;                 /* Matches title bar height */
   background: transparent;
   border: none;
   color: #cbd5e1;
-  font-size: 20px;
+  font-size: 16px;              /* Consistent base size */
+  font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 0;             /* Sharp edges like native windows */
   cursor: default;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
+/* Hover states */
+.minimize-btn:hover {
+  background: #334155;
+}
+.maximize-btn:hover {
+  background: #334155;
+}
 .close-btn:hover {
-  background: #ef4444;
+  background: #ef4444;           /* Red like native close button */
   color: white;
+}
+
+.minimize-btn {
+  font-size: 14px;              /* ▁ looks better slightly larger */
+}
+.maximize-btn {
+  font-size: 18px;
+  margin-bottom: 2px;
+}
+.close-btn {
+  font-size: 28px;
+  font-weight: 100;
 }
 
 .header {
@@ -82,17 +102,16 @@ body {
 /* Make search input full width but constrained */
 .header .search-input {
   margin: auto;
-  display: block;
+  /* display: block; */
 }
 
 /* Scrollable content area */
 .content {
+  /* width: 100%; */
   flex: 1;
-  overflow-y: auto;
-  /* padding: 1.5rem; */
-  display: flex;
+  overflow: auto;
   flex-direction: column;
-  align-items: center;
+  /* padding: 0 12px 0 12px; */
 }
 
 /* Custom scrollbar */
@@ -116,8 +135,8 @@ body {
 
 /* Search input - now properly styled */
 .search-input {
-  width: 100%;
-  max-width: 600px;
+  width: 60%;
+  max-width: 1000px;
   padding: 12px 16px;
   margin: 1rem 0 2rem;
   background: #1e293b;
@@ -138,39 +157,35 @@ body {
   color: #64748b;
 }
 
-.config-table-header {
-  width: 100%;
-  border-collapse: collapse;
-  background: #1e293b;
-  overflow: visible;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
-  z-index: 200;
-  text-align: left;
-}
-
-.config-table-header th {
-  position: sticky;
-  background: #334155;
-  color: #e2e8f0;
-  font-weight: 600;
-  padding: 1rem 2.3rem;
-  font-size: 0.95rem;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  cursor: default;
-  z-index: 10;
-}
 
 .config-table {
   width: 100%;
-  max-width: 1000px;
+  max-width: 1080px;
   margin: 0 auto; /* centers the table */
   border-collapse: separate; /* important for sticky header */
   border-spacing: 0;
   background: #1e293b;
   border-radius: 12px;
-  overflow: hidden;
+  /* overflow: hidden; */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  position: relative;
+}
+
+.config-table thead th {
+  width: 100%;
+  max-width: 1080px;
+  position: sticky;
+  top: 0;
+  background: #334155;
+  color: #e2e8f0;
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: default;
+  z-index: 10;
+  text-align: left;
 }
 
 .table-container {
@@ -178,6 +193,14 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0 1.5rem; /* matches your old content padding */
+}
+
+.index-cell {
+  text-align: center;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.9em;
+  color: #64748b;
+  opacity: 0.8;
 }
 
 .config-table td {
@@ -389,6 +412,237 @@ body {
 
 
 .rule-row-tag {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  /* justify-content: space-between; */
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.92em;
+  color: #cbd5e1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   user-select: text;
   cursor: text;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.rule-row-tag .rule-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  /* Do NOT set flex or width — let it size naturally */
+}
+
+.rule-row-tag .inline-copy {
+  opacity: 0;
+  visibility: hidden;
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 12px;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.rule-row-tag:hover .inline-copy {
+  opacity: 1;
+  visibility: visible;
+}
+
+.rule-row-tag .inline-copy:hover {
+  color: #cbd5e1;
+}
+
+.bottom-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-btn {
+  width: 40px;
+  height: 40px;
+  background: #334155;
+  color: #e2e8f0;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.settings-btn:hover {
+  background: #475569;
+}
+
+.settings-btn:active {
+  background: #5b7289;
+}
+
+
+/* Group the two buttons together */
+.button-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;                 /* Space between the two buttons */
+}
+
+/* Make the load button slightly smaller to match the group feel */
+.load-btn {
+  padding: 8px 18px;
+  background: #334155;
+  color: #e2e8f0;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background 0.2s ease;
+  white-space: nowrap;
+}
+
+.load-btn:hover {
+  background: #475569;
+}
+
+.load-btn:active {
+  background: #5b7289;
+}
+
+/* Settings button - square with gear icon */
+.settings-btn {
+  width: 32px;
+  height: 32px;
+  background: #334155;
+  color: #e2e8f0;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.settings-btn:hover {
+  background: #475569;
+}
+
+.settings-btn:active {
+  background: #5b7289;
+}
+
+
+
+.save-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: #334155;          /* Blue to stand out */
+  color: #e2e8f0;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: background 0.2s ease;
+  white-space: nowrap;
+}
+
+.save-btn:hover {
+  background: #475569;
+}
+
+.save-btn:active {
+  background: #5b7289;
+}
+
+
+
+
+
+.code-wrapper {
+  position: relative;
+  align-items: center;
+  width: 100%;
+}
+
+.rule-row-tag {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  user-select: text;
+  cursor: text;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.92em;
+}
+
+.copy-btn {
+  opacity: 0;
+  visibility: hidden;
+  background: rgba(51, 65, 85, 0.7);
+  border: none;
+  color: #cbd5e1;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  margin-left: 6px;
+  font-size: 12px;
+  cursor: default;
+  transition: 
+    opacity 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease-in-out;
+  flex-shrink: 0;
+  /* display: flex; */
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+
+.code-wrapper:hover .copy-btn {
+  opacity: 1;
+  visibility: visible;
+}
+
+.copy-btn:hover {
+  background: rgba(71, 85, 105, 0.9);
+}
+
+.copy-btn:active {
+  background: rgba(71, 85, 105, 0.9);
+  animation: copyPulse 0.1s ease-out;
+}
+
+
+@keyframes copyPulse {
+  0% {
+    background: rgba(71, 85, 105, 0.9);
+    color: #64748b;
+  }
+  50% {
+    background: rgba(255, 255, 255, 0.3);
+    color: #f1f5f9;
+    transform: scale(1.1);
+  }
+  100% {
+    background: transparent;
+    color: #64748b;
+    transform: scale(1);
+  }
 }

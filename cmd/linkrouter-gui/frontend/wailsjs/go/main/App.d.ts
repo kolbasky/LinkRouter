@@ -4,8 +4,14 @@ import {main} from '../models';
 
 export function GetConfig():Promise<main.Config>;
 
+export function GetCurrentConfigPath():Promise<string>;
+
 export function Greet(arg1:string):Promise<string>;
 
 export function LoadConfigFromPath(arg1:string):Promise<main.Config>;
 
 export function OpenFileDialog():Promise<string>;
+
+export function SaveConfig(arg1:main.Config):Promise<void>;
+
+export function SaveConfigAs(arg1:main.Config):Promise<string>;

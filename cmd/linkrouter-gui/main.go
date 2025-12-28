@@ -4,9 +4,11 @@ package main
 import (
 	"embed"
 	"encoding/json"
+	"errors"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -17,6 +19,7 @@ import (
 
 //go:embed all:frontend/dist
 var assets embed.FS
+var configPath string
 
 // Config struct matching your linkrouter.json
 type Config struct {
@@ -40,13 +43,49 @@ type Rule struct {
 	Arguments string `json:"arguments"`
 }
 
-// GetConfig returns the current config
-//
-//export GetConfig
-func (a *App) GetConfig() (*Config, error) {
+func canWrite(path string) bool {
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		return false
+	}
+	f.Close()
+	os.Remove(path)
+	return true
+}
+
+func getConfigPath() string {
 	exe, _ := os.Executable()
-	confPath := filepath.Dir(exe)
-	data, err := os.ReadFile(filepath.Join(confPath, "linkrouter.json"))
+	exeDir := filepath.Dir(exe)
+	candidateExe := filepath.Join(exeDir, "linkrouter.json")
+
+	localAppData := os.Getenv("LOCALAPPDATA")
+	if localAppData == "" {
+		return candidateExe
+	}
+	candidateAppData := filepath.Join(localAppData, "LinkRouter", "linkrouter.json")
+
+	// Prefer AppData if exists
+	if _, err := os.Stat(candidateAppData); err == nil {
+		return candidateAppData
+	}
+	if _, err := os.Stat(candidateExe); err == nil {
+		return candidateExe
+	}
+
+	// No config exists exist. Try exedir first
+	// But may fail when in Program Files and without admin privs
+	testFile := filepath.Join(exeDir, "linkrouter_write_test.9a928eb3-bfa9-4736-a262-00274e36d972")
+	if canWrite(testFile) {
+		return candidateExe
+	}
+	// Use localappdata then
+	os.MkdirAll(filepath.Dir(candidateAppData), 0755)
+	return candidateAppData
+}
+
+func (a *App) GetConfig() (*Config, error) {
+	configPath = getConfigPath()
+	data, err := os.ReadFile(configPath)
 	if err != nil {
 		return &Config{
 			Global: GlobalConfig{}, // explicit if needed
@@ -63,6 +102,50 @@ func (a *App) GetConfig() (*Config, error) {
 	return &cfg, nil
 }
 
+func (a *App) SaveConfig(cfg *Config) error {
+	if configPath == "" {
+		return errors.New("no file loaded")
+	}
+	data, err := json.MarshalIndent(cfg, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(configPath, data, 0644)
+}
+
+func (a *App) SaveConfigAs(cfg *Config) (string, error) {
+	filePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
+		Title:           "Save LinkRouter Config",
+		DefaultFilename: "linkrouter.json",
+		Filters: []runtime.FileFilter{
+			{DisplayName: "JSON Files (*.json)", Pattern: "*.json"},
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+	if filePath == "" {
+		return "", nil // cancelled
+	}
+	if !strings.HasSuffix(strings.ToLower(filePath), ".json") {
+		filePath += ".json"
+	}
+	data, err := json.MarshalIndent(cfg, "", "  ")
+	if err != nil {
+		return "", err
+	}
+	if err := os.WriteFile(filePath, data, 0644); err != nil {
+		return "", err
+	}
+	configPath = filePath // update global
+	return filePath, nil
+}
+
+func (a *App) GetCurrentConfigPath() string {
+	configPath = getConfigPath()
+	return configPath
+}
+
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()
@@ -72,6 +155,8 @@ func main() {
 		Title:     "cmd/linkrouter-gui",
 		Width:     1024,
 		Height:    768,
+		MinWidth:  800,
+		MinHeight: 600,
 		Frameless: true,
 		AssetServer: &assetserver.Options{
 			Assets: assets,

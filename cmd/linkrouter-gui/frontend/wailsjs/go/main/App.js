@@ -6,6 +6,10 @@ export function GetConfig() {
   return window['go']['main']['App']['GetConfig']();
 }
 
+export function GetCurrentConfigPath() {
+  return window['go']['main']['App']['GetCurrentConfigPath']();
+}
+
 export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
 }
@@ -16,4 +20,12 @@ export function LoadConfigFromPath(arg1) {
 
 export function OpenFileDialog() {
   return window['go']['main']['App']['OpenFileDialog']();
+}
+
+export function SaveConfig(arg1) {
+  return window['go']['main']['App']['SaveConfig'](arg1);
+}
+
+export function SaveConfigAs(arg1) {
+  return window['go']['main']['App']['SaveConfigAs'](arg1);
 }
