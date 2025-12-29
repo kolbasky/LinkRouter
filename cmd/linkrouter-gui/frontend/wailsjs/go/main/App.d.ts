@@ -15,3 +15,5 @@ export function OpenFileDialog():Promise<string>;
 export function SaveConfig(arg1:main.Config):Promise<void>;
 
 export function SaveConfigAs(arg1:main.Config):Promise<string>;
+
+export function TestRegex(arg1:string,arg2:string):Promise<boolean>;

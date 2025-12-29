@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/wailsapp/wails/v2"
@@ -144,6 +145,17 @@ func (a *App) SaveConfigAs(cfg *Config) (string, error) {
 func (a *App) GetCurrentConfigPath() string {
 	configPath = getConfigPath()
 	return configPath
+}
+
+func (a *App) TestRegex(regexStr, url string) bool {
+	if regexStr == "" {
+		return false
+	}
+	re, err := regexp.Compile(regexStr)
+	if err != nil {
+		return false // invalid regex = no match
+	}
+	return re.MatchString(url)
 }
 
 func main() {

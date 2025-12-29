@@ -22,8 +22,9 @@
         placeholder="Search rules..."
         class="search-input"
       />
+      
     </div>
-
+    
     <!-- <table class="config-table-header">
       <thead>
         <tr>
@@ -40,21 +41,28 @@
           <thead>
             <tr>
               <th style="width:3%; text-align: center;">#</th>
-              <th style="width:64%">Regex</th>
-              <th style="width:33%">Program</th>
+              <th style="width:62%">Regex</th>
+              <th style="width:30%">Program</th>
+              <th style="width:5%; min-width:32px;"></th>
             </tr>
           </thead>
           <tbody>
-            <tr 
-              v-for="item in filteredRules" 
+            <tr
+              v-for="(item, idx) in filteredRules"
               :key="item.originalIndex"
               class="rule-row"
+              :class="{ 'selected': selectedRowIndex === idx }"
+              @dragstart="onDragStart($event, idx)"
+              @dragover.prevent="onDragOver($event)"
+              @drop="onDrop($event, idx)"
               @dblclick="openEditModal(item.rule)"
+              @click="selectRow(idx)"
+              @contextmenu.prevent="openContextMenu($event, item.rule, idx)"
             >
               <td class="index-cell">{{ item.originalIndex }}</td>
               <td>
                 <div class="code-wrapper">
-                  <code class="rule-row-tag">{{ item.rule.regex }}</code>
+                  <code>{{ item.rule.regex }}</code>
                   <button class="copy-btn" @click.stop="copyToClipboard(item.rule.regex)" title="Copy to clipboard">
                     📋
                   </button>
@@ -62,11 +70,18 @@
               </td>
               <td>
                 <div class="code-wrapper">
-                  <code class="rule-row-tag">{{ basename(item.rule.program) }}</code>
+                  <code>{{ basename(item.rule.program) }}</code>
                   <button class="copy-btn" @click.stop="copyToClipboard(item.rule.program)" title="Copy to clipboard">
                     📋
                   </button>
                 </div>
+              </td>
+              <td class="drag-handle-cell">
+                <div
+                  class="drag-handle"
+                  draggable="true"
+                  @dragstart="onDragStart($event, idx)"
+                >≡</div>
               </td>
             </tr>
             <tr v-if="filteredRules.length === 0">
@@ -77,7 +92,6 @@
             </tr>
           </tbody>
         </table>
-
     </div>
 
     <!-- Fixed Bottom Bar -->
@@ -88,6 +102,9 @@
       </div>
 
       <div class="button-group">
+        <button class="add-rule-btn" @click="openAddRuleModal">
+          ➕
+        </button>
         <button class="save-btn" @click="saveConfigAs">
           💾
         </button>
@@ -95,7 +112,7 @@
           ⚙️
         </button>
         <button class="load-btn" @click="loadConfig">
-          Load Config File
+          Load config
         </button>
       </div>
     </div>
@@ -105,14 +122,23 @@
         <h2>Edit Rule</h2>
 
         <label>Pattern (Regex)</label>
-        <input v-model="editingRule.regex" class="modal-input" placeholder="e.g. ^https?://(.*\\.)?youtube\\.com/.*" />
+        <input v-model="editingRule.regex" class="modal-input" @input="updateTestResult" placeholder=".*website.com.*" />
 
         <label>Program</label>
         <input v-model="editingRule.program" class="modal-input" placeholder="C:\\Program Files\\App\\app.exe" />
 
         <label>Arguments (optional)</label>
         <input v-model="editingRule.arguments" class="modal-input" placeholder="--url {url}" />
-
+        <label>Test URL</label>
+        <div class="test-url-wrapper">
+        <input 
+          v-model="testUrl" 
+          class="modal-input test-url-input"
+          :class="{ 'match': testResult === true, 'no-match': testResult === false }"
+          placeholder="URL to test regex"
+          @input="updateTestResult"
+        />
+        </div>
         <div class="modal-buttons">
           <button class="cancel-btn" @click="closeEditModal">Cancel</button>
           <button class="ok-btn" @click="saveRule">OK</button>
@@ -145,15 +171,40 @@
         </div>
       </div>
     </div>
-
+    <div 
+      v-if="contextMenu.visible" 
+      class="context-menu"
+      :style="{ top: contextMenu.y + 'px', left: contextMenu.x + 'px' }"
+      @click.stop
+    >
+      <button class="context-item" @click="openAddRuleModal">
+        ➕ Add
+      </button>
+      <button class="context-item" @click="handleContextAction('edit')">
+        ✏️ Edit
+      </button>
+      <button class="context-item" @click="handleContextAction('delete')">
+        🗑️ Delete
+      </button>
+      <!-- <button class="context-item" @click="handleContextAction('open')">
+        📂 Open Config File
+      </button> -->
+    </div>
+    <!-- Close menu on outside click -->
+    <div
+      v-if="contextMenu.visible"
+      class="context-backdrop"
+      @click="closeContextMenu"
+      @contextmenu.prevent="closeContextMenu"
+    ></div>
   </div>
 </template>
 
 
 <script setup>
-import { WindowMinimise, WindowToggleMaximise, Quit, LogInfo } from '../wailsjs/runtime';
+import { WindowMinimise, WindowToggleMaximise, Quit, LogInfo } from '../wailsjs/runtime/runtime';
 import { ref, computed } from 'vue';
-import { OpenFileDialog, LoadConfigFromPath, SaveConfig, SaveConfigAs, GetConfig, GetCurrentConfigPath } from '../wailsjs/go/main/App';
+import { OpenFileDialog, LoadConfigFromPath, SaveConfig, SaveConfigAs, GetConfig, GetCurrentConfigPath, TestRegex } from '../wailsjs/go/main/App';
 
 async function loadInitialData() {
   try {
@@ -263,29 +314,24 @@ Promise.all([
 const filteredRules = computed(() => {
   const query = search.value.toLowerCase();
   const rules = config.value.rules || [];
-  
+
   if (query === '') {
-    return rules.map((rule, index) => ({
+    return rules.map((rule, realIndex) => ({
       rule,
-      originalIndex: index + 1, // 1-based
-      displayIndex: index + 1
+      realIndex,              // 👈 store real index
+      originalIndex: realIndex + 1
     }));
   }
-  
-  const filtered = rules
-    .map((rule, originalIndex) => ({
+
+  return rules
+    .map((rule, realIndex) => ({
       rule,
-      originalIndex: originalIndex + 1,
-      matchesRegex: rule.regex?.toLowerCase().includes(query) || false,
-      matchesProgram: rule.program?.toLowerCase().includes(query) || false
+      realIndex,            // 👈 even when filtered!
+      originalIndex: realIndex + 1,
+      matches: rule.regex?.toLowerCase().includes(query) || 
+               rule.program?.toLowerCase().includes(query)
     }))
-    .filter(item => item.matchesRegex || item.matchesProgram);
-    
-  // Return with display index (1-based in filtered list)
-  return filtered.map((item, displayIndex) => ({
-    ...item,
-    displayIndex: displayIndex + 1
-  }));
+    .filter(item => item.matches);
 });
 
 const loadConfig = async () => {
@@ -340,13 +386,21 @@ const closeEditModal = () => {
   }, 300);
 };
 
+
 const saveRule = () => {
   if (!editingRule.value.regex || !editingRule.value.program) {
     alert('Regex and Program are required!');
     return;
   }
 
-  Object.assign(originalRule.value, editingRule.value);
+  if (originalRule.value) {
+    // Editing existing rule → update in place
+    Object.assign(originalRule.value, editingRule.value);
+  } else {
+    // Adding new rule → push to config
+    config.value.rules = config.value.rules || [];
+    config.value.rules.push({ ...editingRule.value });
+  }
 
   closeEditModal();
 };
@@ -360,6 +414,26 @@ const saveConfigAs = async () => {
   } catch (err) {
     alert('Failed to save config as: ' + err);
     console.error(err);
+  }
+};
+
+const testUrl = ref('');
+const testResult = ref(null); // null = no test, true = match, false = no match
+
+const updateTestResult = async () => {
+  const regex = editingRule.value?.regex?.trim() || '';
+  const url = testUrl.value?.trim() || '';
+
+  if (!regex || !url) {
+    testResult.value = null;
+    return;
+  }
+
+  try {
+    const matches = await TestRegex(regex, url);
+    testResult.value = matches;
+  } catch (err) {
+    testResult.value = false; // invalid regex
   }
 };
 
@@ -379,5 +453,168 @@ async function copyToClipboard(text) {
     document.body.removeChild(textarea);
   }
 }
+
+const openAddRuleModal = () => {
+  // Create a fresh empty rule
+  const newRule = {
+    regex: '',
+    program: '',
+    arguments: ''
+  };
+  
+  // We'll push it to config.rules AFTER user confirms
+  editingRule.value = { ...newRule };
+  originalRule.value = null; // indicates it's a new rule
+  showEditModal.value = true;
+  closeContextMenu()
+};
+
+const contextMenu = ref({
+  visible: false,
+  x: 0,
+  y: 0,
+  rule: null,      // the rule object
+  index: -1        // index in filteredRules
+});
+
+function selectRow(index) {
+  selectedRowIndex.value = index;
+}
+
+const selectedRowIndex = ref(-1);
+
+function openContextMenu(event, rule, index) {
+  selectRow(index);
+
+  // Estimate menu size (you can measure precisely if needed)
+  const menuWidth = 180;   // matches .context-menu min-width
+  const menuHeight = 120;  // approx: 3 items × 32px + padding
+
+  let x = event.clientX;
+  let y = event.clientY;
+
+  // Prevent overflow to the right
+  if (x + menuWidth > window.innerWidth) {
+    x = window.innerWidth - menuWidth - 2; // 2px safety margin
+  }
+
+  // Prevent overflow to the bottom
+  if (y + menuHeight > window.innerHeight) {
+    y = window.innerHeight - menuHeight - 2;
+  }
+
+  // Ensure it doesn’t go off the top or left
+  x = Math.max(x, 2);
+  y = Math.max(y, 2);
+
+  contextMenu.value = {
+    visible: true,
+    x,
+    y,
+    rule,
+    index
+  };
+}
+
+function closeContextMenu() {
+  contextMenu.value.visible = false;
+}
+
+function handleContextAction(action) {
+  const { rule, index } = contextMenu.value;
+  
+  if (action === 'edit') {
+    openEditModal(rule);
+  } 
+  else if (action === 'delete') {
+    if (confirm(`Delete rule:\n${rule.regex}\n→ ${rule.program}?`)) {
+      // Find the actual index in config.rules (not filtered!)
+      const actualIndex = config.value.rules.findIndex(r => 
+        r.regex === rule.regex && 
+        r.program === rule.program && 
+        r.arguments === rule.arguments
+      );
+      if (actualIndex !== -1) {
+        config.value.rules.splice(actualIndex, 1);
+      }
+      // Clear selection if deleted row was selected
+      if (selectedRowIndex.value === index) {
+        selectedRowIndex.value = -1;
+      }
+    }
+  }
+  else if (action === 'open') {
+    // Open the config file in default editor
+    openConfigFile();
+  }
+  
+  closeContextMenu();
+}
+
+
+
+// Drag state
+const dragSourceIndex = ref(-1);
+
+function onDragStart(event, index) {
+  // Store the **filtered index** — we’ll map to real index on drop
+  dragSourceIndex.value = index;
+  event.dataTransfer.effectAllowed = 'move';
+  // Optional: add visual drag image
+  // event.dataTransfer.setDragImage(event.target, 0, 0);
+}
+
+function onDragOver(event) {
+  event.preventDefault();
+  event.dataTransfer.dropEffect = 'move';
+  // Remove previous highlight
+  document.querySelectorAll('.rule-row.drag-over').forEach(el => {
+    el.classList.remove('drag-over');
+  });
+  // Add to current
+  const row = event.target.closest('.rule-row');
+  if (row) row.classList.add('drag-over');
+}
+
+function onDragLeave() {
+  dragTargetIndex.value = -1;
+}
+
+function onDrop(event, targetIndex) {
+  event.preventDefault();
+  
+  const sourceIdx = dragSourceIndex.value;
+  if (sourceIdx === -1 || sourceIdx === targetIndex) return;
+
+  // Map filtered index → actual rule index in config.rules
+  const rules = config.value.rules || [];
+  if (rules.length === 0) return;
+
+  // Get actual rule objects
+  const sourceRule = filteredRules.value[sourceIdx]?.rule;
+  const targetRule = filteredRules.value[targetIndex]?.rule;
+
+  if (!sourceRule || !targetRule) return;
+
+  // Find their real indices in config.rules
+  const realSource = rules.findIndex(r => r === sourceRule);
+  const realTarget = rules.findIndex(r => r === targetRule);
+
+  if (realSource === -1 || realTarget === -1 || realSource === realTarget) return;
+
+  // Reorder in config.rules
+  const updated = [...rules];
+  const [moved] = updated.splice(realSource, 1);
+  updated.splice(realTarget, 0, moved);
+
+  config.value.rules = updated;
+
+  // Update selection
+  selectedRowIndex.value = targetIndex;
+  dragSourceIndex.value = -1;
+  dragTargetIndex.value = -1;
+}
+
+
 
 </script>

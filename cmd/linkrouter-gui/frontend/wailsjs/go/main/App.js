@@ -29,3 +29,7 @@ export function SaveConfig(arg1) {
 export function SaveConfigAs(arg1) {
   return window['go']['main']['App']['SaveConfigAs'](arg1);
 }
+
+export function TestRegex(arg1, arg2) {
+  return window['go']['main']['App']['TestRegex'](arg1, arg2);
+}

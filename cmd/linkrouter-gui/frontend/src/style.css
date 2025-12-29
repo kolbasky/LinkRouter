@@ -9,7 +9,8 @@ html {
 body {
   margin: 0;
   height: 100%;
-  font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family:    system-ui, -apple-system, Roboto, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 1.2em;
 }
 
 /* Main layout */
@@ -167,8 +168,15 @@ body {
   background: #1e293b;
   border-radius: 12px;
   /* overflow: hidden; */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); */
   position: relative;
+}
+
+.config-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 12px 6px -6px rgba(0, 0, 0, 0.25); /* subtle, clean shadow */
 }
 
 .config-table thead th {
@@ -197,16 +205,19 @@ body {
 
 .index-cell {
   text-align: center;
-  font-family: 'Consolas', 'Monaco', monospace;
   font-size: 0.9em;
   color: #64748b;
   opacity: 0.8;
 }
 
 .config-table td {
+  max-width: 300px;
   padding: 1rem 1.25rem;
   color: #cbd5e1;
   border-top: 1px solid #334155;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .config-table tbody tr:hover {
@@ -224,11 +235,124 @@ body {
 }
 
 .config-table code {
-  font-family: 'Fira Code', 'Consolas', monospace;
   background: rgba(0, 0, 0, 0.2);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.92em;
+  text-overflow: ellipsis;
+}
+
+.code-wrapper {
+  position: relative;
+  align-items: center;
+  width: 100%;
+}
+
+.copy-btn {
+  opacity: 0;
+  visibility: hidden;
+  background: rgba(51, 65, 85, 0.7);
+  border: none;
+  color: #cbd5e1;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  margin-left: 6px;
+  font-size: 12px;
+  cursor: default;
+  transition: 
+    opacity 0.1s ease,
+    color 0.1s ease,
+    background 0.1s ease-in-out;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+
+.code-wrapper:hover .copy-btn {
+  opacity: 1;
+  visibility: visible;
+}
+
+.copy-btn:hover {
+  background: rgba(71, 85, 105, 0.9);
+}
+
+.copy-btn:active {
+  background: rgba(255, 255, 255, 0.3);
+  scale: 1.1;
+}
+
+.drag-handle-cell {
+  padding: 0 !important;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.drag-handle {
+  cursor: grab;
+  opacity: 0.4;
+  font-size: 14px;
+  padding: 6px 0;
+  transition: opacity 0.2s ease;
+  user-select: none;
+}
+
+.drag-handle:hover {
+  opacity: 0.8;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+
+.context-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+}
+
+.context-menu {
+  position: fixed;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 10000;
+  min-width: 180px;
+  overflow: hidden;
+}
+
+.context-item {
+  width: 100%;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  text-align: left;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.context-item:hover {
+  background: #334155;
+}
+
+.context-item:first-child {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.context-item:last-child {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
 }
 
 /* Bottom fixed bar */
@@ -250,27 +374,10 @@ body {
   cursor: default;
 }
 
-.load-btn {
-  padding: 8px 20px;
-  background: #334155;
-  color: #e2e8f0;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: background 0.2s ease;
-}
 
-.load-btn:hover {
-  background: #475569;
-}
-
-.load-btn:active {
-  background: #5b7289;
-}
 
 /* Responsive */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .content {
     padding: 1rem;
   }
@@ -284,14 +391,8 @@ body {
     padding: 0.75rem 0.5rem;
     font-size: 0.9rem;
   }
-}
+} */
 
-
-
-
-
-
-/* Table edit button */
 .edit-btn {
   padding: 6px 12px;
   background: #334155;
@@ -306,7 +407,6 @@ body {
   background: #475569;
 }
 
-/* Modal overlay */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -364,6 +464,43 @@ body {
   box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.2);
 }
 
+.test-url-wrapper {
+  position: relative;
+  display: flex;
+  gap: 8px;
+}
+
+.test-url-input {
+  flex: 1;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.test-url-input.match {
+  border-color: #22c55e !important; /* green */
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+.test-url-input.no-match {
+  border-color: #ef4444 !important; /* red */
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.test-btn {
+  padding: 0 16px;
+  background: #334155;
+  color: #e2e8f0;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  align-self: center;
+}
+
+.test-btn:hover {
+  background: #475569;
+}
+
 /* Modal buttons */
 .modal-buttons {
   display: flex;
@@ -406,20 +543,23 @@ body {
   font-size: 0.85rem;
   user-select: text;
   cursor: text;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 
 
 
 .rule-row-tag {
+  min-width: 100px;
+  max-width: 400px;
   position: relative;
-  display: inline-flex;
+  display: inline-block;
   align-items: center;
-  /* justify-content: space-between; */
   background: rgba(0, 0, 0, 0.2);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
-  font-family: 'Fira Code', 'Consolas', monospace;
   font-size: 0.92em;
   color: #cbd5e1;
   overflow: hidden;
@@ -428,14 +568,13 @@ body {
   user-select: text;
   cursor: text;
   gap: 6px;
-  max-width: 100%;
 }
 
 .rule-row-tag .rule-text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  /* Do NOT set flex or width — let it size naturally */
+  max-width: 300px;
 }
 
 .rule-row-tag .inline-copy {
@@ -463,40 +602,24 @@ body {
   color: #cbd5e1;
 }
 
+.rule-row.drag-over {
+  background: #334155 !important;
+  outline: 1px dashed #64748b;
+}
+
 .bottom-buttons {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.settings-btn {
-  width: 40px;
-  height: 40px;
-  background: #334155;
-  color: #e2e8f0;
-  border: none;
-  border-radius: 6px;
-  font-size: 1.4rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s ease;
-}
-
-.settings-btn:hover {
-  background: #475569;
-}
-
-.settings-btn:active {
-  background: #5b7289;
-}
 
 
 /* Group the two buttons together */
 .button-group {
   display: flex;
   align-items: center;
-  gap: 10px;                 /* Space between the two buttons */
+  gap: 10px;
 }
 
 /* Make the load button slightly smaller to match the group feel */
@@ -507,9 +630,11 @@ body {
   border: none;
   border-radius: 6px;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 300;
   transition: background 0.2s ease;
   white-space: nowrap;
+  /* box-shadow: 0 2px 2px  rgba(0,0,0,0.25); */
+  text-shadow: 1px 1px 1px 1px rgba(0,0,0,0.25);
 }
 
 .load-btn:hover {
@@ -518,6 +643,7 @@ body {
 
 .load-btn:active {
   background: #5b7289;
+  scale: 0.98;
 }
 
 /* Settings button - square with gear icon */
@@ -532,6 +658,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* box-shadow: 0 2px 2px  rgba(0,0,0,0.25); */
+  text-shadow: 0 1px 1px  rgba(0,0,0,0.25);
   transition: background 0.2s ease;
 }
 
@@ -541,15 +669,14 @@ body {
 
 .settings-btn:active {
   background: #5b7289;
+  scale: 0.95;
 }
-
-
 
 .save-btn {
   width: 32px;
   height: 32px;
   padding: 0;
-  background: #334155;          /* Blue to stand out */
+  background: #334155;
   color: #e2e8f0;
   border: none;
   border-radius: 6px;
@@ -565,65 +692,30 @@ body {
 
 .save-btn:active {
   background: #5b7289;
+  scale: 0.95;
 }
 
-
-
-
-
-.code-wrapper {
-  position: relative;
-  align-items: center;
-  width: 100%;
-}
-
-.rule-row-tag {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  user-select: text;
-  cursor: text;
-  background: rgba(0, 0, 0, 0.2);
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-family: 'Fira Code', 'Consolas', monospace;
-  font-size: 0.92em;
-}
-
-.copy-btn {
-  opacity: 0;
-  visibility: hidden;
-  background: rgba(51, 65, 85, 0.7);
+.add-rule-btn {
+  width: 32px;
+  height: 32px;
+  background: #334155;
+  border-radius: 6px;
+  color: white;
   border: none;
-  color: #cbd5e1;
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  margin-left: 6px;
-  font-size: 12px;
-  cursor: default;
-  transition: 
-    opacity 0.1s ease,
-    color 0.1s ease,
-    background 0.1s ease-in-out;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
+  font-size: 1.2rem;
+  padding: 0 0 0 0;
+  transition: background 0.2s ease;
+  z-index: 101;
+  /* box-shadow: 0 2px 2px  rgba(0,0,0,0.25); */
+  text-shadow: 0 1px 1px  rgba(0,0,0,0.25);
+  
 }
 
-
-.code-wrapper:hover .copy-btn {
-  opacity: 1;
-  visibility: visible;
+.add-rule-btn:hover {
+  background: #475569;
 }
 
-.copy-btn:hover {
-  background: rgba(71, 85, 105, 0.9);
-}
-
-.copy-btn:active {
-  background: rgba(255, 255, 255, 0.3);
-  scale: 1.1;
+.add-rule-btn:active {
+  background: #5b7289;
+  scale: 0.95;
 }
