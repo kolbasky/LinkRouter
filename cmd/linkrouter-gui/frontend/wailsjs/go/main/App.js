@@ -10,10 +10,6 @@ export function GetCurrentConfigPath() {
   return window['go']['main']['App']['GetCurrentConfigPath']();
 }
 
-export function Greet(arg1) {
-  return window['go']['main']['App']['Greet'](arg1);
-}
-
 export function LoadConfigFromPath(arg1) {
   return window['go']['main']['App']['LoadConfigFromPath'](arg1);
 }

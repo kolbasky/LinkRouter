@@ -1,4 +1,4 @@
-export namespace main {
+export namespace config {
 	
 	export class Rule {
 	    regex: string;

@@ -119,7 +119,7 @@ func getDefaultBrowserPath() string {
 	return ""
 }
 
-func canWrite(path string) bool {
+func CanWrite(path string) bool {
 	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		return false
@@ -151,7 +151,7 @@ func GetConfigPath() string {
 	// No config exists exist. Try exedir first
 	// But may fail when in Program Files and without admin privs
 	testFile := filepath.Join(exeDir, "linkrouter_write_test.9a928eb3-bfa9-4736-a262-00274e36d973")
-	if canWrite(testFile) {
+	if CanWrite(testFile) {
 		return candidateExe
 	}
 	// Use localappdata then
