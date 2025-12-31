@@ -3,6 +3,7 @@ package main
 
 import (
 	"embed"
+	"flag"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -12,8 +13,13 @@ import (
 
 //go:embed all:frontend/dist
 var assets embed.FS
+var InteractiveMode = flag.Bool("interactive", false, "Open in interactive mode")
+var InteractiveURL = flag.String("url", "", "URL to prefill")
 
 func main() {
+	flag.Parse()
+	// *InteractiveMode = true
+	// *InteractiveURL = "https://music.yandex.ru/album/123456/track/7890"
 	// Create an instance of the app structure
 	app := NewApp()
 

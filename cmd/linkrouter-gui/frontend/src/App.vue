@@ -232,8 +232,9 @@
 <script setup>
 import { Fzf } from 'fzf'
 import { WindowMinimise, WindowToggleMaximise, Quit, LogInfo } from '../wailsjs/runtime/runtime';
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import {
+  GetInteractiveMode,
   OpenFileDialog,
   OpenConfigDialog,
   OpenProgramDialog,
@@ -275,6 +276,31 @@ Promise.all([
   config.value = cfg;
   configPath.value = path;
 });
+
+nextTick(async () => {
+  const mode = await GetInteractiveMode()
+  runtime.LogInfo("we are here")
+  if (mode.enabled === "true" && mode.url) {
+    testUrl.value = mode.url
+    editingRule.value = {
+      regex: guessRegex(mode.url),
+      program: '',
+      arguments: ''
+    }
+    originalRule.value = null
+    showEditModal.value = true
+    updateTestResult()
+  }
+})
+
+const guessRegex = (url) => {
+  try {
+    const u = new URL(url)
+    return `${u.protocol}//${u.hostname}.*`
+  } catch (e) {
+    return '.*'
+  }
+}
 
 // Reactive state
 const config = ref({});

@@ -28,6 +28,16 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
+func (a *App) GetInteractiveMode() map[string]string {
+	if *InteractiveMode && *InteractiveURL != "" {
+		return map[string]string{
+			"enabled": "true",
+			"url":     *InteractiveURL,
+		}
+	}
+	return map[string]string{"enabled": "false"}
+}
+
 var configPath string
 
 func (a *App) GetConfig() (*config.Config, error) {

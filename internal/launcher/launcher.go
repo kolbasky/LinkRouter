@@ -1,10 +1,7 @@
 package launcher
 
 import (
-	"encoding/binary"
-	"encoding/json"
 	"fmt"
-	"io"
 	"linkrouter/internal/config"
 	"linkrouter/internal/dialogs"
 	"linkrouter/internal/logger"
@@ -19,97 +16,6 @@ import (
 	"strings"
 	"syscall"
 )
-
-func HandleStdIn() {
-	config.LoadConfig()
-	var length uint32
-	if err := binary.Read(os.Stdin, binary.LittleEndian, &length); err != nil {
-		logger.Log("Error reading length from stdin:" + err.Error())
-		os.Exit(1)
-	}
-
-	// Safety: limit message size
-	if length > 1024*1024 { // 1 MB
-		logger.Log("Error: Message exceeds 1MB")
-		dialogs.ShowError("Message exceeds 1MB")
-		os.Exit(1)
-	}
-
-	// Read JSON payload
-	msg := make([]byte, length)
-	if _, err := io.ReadFull(os.Stdin, msg); err != nil {
-		logger.Log("Error: couldn't read JSON payload:" + err.Error())
-		dialogs.ShowError("Couldn't read JSON payload")
-		os.Exit(1)
-	}
-
-	// Parse JSON
-	var req struct {
-		URL    string `json:"url"`
-		Action string `json:"action"`
-	}
-	if err := json.Unmarshal(msg, &req); err != nil {
-		logger.Log("Error: unable to unmarshal message:" + err.Error())
-		os.Exit(1)
-	}
-
-	// Prepare default response (in case of URL or unknown action)
-	var resp map[string]interface{}
-
-	switch req.Action {
-	case "ping":
-		exePath, _ := os.Executable()
-		resp = map[string]interface{}{
-			"status":  "ok",
-			"exePath": exePath,
-		}
-
-	case "shouldHandle":
-		// Check if ANY rule matches — don't launch anything
-		handled := shouldHandleURL(req.URL)
-		resp = map[string]interface{}{
-			"handled": handled,
-		}
-
-	default:
-		HandleURL(req.URL)
-		resp = map[string]interface{}{
-			"status": "processed",
-		}
-	}
-
-	// Send response (always LittleEndian on Windows)
-	respBytes, err := json.Marshal(resp)
-	if err != nil {
-		logger.Log("Error marshaling response:" + err.Error())
-		os.Exit(1)
-	}
-
-	if err := binary.Write(os.Stdout, binary.LittleEndian, uint32(len(respBytes))); err != nil {
-		logger.Log("Error writing response length:" + err.Error())
-		os.Exit(1)
-	}
-	if _, err := os.Stdout.Write(respBytes); err != nil {
-		logger.Log("Error writing response:" + err.Error())
-		os.Exit(1)
-	}
-	os.Stdout.Sync()
-}
-
-func shouldHandleURL(rawURL string) bool {
-	cfg, _ := config.LoadConfig()
-	for _, rule := range cfg.Rules {
-		re, err := regexp.Compile(rule.Regex)
-		if err != nil {
-			continue
-		}
-		if re.MatchString(rawURL) {
-			HandleURL(rawURL)
-			return true
-		}
-	}
-	return false
-}
 
 func HandleNoArgs() {
 	if !registry.IsRegistered() {
@@ -267,6 +173,32 @@ func HandleURL(url string) {
 				rule.Program,
 				err,
 			))
+		}
+	}
+
+	if cfg.Global.InteractiveMode {
+		exe, _ := os.Executable()
+		exeDir := filepath.Dir(exe)
+		guiPath := filepath.Join(exeDir, "linkrouter-gui.exe")
+
+		if _, err := os.Stat(guiPath); err == nil {
+			quotedGUI := strconv.Quote(guiPath)
+			guiArgs := `--interactive --url=` + strconv.Quote(url)
+			fullCmdLine := quotedGUI + " " + guiArgs
+
+			cmd := exec.Command(guiPath)
+			cmd.Path = guiPath
+			cmd.SysProcAttr = &syscall.SysProcAttr{
+				CmdLine: fullCmdLine,
+			}
+
+			err := cmd.Start()
+			if err == nil {
+				logger.Log("Interactive GUI launched successfully")
+				os.Exit(0)
+			} else {
+				logger.Log("Failed to launch GUI: " + err.Error())
+			}
 		}
 	}
 

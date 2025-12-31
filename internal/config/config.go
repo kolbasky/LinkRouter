@@ -27,6 +27,7 @@ type GlobalConfig struct {
 	FallbackBrowserArgs string   `json:"fallbackBrowserArgs"`
 	DefaultConfigEditor string   `json:"defaultConfigEditor"`
 	LogPath             string   `json:"logPath"`
+	InteractiveMode     bool     `json:"interactiveMode"`
 	SupportedProtocols  []string `json:"supportedProtocols"`
 }
 
@@ -173,6 +174,7 @@ func DefaultConfig() *Config {
 			FallbackBrowserArgs: "{URL}",
 			DefaultConfigEditor: "",
 			LogPath:             "",
+			InteractiveMode:     false,
 			SupportedProtocols:  []string{"http", "https", "linkrouter-ext"},
 		},
 		Rules: []Rule{
