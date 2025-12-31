@@ -120,11 +120,16 @@
         />
 
         <label>Program</label>
-        <input
-          v-model="editingRule.program"
-          class="modal-input"
-          placeholder="C:\\Program Files\\App\\app.exe"
-        />
+        <div class="program-input-wrapper">
+          <input 
+            v-model="editingRule.program" 
+            class="modal-input program-input" 
+            placeholder="C:\\Program Files\\App\\app.exe" 
+          />
+          <button class="browse-btn" @click="browseProgram" title="Browse for program">
+            📂
+          </button>
+        </div>
 
         <label>Arguments (optional)</label>
         <input
@@ -226,6 +231,8 @@ import { WindowMinimise, WindowToggleMaximise, Quit, LogInfo } from '../wailsjs/
 import { ref, computed } from 'vue';
 import {
   OpenFileDialog,
+  OpenConfigDialog,
+  OpenProgramDialog,
   LoadConfigFromPath,
   SaveConfig,
   SaveConfigAs,
@@ -364,7 +371,7 @@ async function copyToClipboard(text) {
 // Config operations
 const loadConfig = async () => {
   try {
-    const filePath = await OpenFileDialog();
+    const filePath = await OpenConfigDialog();
     if (!filePath) return;
 
     const newConfig = await LoadConfigFromPath(filePath);
@@ -450,6 +457,17 @@ const updateTestResult = async () => {
     testResult.value = false;
   }
 };
+
+const browseProgram = async () => {
+  try {
+    const filePath = await OpenProgramDialog()
+    if (filePath) {
+      editingRule.program = filePath
+    }
+  } catch (err) {
+    console.error("Program picker failed:", err)
+  }
+}
 
 // Global settings
 const openSettingsModal = () => {

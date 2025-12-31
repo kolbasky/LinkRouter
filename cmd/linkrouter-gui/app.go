@@ -87,27 +87,46 @@ func (a *App) TestRegex(regexStr, url string) bool {
 	return re.MatchString(url)
 }
 
-func (a *App) OpenFileDialog() (string, error) {
+func (a *App) OpenFileDialog(title string, filters []runtime.FileFilter) (string, error) {
+	// Default to "Select File" if no title
+	if title == "" {
+		title = "Select File"
+	}
+
+	// Default filters if none provided
+	if len(filters) == 0 {
+		filters = []runtime.FileFilter{
+			{DisplayName: "All Files (*.*)", Pattern: "*.*"},
+		}
+	}
+
 	filePath, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "Select LinkRouter Config File",
-		Filters: []runtime.FileFilter{
-			{
-				DisplayName: "JSON Files (*.json)",
-				Pattern:     "*.json",
-			},
-			{
-				DisplayName: "All Files (*.*)",
-				Pattern:     "*.*",
-			},
-		},
+		Title:   title,
+		Filters: filters,
 	})
 	if err != nil {
 		return "", err
 	}
 	if filePath == "" {
-		return "", nil // User cancelled
+		return "", nil // user cancelled
 	}
 	return filePath, nil
+}
+
+// For config files
+func (a *App) OpenConfigDialog() (string, error) {
+	return a.OpenFileDialog("Select LinkRouter Config File", []runtime.FileFilter{
+		{DisplayName: "JSON Files (*.json)", Pattern: "*.json"},
+		{DisplayName: "All Files (*.*)", Pattern: "*.*"},
+	})
+}
+
+// For programs
+func (a *App) OpenProgramDialog() (string, error) {
+	return a.OpenFileDialog("Select Program", []runtime.FileFilter{
+		{DisplayName: "Exe Files (*.exe)", Pattern: "*.exe"},
+		{DisplayName: "All Files (*.*)", Pattern: "*.*"},
+	})
 }
 
 // LoadConfigFromPath loads config from a user-selected path

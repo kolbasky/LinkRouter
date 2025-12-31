@@ -464,6 +464,44 @@ body {
   box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.2);
 }
 
+.program-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.program-input {
+  padding-right: 40px; /* Space for button */
+  flex: 1;
+}
+
+.browse-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #334155;
+  border: none;
+  color: #cbd5e1;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.browse-btn:hover {
+  background: #475569;
+}
+
+.browse-btn:active {
+  background: #5b7289;
+}
+
 .test-url-wrapper {
   position: relative;
   display: flex;
