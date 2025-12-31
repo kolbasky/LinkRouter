@@ -221,7 +221,7 @@
 </template>
 
 <script setup>
-import Fuse from 'fuse.js'
+import { Fzf } from 'fzf'
 import { WindowMinimise, WindowToggleMaximise, Quit, LogInfo } from '../wailsjs/runtime/runtime';
 import { ref, computed } from 'vue';
 import {
@@ -300,14 +300,13 @@ const contextMenu = ref({
 const dragSourceIndex = ref(-1);
 
 // Fuzzy search
-const fuse = computed(() => {
-  const rules = config.value.rules || []
-  return new Fuse(rules, {
-    keys: ['regex', 'program', 'arguments'],
-    threshold: 0.3,        // 0.0 = exact, 1.0 = match anything — 0.3 is sweet spot
-    includeScore: true,    // optional, for advanced sorting
-    shouldSort: false
-  })
+const fzfItems = computed(() => {
+  return (config.value.rules || []).map((rule, i) => ({
+    rule,
+    realIndex: i,
+    originalIndex: i + 1,
+    str: `${rule.regex || ''} ${basename(rule.program || '')} ${rule.arguments || ''}`.toLowerCase()
+  }))
 })
 
 const filteredRules = computed(() => {
@@ -321,22 +320,18 @@ const filteredRules = computed(() => {
     }))
   }
 
-  const results = fuse.value.search(query)
-
-  // ← ADD THIS CHECK
-  if (results.length === 0 || (results[0].score !== undefined && results[0].score > 0.6)) {
-    return []  // Force empty result if no good matches
-  }
-
-  return results.map((result, displayIndex) => {
-    const realIndex = config.value.rules.findIndex(r => r === result.item)
-    return {
-      rule: result.item,
-      realIndex,
-      originalIndex: realIndex + 1,
-      score: result.score
-    }
+  const fzf = new Fzf(fzfItems.value, {
+    selector: (item) => item.str
   })
+
+  const results = fzf.find(query)
+
+  return results.map(entry => ({
+    rule: entry.item.rule,
+    realIndex: entry.item.realIndex,
+    originalIndex: entry.item.originalIndex + 1,
+    score: entry.score
+  }))
 })
 
 // Window controls
