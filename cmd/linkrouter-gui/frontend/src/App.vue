@@ -111,13 +111,17 @@
       <div class="modal" @click.stop>
         <h2>Edit Rule</h2>
 
-        <label>Pattern (Regex)</label>
-        <input
-          v-model="editingRule.regex"
-          class="modal-input"
-          @input="updateTestResult"
-          placeholder=".*website.com.*"
-        />
+<label>Pattern (Regex)</label>
+<input 
+  v-model="editingRule.regex" 
+  class="modal-input" 
+  :class="{ 'invalid-regex': regexError }"
+  @input="validateRegex"
+  placeholder="e.g. ^https?://(.*\\.)?youtube\\.com/.*" 
+/>
+<div v-if="regexError" class="regex-error-message">
+  {{ regexError }}
+</div>
 
         <label>Program</label>
         <div class="program-input-wrapper">
@@ -238,7 +242,8 @@ import {
   SaveConfigAs,
   GetConfig,
   GetCurrentConfigPath,
-  TestRegex
+  TestRegex,
+  IsValidRegex
 } from '../wailsjs/go/main/App';
 
 // Initial data load
@@ -398,6 +403,23 @@ const saveConfigAs = async () => {
   }
 };
 
+// Regex check
+const regexError = ref('')
+
+const validateRegex = async () => {
+  const regexStr = editingRule.value.regex?.trim() || ''
+  
+  if (!regexStr) {
+    regexError.value = ''
+    return
+  }
+
+  const errMsg = await IsValidRegex(regexStr)
+  regexError.value = errMsg
+
+  updateTestResult()
+}
+
 // Rule editing
 const openAddRuleModal = () => {
   editingRule.value = { regex: '', program: '', arguments: '' };
@@ -422,6 +444,7 @@ const closeEditModal = () => {
   setTimeout(() => {
     editingRule.value = { regex: '', program: '', arguments: '' };
     originalRule.value = null;
+    regexError.value = null;
   }, 300);
 };
 
@@ -429,6 +452,11 @@ const saveRule = () => {
   if (!editingRule.value.regex || !editingRule.value.program) {
     alert('Regex and Program are required!');
     return;
+  }
+
+  if (regexError.value) {
+    alert('Please fix the regex syntax:\n' + regexError.value)
+    return
   }
 
   if (originalRule.value) {

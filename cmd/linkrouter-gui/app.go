@@ -76,6 +76,17 @@ func (a *App) GetCurrentConfigPath() string {
 	return configPath
 }
 
+func (a *App) IsValidRegex(regexStr string) string {
+	if regexStr == "" {
+		return "" // empty is allowed (saveRule blocks it anyway)
+	}
+	_, err := regexp.Compile(regexStr)
+	if err != nil {
+		return err.Error() // e.g. "missing closing ]"
+	}
+	return ""
+}
+
 func (a *App) TestRegex(regexStr, url string) bool {
 	if regexStr == "" {
 		return false

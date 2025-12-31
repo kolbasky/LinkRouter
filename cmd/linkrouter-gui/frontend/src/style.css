@@ -470,6 +470,19 @@ body {
   align-items: center;
 }
 
+.invalid-regex {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.regex-error-message {
+  color: #fca5a5;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  padding-left: 4px;
+  z-index: 1000;
+}
+
 .program-input {
   padding-right: 40px; /* Space for button */
   flex: 1;
