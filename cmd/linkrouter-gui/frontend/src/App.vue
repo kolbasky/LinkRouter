@@ -91,12 +91,11 @@
       </table>
     </div>
 
-    <!-- Fixed Bottom Bar -->
+    <!-- Bottom Bar -->
     <div class="bottom-bar">
       <div class="status-info">
         {{ filteredRules.length }} of {{ config.rules?.length || 0 }} rules
-        <!-- <span v-if="configPath" class="config-path">• {{ configPath }}</span> -->
-        <span class="config-path" :class="{ 'saving': isSaving }">
+        <span class="config-path" :class="{ 'saving': isSaving }" :key="notificationKey">
           • {{ statusMessage || (configPath ? `${configPath}` : '') }}
         </span>
       </div>
@@ -254,25 +253,6 @@ import {
   TestRegex,
   IsValidRegex
 } from '../wailsjs/go/main/App';
-
-// Initial data load
-async function loadInitialData() {
-  try {
-    const [cfg, path] = await Promise.all([
-      GetConfig(),
-      GetCurrentConfigPath()
-    ]);
-    config.value = cfg;
-    configPath.value = path;
-    saveToUndo();
-  } catch (err) {
-    console.error("Failed to load initial config/path:", err);
-    config.value = { rules: [], global: {} };
-    configPath.value = '';
-  }
-}
-
-loadInitialData();
 
 Promise.all([
   GetConfig(),
@@ -679,6 +659,7 @@ function handleContextAction(action) {
       if (selectedRowIndex.value === index) {
         selectedRowIndex.value = -1;
       }
+      saveConfig();
       saveToUndo();
     }
   }
@@ -730,6 +711,7 @@ function onDrop(event, targetIndex) {
 
   selectedRowIndex.value = targetIndex;
   dragSourceIndex.value = -1;
+  saveConfig();
   saveToUndo();
 }
 
@@ -742,22 +724,31 @@ const configPathDisplay = computed(() => {
 
 const isSaving = ref(false)
 
+let saveNotificationTimeout = null
+const notificationKey = ref(0)
+
 const showSavedNotification = () => {
   isSaving.value = true
   statusMessage.value = 'Config saved!'
+  notificationKey.value++
 
-  setTimeout(() => {
+  // Clear previous timer
+  if (saveNotificationTimeout) {
+    clearTimeout(saveNotificationTimeout)
+  }
+
+  // Set new timer from last call
+  saveNotificationTimeout = setTimeout(() => {
     isSaving.value = false
-      statusMessage.value = ''
-  }, 5000)
+    statusMessage.value = ''
+  }, 4000)
 }
 
 // History Ctrl+z
 const history = ref([])
-const historyIndex = ref(-1) // -1 = no undo available
+const historyIndex = ref(-1)
 
 const saveToUndo = () => {
-  // Only save if we're at the latest state
   if (historyIndex.value < history.value.length - 1) {
     // Discard future if we're in the middle
     history.value = history.value.slice(0, historyIndex.value + 1)
@@ -774,7 +765,6 @@ const saveToUndo = () => {
   }
 }
 
-// Undo
 const undo = () => {
   if (historyIndex.value <= 0) return
 
@@ -783,7 +773,6 @@ const undo = () => {
   saveConfig();
 }
 
-// Redo
 const redo = () => {
   if (historyIndex.value >= history.value.length) return
 

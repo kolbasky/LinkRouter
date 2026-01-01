@@ -12,18 +12,14 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-// App struct
 type App struct {
 	ctx context.Context
 }
 
-// NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{}
 }
 
-// startup is called when the app starts. The context is saved
-// so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
@@ -68,7 +64,7 @@ func (a *App) SaveConfigAs(cfg *config.Config) (string, error) {
 		return "", err
 	}
 	if filePath == "" {
-		return "", nil // cancelled
+		return "", nil
 	}
 	if !strings.HasSuffix(strings.ToLower(filePath), ".json") {
 		filePath += ".json"
@@ -88,11 +84,11 @@ func (a *App) GetCurrentConfigPath() string {
 
 func (a *App) IsValidRegex(regexStr string) string {
 	if regexStr == "" {
-		return "" // empty is allowed (saveRule blocks it anyway)
+		return ""
 	}
 	_, err := regexp.Compile(regexStr)
 	if err != nil {
-		return err.Error() // e.g. "missing closing ]"
+		return err.Error()
 	}
 	return ""
 }
@@ -103,18 +99,16 @@ func (a *App) TestRegex(regexStr, url string) bool {
 	}
 	re, err := regexp.Compile(regexStr)
 	if err != nil {
-		return false // invalid regex = no match
+		return false
 	}
 	return re.MatchString(url)
 }
 
 func (a *App) OpenFileDialog(title string, filters []runtime.FileFilter) (string, error) {
-	// Default to "Select File" if no title
 	if title == "" {
 		title = "Select File"
 	}
 
-	// Default filters if none provided
 	if len(filters) == 0 {
 		filters = []runtime.FileFilter{
 			{DisplayName: "All Files (*.*)", Pattern: "*.*"},
@@ -129,7 +123,7 @@ func (a *App) OpenFileDialog(title string, filters []runtime.FileFilter) (string
 		return "", err
 	}
 	if filePath == "" {
-		return "", nil // user cancelled
+		return "", nil
 	}
 	return filePath, nil
 }
