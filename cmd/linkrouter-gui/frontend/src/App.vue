@@ -95,7 +95,10 @@
     <div class="bottom-bar">
       <div class="status-info">
         {{ filteredRules.length }} of {{ config.rules?.length || 0 }} rules
-        <span v-if="configPath" class="config-path">• {{ configPath }}</span>
+        <!-- <span v-if="configPath" class="config-path">• {{ configPath }}</span> -->
+        <span class="config-path" :class="{ 'saving': isSaving }">
+          • {{ statusMessage || (configPath ? `${configPath}` : '') }}
+        </span>
       </div>
 
       <div class="button-group">
@@ -107,21 +110,21 @@
     </div>
 
     <!-- Edit Rule Modal -->
-    <div v-if="showEditModal" class="modal-overlay" @click="closeEditModal">
+    <div v-if="showEditModal" class="modal-overlay"> <!--  @mousedown.self="closeEditModal" -->
       <div class="modal" @click.stop>
         <h2>Edit Rule</h2>
 
-<label>Pattern (Regex)</label>
-<input 
-  v-model="editingRule.regex" 
-  class="modal-input" 
-  :class="{ 'invalid-regex': regexError }"
-  @input="validateRegex"
-  placeholder="e.g. ^https?://(.*\\.)?youtube\\.com/.*" 
-/>
-<div v-if="regexError" class="regex-error-message">
-  {{ regexError }}
-</div>
+        <label>Pattern (Regex)</label>
+        <input 
+          v-model="editingRule.regex" 
+          class="modal-input" 
+          :class="{ 'invalid-regex': regexError }"
+          @input="validateRegex"
+          placeholder="e.g. ^https?://(.*\\.)?youtube\\.com/.*" 
+        />
+        <div v-if="regexError" class="regex-error-message">
+          {{ regexError }}
+        </div>
 
         <label>Program</label>
         <div class="program-input-wrapper">
@@ -155,13 +158,13 @@
 
         <div class="modal-buttons">
           <button class="cancel-btn" @click="closeEditModal">Cancel</button>
-          <button class="ok-btn" @click="saveRule">OK</button>
+          <button class="ok-btn" @click="saveRule">Save</button>
         </div>
       </div>
     </div>
 
     <!-- Global Settings Modal -->
-    <div v-if="showSettingsModal" class="modal-overlay" @click="closeSettingsModal">
+    <div v-if="showSettingsModal" class="modal-overlay">
       <div class="modal" @click.stop>
         <h2>Global Settings</h2>
 
@@ -178,6 +181,11 @@
           class="modal-input"
           placeholder="e.g. -private-window {url}"
         />
+
+        <label>
+          Interactive Mode
+          <input type="checkbox" v-model="editingGlobal.interactiveMode" />
+        </label>
 
         <label>Default Config Editor</label>
         <input
@@ -202,7 +210,7 @@
 
         <div class="modal-buttons">
           <button class="cancel-btn" @click="closeSettingsModal">Cancel</button>
-          <button class="ok-btn" @click="okGlobalSettings">Ok</button>
+          <button class="ok-btn" @click="okGlobalSettings">Save</button>
         </div>
       </div>
     </div>
@@ -427,6 +435,20 @@ const saveConfigAs = async () => {
     alert('Failed to save config as: ' + err);
     console.error(err);
   }
+  showSavedNotification();
+};
+
+const saveConfig = async () => {
+  try {
+    const Path = await SaveConfig(config.value);
+    if (Path) {
+      configPath.value = Path;
+    }
+  } catch (err) {
+    alert('Failed to save config: ' + err);
+    console.error(err);
+  }
+  showSavedNotification();
 };
 
 // Regex check
@@ -493,6 +515,7 @@ const saveRule = () => {
   }
 
   closeEditModal();
+  saveConfig();
 };
 
 const updateTestResult = async () => {
@@ -530,6 +553,7 @@ const openSettingsModal = () => {
     fallbackBrowserArgs: config.value.global?.fallbackBrowserArgs || '',
     defaultConfigEditor: config.value.global?.defaultConfigEditor || '',
     logPath: config.value.global?.logPath || '',
+    interactiveMode: config.value.global?.interactiveMode || false,
     supportedProtocols: [...(config.value.global?.supportedProtocols || [])]
   };
   originalGlobal.value = config.value.global;
@@ -571,6 +595,7 @@ const okGlobalSettings = async () => {
     alert('Failed to save settings: ' + err);
     console.error(err);
   }
+    saveConfig();
 };
 
 // Row selection & context menu
@@ -679,4 +704,24 @@ function onDrop(event, targetIndex) {
   selectedRowIndex.value = targetIndex;
   dragSourceIndex.value = -1;
 }
+
+
+// config info
+const statusMessage = ref('')
+const configPathDisplay = computed(() => {
+  return statusMessage.value || (configPath.value ? `${configPath.value}` : '')
+})
+
+const isSaving = ref(false)
+
+const showSavedNotification = () => {
+  isSaving.value = true
+  statusMessage.value = 'Config saved!'
+
+  setTimeout(() => {
+    isSaving.value = false
+      statusMessage.value = ''
+  }, 2500)
+}
+
 </script>
