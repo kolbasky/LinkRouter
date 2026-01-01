@@ -264,6 +264,7 @@ async function loadInitialData() {
     ]);
     config.value = cfg;
     configPath.value = path;
+    saveToUndo();
   } catch (err) {
     console.error("Failed to load initial config/path:", err);
     config.value = { rules: [], global: {} };
@@ -283,11 +284,21 @@ Promise.all([
   }));
   config.value = cfg;
   configPath.value = path;
+  saveToUndo();
 });
+
+const closeOnEsc = (e) => {
+  if (e.key === 'Escape') {
+    if (showEditModal.value) {
+      closeEditModal()
+    } else if (showSettingsModal.value) {
+      closeSettingsModal()
+    }
+  }
+}
 
 nextTick(async () => {
   const mode = await GetInteractiveMode()
-  runtime.LogInfo("we are here")
   if (mode.enabled === "true" && mode.url) {
     testUrl.value = mode.url
     editingRule.value = {
@@ -299,6 +310,19 @@ nextTick(async () => {
     showEditModal.value = true
     updateTestResult()
   }
+  window.addEventListener('keydown', closeOnEsc)
+  window.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+      e.preventDefault()
+      undo()
+    }
+  })
+  window.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'y' && !e.shiftKey) {
+      e.preventDefault()
+      redo()
+    }
+  })
 })
 
 const guessRegex = (url) => {
@@ -430,12 +454,12 @@ const saveConfigAs = async () => {
     const newPath = await SaveConfigAs(config.value);
     if (newPath) {
       configPath.value = newPath;
+      showSavedNotification();
     }
   } catch (err) {
     alert('Failed to save config as: ' + err);
     console.error(err);
   }
-  showSavedNotification();
 };
 
 const saveConfig = async () => {
@@ -516,6 +540,7 @@ const saveRule = () => {
 
   closeEditModal();
   saveConfig();
+  saveToUndo();
 };
 
 const updateTestResult = async () => {
@@ -596,6 +621,7 @@ const okGlobalSettings = async () => {
     console.error(err);
   }
     saveConfig();
+    saveToUndo();
 };
 
 // Row selection & context menu
@@ -653,6 +679,7 @@ function handleContextAction(action) {
       if (selectedRowIndex.value === index) {
         selectedRowIndex.value = -1;
       }
+      saveToUndo();
     }
   }
 
@@ -703,6 +730,7 @@ function onDrop(event, targetIndex) {
 
   selectedRowIndex.value = targetIndex;
   dragSourceIndex.value = -1;
+  saveToUndo();
 }
 
 
@@ -724,4 +752,43 @@ const showSavedNotification = () => {
   }, 2500)
 }
 
+// History Ctrl+z
+const history = ref([])
+const historyIndex = ref(-1) // -1 = no undo available
+
+const saveToUndo = () => {
+  // Only save if we're at the latest state
+  if (historyIndex.value < history.value.length - 1) {
+    // Discard future if we're in the middle
+    history.value = history.value.slice(0, historyIndex.value + 1)
+  }
+
+  const deepCopy = JSON.parse(JSON.stringify(config.value))
+  history.value.push(deepCopy)
+  historyIndex.value = history.value.length - 1
+
+  // Limit history size
+  if (history.value.length > 30) {
+    history.value.shift()
+    historyIndex.value--
+  }
+}
+
+// Undo
+const undo = () => {
+  if (historyIndex.value <= 0) return
+
+  historyIndex.value--
+  config.value = JSON.parse(JSON.stringify(history.value[historyIndex.value]))
+  saveConfig();
+}
+
+// Redo
+const redo = () => {
+  if (historyIndex.value >= history.value.length) return
+
+  historyIndex.value++
+  config.value = JSON.parse(JSON.stringify(history.value[historyIndex.value]))
+  saveConfig();
+}
 </script>
