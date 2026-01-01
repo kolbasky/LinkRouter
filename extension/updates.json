@@ -3,8 +3,8 @@
     "linkrouter@kolbasky": {
       "updates": [
         {
-          "version": "2.1.0",
-          "update_link": "https://github.com/kolbasky/LinkRouter/releases/download/v2.1.0/linkrouter.xpi"
+          "version": "2.3.0",
+          "update_link": "https://github.com/kolbasky/LinkRouter/releases/download/v2.3.0/linkrouter.xpi"
         }
       ]
     }

@@ -54,6 +54,7 @@ func HandleNoArgs() {
 func EditConfig() {
 	cfg, _ := config.LoadConfig()
 	editor := cfg.Global.DefaultConfigEditor
+	configPath := config.GetConfigPath()
 
 	if editor == "" {
 		for _, e := range []string{
@@ -77,9 +78,11 @@ func EditConfig() {
 		if editor == "" {
 			editor = "notepad.exe"
 		}
+		cfg.Global.DefaultConfigEditor = editor
+		cfg.Save(configPath)
+		cfg, _ = config.LoadConfig()
 	}
 
-	configPath := config.GetConfigPath()
 	err := exec.Command(editor, configPath).Start()
 	if err != nil {
 		dialogs.ShowError("Failed to find any known text editor in PATH.\n" +
