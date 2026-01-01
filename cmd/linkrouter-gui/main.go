@@ -18,7 +18,9 @@ var InteractiveURL = flag.String("url", "", "URL to prefill")
 
 func main() {
 	flag.Parse()
-
+	// *InteractiveMode = true
+	// *InteractiveURL = "https://music.yandex.ru/album/123456/track/7890"
+	
 	// Create an instance of the app structure
 	app := NewApp()
 

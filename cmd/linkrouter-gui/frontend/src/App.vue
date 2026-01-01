@@ -257,7 +257,7 @@ import {
 Promise.all([
   GetConfig(),
   GetCurrentConfigPath()
-]).then(([cfg, path]) => {
+]).then(async ([cfg, path]) => {
   cfg.rules = (cfg.rules || []).map((rule, index) => ({
     ...rule,
     id: rule.id || `rule-${index}-${Date.now()}`
@@ -265,19 +265,7 @@ Promise.all([
   config.value = cfg;
   configPath.value = path;
   saveToUndo();
-});
 
-const closeOnEsc = (e) => {
-  if (e.key === 'Escape') {
-    if (showEditModal.value) {
-      closeEditModal()
-    } else if (showSettingsModal.value) {
-      closeSettingsModal()
-    }
-  }
-}
-
-nextTick(async () => {
   const mode = await GetInteractiveMode()
   if (mode.enabled === "true" && mode.url) {
     testUrl.value = mode.url
@@ -290,20 +278,36 @@ nextTick(async () => {
     showEditModal.value = true
     updateTestResult()
   }
-  window.addEventListener('keydown', closeOnEsc)
+});
+
+// Keyboard Hotkeys
+setTimeout(() => {
   window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (showEditModal.value) {
+        closeEditModal()
+      } else if (showSettingsModal.value) {
+        closeSettingsModal()
+      }
+      return
+    }
     if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
       e.preventDefault()
       undo()
+      return
     }
-  })
-  window.addEventListener('keydown', (e) => {
     if (e.ctrlKey && e.key === 'y' && !e.shiftKey) {
       e.preventDefault()
       redo()
+      return
+    }
+    if (e.ctrlKey && e.key === 's' && !e.shiftKey) {
+      e.preventDefault()
+      saveConfigAs()
+      return
     }
   })
-})
+}, 100)
 
 const guessRegex = (url) => {
   try {
