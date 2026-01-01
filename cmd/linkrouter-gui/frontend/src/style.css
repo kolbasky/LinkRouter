@@ -379,15 +379,30 @@ body {
 }
 
 .config-path {
-  transition: color 0.3s ease;
   opacity: 1;
 }
 
 .config-path.saving {
   opacity: 1;
   font-weight: 500;
-  color: #3b82f6;
-  transition: color 0.3s ease;
+  color: #1aac8c;
+  /* transition: all 0.5s ease-in-out; */
+  animation: blinker 5s ease-in-out 1;
+}
+
+@keyframes blinker {
+  0% {
+    opacity: 0;
+  }
+  25%{
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 .edit-btn {

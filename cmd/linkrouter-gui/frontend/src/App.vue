@@ -749,7 +749,7 @@ const showSavedNotification = () => {
   setTimeout(() => {
     isSaving.value = false
       statusMessage.value = ''
-  }, 2500)
+  }, 5000)
 }
 
 // History Ctrl+z
