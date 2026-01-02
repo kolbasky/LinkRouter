@@ -17,11 +17,21 @@
     </div>
 
     <div class="header">
-      <input
-        v-model="search"
-        placeholder="Search rules..."
-        class="search-input"
-      />
+      <div class="search-wrapper">
+        <input
+          v-model="search"
+          placeholder="Fuzzy search..."
+          class="search-input"
+        />
+        <button 
+          v-if="search" 
+          class="search-clear" 
+          @click="search = ''"
+          title="Clear search"
+        >
+          ✕
+        </button>
+      </div>
     </div>
 
     <!-- Scrollable Content Area -->
