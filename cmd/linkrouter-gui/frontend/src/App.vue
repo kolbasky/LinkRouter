@@ -21,7 +21,7 @@
         <input
           ref="searchInput"
           v-model="search"
-          placeholder="Fuzzy search..."
+          placeholder="Search rules..."
           class="search-input"
         />
         <button 
@@ -36,7 +36,12 @@
     </div>
 
     <!-- Scrollable Content Area -->
-    <div class="content" ref="rulesContainer">
+    <div
+      class="content" 
+      ref="rulesContainer"
+      tabindex="-1"
+      @keydown="handleRulesKeydown"
+    >
       <table class="config-table">
         <thead>
           <tr>
@@ -126,6 +131,7 @@
 
         <label>Pattern (Regex)</label>
         <input 
+          ref="regexInput"
           v-model="editingRule.regex" 
           class="modal-input" 
           :class="{ 'invalid-regex': regexError }"
@@ -178,64 +184,75 @@
       <div class="modal" @click.stop>
         <h2>Global Settings</h2>
 
-        <label>Fallback Browser Path</label>
-        <div class="program-input-wrapper">
+        <div class="modal-form-content">
+
+          <label>Fallback Browser Path</label>
+          <div class="program-input-wrapper">
+            <input
+              ref="fallbackBrowserInput"
+              v-model="editingGlobal.fallbackBrowserPath"
+              class="modal-input"
+              placeholder="e.g. C:\\Program Files\\Firefox\\firefox.exe"
+            />
+            <button class="browse-btn" @click="browseFile('fallbackBrowser')" title="Browse for program">
+              📂
+            </button>
+          </div>
+
+          <label>Fallback Browser Arguments</label>
           <input
-            v-model="editingGlobal.fallbackBrowserPath"
+            v-model="editingGlobal.fallbackBrowserArgs"
             class="modal-input"
-            placeholder="e.g. C:\\Program Files\\Firefox\\firefox.exe"
+            placeholder="e.g. -private-window {url}"
           />
-          <button class="browse-btn" @click="browseFile('fallbackBrowser')" title="Browse for program">
-            📂
-          </button>
-        </div>
 
-        <label>Fallback Browser Arguments</label>
-        <input
-          v-model="editingGlobal.fallbackBrowserArgs"
-          class="modal-input"
-          placeholder="e.g. -private-window {url}"
-        />
-
-        <label>
-          Interactive Mode
+          <label>
+            Interactive Mode
+          </label>
           <input type="checkbox" v-model="editingGlobal.interactiveMode" />
-        </label>
 
-        <label>Default Config Editor</label>
-        <div class="program-input-wrapper">
-          <input
+          <label>Default Config Editor</label>
+          <div class="program-input-wrapper">
+            <input
             v-model="editingGlobal.defaultConfigEditor"
             class="modal-input"
             placeholder="e.g. notepad.exe"
-          />
-          <button class="browse-btn" @click="browseFile('defaultEditor')" title="Browse for program">
-            📂
-          </button>
-        </div>
-
-        <label>Log Path</label>
-        <div class="program-input-wrapper">
-          <input
+            />
+            <button class="browse-btn" @click="browseFile('defaultEditor')" title="Browse for program">
+              📂
+            </button>
+          </div>
+          
+          <label>Log Path</label>
+          <div class="program-input-wrapper">
+            <input
             v-model="editingGlobal.logPath"
             class="modal-input"
             placeholder="e.g. C:\\logs\\linkrouter.log"
-          />
-          <button class="browse-btn" @click="browseFile('logPath')" title="Browse for program">
-            📂
-          </button>
-        </div>
-
-        <label>Supported Protocols (comma-separated)</label>
-        <input
+            />
+            <button class="browse-btn" @click="browseFile('logPath')" title="Browse for program">
+              📂
+            </button>
+          </div>
+          
+          <label>Supported Protocols (comma-separated)</label>
+          <input
           v-model="protocolsInput"
           class="modal-input"
           placeholder="e.g. http,https,ftp"
-        />
+          />
+        </div>
 
-        <div class="modal-buttons">
-          <button class="cancel-btn" @click="closeSettingsModal">Cancel</button>
-          <button class="ok-btn" @click="okGlobalSettings">Save</button>
+        
+        <div class="modal-button-bar">
+          <div>
+            <button class="reg-btn" @click="registerApp">Register</button>
+            <button class="reg-btn warning" @click="unregisterApp">Unregister</button>
+          </div>
+          <div>
+            <button class="cancel-btn" @click="closeSettingsModal">Cancel</button>
+            <button class="ok-btn" @click="saveGlobalSettings">Save</button>
+          </div>
         </div>
       </div>
     </div>
@@ -264,8 +281,8 @@
 
 <script setup>
 import { Fzf } from 'fzf'
-import { WindowMinimise, WindowToggleMaximise, Quit, LogInfo } from '../wailsjs/runtime/runtime';
-import { ref, computed, nextTick } from 'vue';
+import { WindowMinimise, WindowToggleMaximise, Quit, LogInfo, EventsOn } from '../wailsjs/runtime/runtime';
+import { ref, computed, nextTick, onMounted } from 'vue';
 import {
   GetInteractiveMode,
   OpenFileDialog,
@@ -277,8 +294,20 @@ import {
   GetConfig,
   GetCurrentConfigPath,
   TestRegex,
-  IsValidRegex
+  IsValidRegex,
+  RegisterLinkRouter,
+  UnregisterLinkRouter
 } from '../wailsjs/go/main/App';
+
+
+  nextTick(() => {
+    const app = document.querySelector('.app')
+    if (app) {
+      app.focus();
+      app.tabIndex = -1;
+    }
+    searchInput.value?.focus()
+  });
 
 Promise.all([
   GetConfig(),
@@ -291,6 +320,15 @@ Promise.all([
   config.value = cfg;
   configPath.value = path;
   saveToUndo();
+  nextTick(() => {
+    const app = document.querySelector('.app')
+    if (app) {
+      app.focus();
+      app.tabIndex = -1;
+    }
+    searchInput.value?.focus()
+  });
+
 
   const mode = await GetInteractiveMode()
   if (mode.enabled === "true" && mode.url) {
@@ -302,57 +340,18 @@ Promise.all([
     }
     originalRule.value = null
     showEditModal.value = true
+    editingRule.value.regex
     updateTestResult()
+    nextTick(() => {
+    const app = document.querySelector('.app')
+      if (app) {
+        app.focus();
+        app.tabIndex = -1;
+      }
+      regexInput.value?.focus()
+    })
   }
 });
-
-// Keyboard Hotkeys
-setTimeout(() => {
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      if (showEditModal.value) {
-        closeEditModal()
-      } else if (showSettingsModal.value) {
-        closeSettingsModal()
-      }
-      if (contextMenu.value.visible) {
-        closeContextMenu()
-        return
-      }
-      if (document.activeElement !== rulesContainer.value) {
-        rulesContainer.value?.focus()
-      }
-
-      e.stopPropagation()
-      return
-    }
-    if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
-      e.preventDefault()
-      undo()
-      return
-    }
-    if (e.ctrlKey && e.key === 'y' && !e.shiftKey) {
-      e.preventDefault()
-      redo()
-      return
-    }
-    if (e.ctrlKey && e.key === 's' && !e.shiftKey) {
-      e.preventDefault()
-      saveConfigAs()
-      return
-    }
-    if (e.ctrlKey && e.key === 'l' && !e.shiftKey) {
-      e.preventDefault()
-      searchInput.value?.focus()
-      return
-    }
-    if (e.key === '/' && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
-      e.preventDefault()
-      searchInput.value?.focus()
-      return
-    }
-  })
-}, 100)
 
 const guessRegex = (url) => {
   try {
@@ -363,12 +362,114 @@ const guessRegex = (url) => {
   }
 }
 
+// Keyboard Hotkeys
+setTimeout(() => {
+  window.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'Enter' && !e.shiftKey) {
+      if (showSettingsModal.value || showEditModal.value) {
+        e.preventDefault()
+        saveGlobalSettings()
+        saveRule()
+        e.stopPropagation()
+        return
+      }
+    }
+    if (e.key === 'Enter') {
+      if (document.activeElement !== rulesContainer.value && !showSettingsModal.value && !showEditModal.value) {
+        e.preventDefault()
+        rulesContainer.value?.focus()
+        e.stopPropagation()
+        return
+      }
+    }
+    if (e.key === 'Escape') {
+      if (showEditModal.value ) {
+        e.preventDefault()
+        showEditModal.value = false;
+        e.stopPropagation()
+        return
+      } else if (showSettingsModal.value) {
+        e.preventDefault()
+        closeSettingsModal()
+        e.stopPropagation()
+        return
+      }
+      if (contextMenu.value.visible) {
+        e.preventDefault()
+        closeContextMenu()
+        e.stopPropagation()
+        return
+      }
+      if (document.activeElement !== rulesContainer.value) {
+        e.preventDefault()
+        rulesContainer.value?.focus()
+        e.stopPropagation()
+        return
+      }
+      if (document.activeElement == rulesContainer.value) {
+        e.preventDefault()
+        searchInput.value?.focus()
+        e.stopPropagation()
+        return
+      }
+    }
+    if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+      e.preventDefault()
+      undo()
+      e.stopPropagation()
+      return
+    }
+    if (e.ctrlKey && e.key === 'y' && !e.shiftKey) {
+      e.preventDefault()
+      redo()
+      e.stopPropagation()
+      return
+    }
+    if (e.ctrlKey && e.key === 's' && !e.shiftKey) {
+      if (showEditModal.value) {
+        e.preventDefault()
+        saveRule();
+        e.stopPropagation()
+        return
+      } else if (showSettingsModal.value) {
+        e.preventDefault()
+        saveGlobalSettings()
+        e.stopPropagation()
+        return
+      }
+      e.preventDefault()
+      saveConfigAs()
+      e.stopPropagation()
+      return
+    }
+    if ((e.ctrlKey && e.key === 'l' && !e.shiftKey) || (e.ctrlKey && e.key === 'f' && !e.shiftKey)) {
+      e.preventDefault()
+      searchInput.value?.focus()
+      e.stopPropagation()
+      return
+    }
+    if (e.key === '/' && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
+      e.preventDefault()
+      searchInput.value?.focus()
+      e.stopPropagation()
+      return
+    }
+    if (e.ctrlKey && e.key === 'n' && !e.shiftKey) {
+      e.preventDefault()
+      openAddRuleModal()
+      e.stopPropagation()
+      return
+    }
+  })
+}, 100)
+
 // Reactive state
 const config = ref({});
 const configPath = ref('');
 const search = ref('');
 const rulesContainer = ref(null);
 const searchInput = ref(null);
+const fallbackBrowserInput = ref(null);
 
 const showEditModal = ref(false);
 const showSettingsModal = ref(false);
@@ -390,6 +491,8 @@ const protocolsInput = ref('');
 const testUrl = ref('');
 const testResult = ref(null);
 
+const regexInput = ref(null);
+
 const contextMenu = ref({
   visible: false,
   x: 0,
@@ -401,18 +504,54 @@ const contextMenu = ref({
 const dragSourceIndex = ref(-1);
 
 // Fuzzy search
-const fzfItems = computed(() => {
-  return (config.value.rules || []).map((rule, i) => ({
-    rule,
-    realIndex: i,
-    originalIndex: i + 1,
-    str: `${rule.regex || ''} ${basename(rule.program || '')} ${rule.arguments || ''}`.toLowerCase()
-  }))
-})
+
+// const fzfItems = computed(() => {
+//   return (config.value.rules || []).map((rule, i) => ({
+//     rule,
+//     realIndex: i,
+//     originalIndex: i + 1,
+//     str: `${rule.regex || ''} ${basename(rule.program || '')} ${rule.arguments || ''}`.toLowerCase()
+//   }))
+// })
+
+// const filteredRules = computed(() => {
+//   const query = search.value.trim()
+
+//   if (!query) {
+//     return (config.value.rules || []).map((rule, i) => ({
+//       rule,
+//       realIndex: i,
+//       originalIndex: i + 1
+//     }))
+//   }
+
+//   const fzf = new Fzf(fzfItems.value, {
+//     selector: (item) => item.str
+//   })
+
+//   const matches = fzf.find(query)
+
+//   const matchedRules = new Set(matches.map(entry => entry.item.rule))
+
+//   const result = (config.value.rules || [])
+//     .map((rule, i) => {
+//       if (matchedRules.has(rule)) {
+//         return {
+//           rule,
+//           realIndex: i,
+//           originalIndex: i + 1
+//         }
+//       }
+//       return null
+//     })
+//     .filter(Boolean)
+
+//   return result
+// })
 
 const filteredRules = computed(() => {
   const query = search.value.trim()
-
+  
   if (!query) {
     return (config.value.rules || []).map((rule, i) => ({
       rule,
@@ -421,19 +560,76 @@ const filteredRules = computed(() => {
     }))
   }
 
-  const fzf = new Fzf(fzfItems.value, {
-    selector: (item) => item.str
-  })
-
-  const results = fzf.find(query)
-
-  return results.map(entry => ({
-    rule: entry.item.rule,
-    realIndex: entry.item.realIndex,
-    originalIndex: entry.item.originalIndex + 1,
-    score: entry.score
+  const terms = query.toLowerCase().split(/\s+/).filter(t => t)
+  const rulesWithStr = (config.value.rules || []).map((rule, i) => ({
+    rule,
+    realIndex: i,
+    originalIndex: i + 1,
+    str: `${rule.regex || ''} ${basename(rule.program || '')} ${rule.arguments || ''}`.toLowerCase()
   }))
+
+
+  const substringMatches = new Set()
+  const regexMatches = new Set()
+
+  for (const item of rulesWithStr) {
+    if (terms.every(term => item.str.includes(term))) {
+      substringMatches.add(item.rule)
+    }
+  }
+
+  for (const item of rulesWithStr) {
+    if (!item.rule.regex) continue
+    try {
+      const re = new RegExp(item.rule.regex, 'i')
+      if (re.test(query)) {
+        regexMatches.add(item.rule)
+      }
+    } catch (e) {
+    }
+  }
+
+  const combinedMatches = new Set([...substringMatches, ...regexMatches])
+
+  return rulesWithStr.filter(item => combinedMatches.has(item.rule))
 })
+
+const handleRulesKeydown = (e) => {
+  const rules = config.value.rules || []
+  if (rules.length === 0) return
+
+  // Handle arrow keys
+  if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+    e.preventDefault()
+
+    const direction = e.key === 'ArrowUp' ? -1 : 1
+    let newIndex = selectedRowIndex.value + direction
+
+    // Wrap around or clamp? We'll clamp.
+    if (newIndex < 0) newIndex = 0
+    if (newIndex >= filteredRules.value.length) newIndex = filteredRules.value.length - 1
+
+    selectedRowIndex.value = newIndex
+
+    // Optional: auto-scroll to ensure selected row is visible
+    nextTick(() => {
+      const container = rulesContainer.value
+      const selectedRow = container.querySelector('.rule-row.selected')
+      if (selectedRow) {
+        selectedRow.scrollIntoView({ block: 'nearest' })
+      }
+    })
+  }
+
+  // Handle Enter to edit
+  if (e.key === 'Enter') {
+    const index = selectedRowIndex.value
+    if (index >= 0 && index < filteredRules.value.length) {
+      const rule = filteredRules.value[index].rule
+      openEditModal(rule)
+    }
+  }
+}
 
 // Window controls
 const closeWindow = () => Quit();
@@ -452,7 +648,6 @@ async function copyToClipboard(text) {
   try {
     await navigator.clipboard.writeText(text);
   } catch (err) {
-    console.error('Failed to copy:', err);
     const textarea = document.createElement('textarea');
     textarea.value = text;
     document.body.appendChild(textarea);
@@ -476,7 +671,6 @@ const loadConfig = async () => {
     }
   } catch (err) {
     alert("Failed to load config: " + err);
-    console.error(err);
   }
 };
 
@@ -489,7 +683,6 @@ const saveConfigAs = async () => {
     }
   } catch (err) {
     alert('Failed to save config as: ' + err);
-    console.error(err);
   }
 };
 
@@ -501,7 +694,6 @@ const saveConfig = async () => {
     }
   } catch (err) {
     alert('Failed to save config: ' + err);
-    console.error(err);
   }
   showSavedNotification();
 };
@@ -529,6 +721,9 @@ const openAddRuleModal = () => {
   originalRule.value = null;
   showEditModal.value = true;
   closeContextMenu();
+  nextTick(() => {
+    regexInput.value?.focus()
+  });
 };
 
 const openEditModal = (rule) => {
@@ -539,6 +734,9 @@ const openEditModal = (rule) => {
   };
   originalRule.value = rule;
   showEditModal.value = true;
+  nextTick(() => {
+    regexInput.value?.focus()
+  });
   updateTestResult();
 };
 
@@ -610,7 +808,6 @@ const browseFile = async (type) => {
       editingRule.value.program = filePath
     }
   } catch (err) {
-    runtime.LogInfo("File picker failed:", err)
   }
 }
 
@@ -627,6 +824,9 @@ const openSettingsModal = () => {
   originalGlobal.value = config.value.global;
   protocolsInput.value = editingGlobal.value.supportedProtocols.join(', ');
   showSettingsModal.value = true;
+  // nextTick(() => {
+  //   fallbackBrowserInput.value?.focus()
+  // });
 };
 
 const closeSettingsModal = () => {
@@ -643,7 +843,7 @@ const closeSettingsModal = () => {
   }, 300);
 };
 
-const okGlobalSettings = async () => {
+const saveGlobalSettings = async () => {
   try {
     editingGlobal.value.supportedProtocols = protocolsInput.value
       .split(',')
@@ -661,11 +861,23 @@ const okGlobalSettings = async () => {
     closeSettingsModal();
   } catch (err) {
     alert('Failed to save settings: ' + err);
-    console.error(err);
   }
     saveConfig();
     saveToUndo();
 };
+
+const registerApp = async () => {
+    saveGlobalSettings()
+    await RegisterLinkRouter()
+}
+
+const unregisterApp = async () => {
+  if (!confirm('Unregister LinkRouter from the system?')) return
+  try {
+    await UnregisterLinkRouter()
+  } catch (err) {
+  }
+}
 
 // Row selection & context menu
 function selectRow(index) {

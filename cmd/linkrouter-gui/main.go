@@ -20,7 +20,7 @@ func main() {
 	flag.Parse()
 	// *InteractiveMode = true
 	// *InteractiveURL = "https://music.yandex.ru/album/123456/track/7890"
-	
+
 	// Create an instance of the app structure
 	app := NewApp()
 
@@ -41,11 +41,10 @@ func main() {
 			app,
 		},
 		Windows: &windows.Options{
-			WebviewIsTransparent:              true,
-			WindowIsTranslucent:               true, // or true if you want acrylic
-			DisableWindowIcon:                 true,
-			WebviewUserDataPath:               "",
-			DisableFramelessWindowDecorations: true,
+			WebviewIsTransparent: true,
+			WindowIsTranslucent:  true,
+			DisableWindowIcon:    true,
+			WebviewUserDataPath:  "",
 		},
 	})
 

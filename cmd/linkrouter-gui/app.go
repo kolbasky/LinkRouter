@@ -5,9 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"linkrouter/internal/config"
+	"linkrouter/internal/dialogs"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
+	"syscall"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -22,6 +26,7 @@ func NewApp() *App {
 
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+
 }
 
 func (a *App) GetInteractiveMode() map[string]string {
@@ -157,4 +162,43 @@ func (a *App) LoadConfigFromPath(path string) (*config.Config, error) {
 	}
 
 	return &cfg, nil
+}
+
+func getExePath() string {
+	exe, _ := os.Executable()
+	return filepath.Dir(exe)
+}
+
+func (a *App) RegisterLinkRouter() error {
+	dir := getExePath()
+	cmdPath := filepath.Join(dir, "linkrouter.exe")
+	if _, err := os.Stat(cmdPath); err != nil {
+		dialogs.ShowError("linkrouter.exe not found\nplace it near linkrouter-gui.exe")
+		return nil
+	}
+	fullCmdLine := cmdPath + " --register"
+
+	cmd := exec.Command(cmdPath)
+	cmd.Path = cmdPath
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		CmdLine: fullCmdLine,
+	}
+	return cmd.Start()
+}
+
+func (a *App) UnregisterLinkRouter() error {
+	dir := getExePath()
+	cmdPath := filepath.Join(dir, "linkrouter.exe")
+	if _, err := os.Stat(cmdPath); err != nil {
+		dialogs.ShowError("linkrouter.exe not found\nplace it near linkrouter-gui.exe")
+		return nil
+	}
+	fullCmdLine := cmdPath + " --unregister"
+
+	cmd := exec.Command(cmdPath)
+	cmd.Path = cmdPath
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		CmdLine: fullCmdLine,
+	}
+	return cmd.Start()
 }

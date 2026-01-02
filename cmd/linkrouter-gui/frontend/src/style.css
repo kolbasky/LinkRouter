@@ -138,14 +138,14 @@ body {
   position: relative;
   display: inline-block;
   width: 60%;
-  max-width: 900px;
-  margin: 0 2rem 0 0;
+  max-width: 1000px;
+  margin: 0 3rem 0 0;
 }
 
 .search-input {
   width: 100%;
   max-width: 1000px;
-  padding: 12px;
+  padding: 12px 36px 12px 12px;
   margin: 1rem 0 2rem;
   background: #1e293b;
   border: 1px solid #334155;
@@ -167,7 +167,7 @@ body {
 
 .search-clear {
   position: absolute;
-  right: -12px;
+  right: -42px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
@@ -261,6 +261,13 @@ body {
 .config-table tbody tr:nth-child(even):hover {
   background: #27344b;
 }
+
+.config-table tbody tr.selected,
+.config-table tbody tr.selected:hover {
+  background: #334155 !important; /* blue-700 */
+  /* color: white !important; */
+}
+
 
 .config-table code {
   background: rgba(0, 0, 0, 0.2);
@@ -457,7 +464,7 @@ body {
 
 /* Modal box */
 .modal {
-  margin-top: calc(var(--title-bar-height)*-2);
+  margin-top: calc(var(--title-bar-height)*-1);
   background: #1e293b;
   border-radius: 12px;
   padding: 1.8rem;
@@ -465,13 +472,41 @@ body {
   max-width: 560px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   color: #e2e8f0;
+  max-height: calc(100vh - var(--title-bar-height)*3 - 1.8rem);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal h2 {
+  flex-shrink: 0;
   margin-top: 0;
   margin-bottom: 1.5rem;
   text-align: center;
   font-size: 1.4rem;
+}
+
+.modal-form-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.modal-form-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-form-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-form-content::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+.modal-form-content::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
 
 .modal label {
@@ -593,21 +628,57 @@ label input[type="checkbox"] {
   accent-color: #3b82f6;
 }
 
+input[type="checkbox"] {
+  accent-color: #3b82f6;
+}
+
 /* Modal buttons */
 .modal-buttons {
   display: flex;
+  flex-shrink: 0;
   justify-content: flex-end;
   gap: 12px;
   margin-top: 2rem;
 }
 
+.modal-button-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.8rem;
+  gap: 12px;
+}
+
+.modal-button-bar > div {
+  display: flex;
+  gap: 10px;
+}
+
 .cancel-btn,
-.ok-btn {
+.ok-btn,
+.reg-btn {
   padding: 10px 20px;
   border: none;
   border-radius: 6px;
   font-weight: 600;
   transition: background 0.2s ease;
+}
+
+.reg-btn{
+  background: #334155;
+  color: #cbd5e1;
+}
+
+.reg-btn:hover{
+  background: #475569;
+}
+
+.reg-btn.warning{
+  background: #ef4444;
+}
+
+.reg-btn.warning:hover{
+  background: #cd2222;
 }
 
 .cancel-btn {
