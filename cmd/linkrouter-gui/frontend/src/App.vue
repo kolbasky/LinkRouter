@@ -19,6 +19,7 @@
     <div class="header">
       <div class="search-wrapper">
         <input
+          ref="searchInput"
           v-model="search"
           placeholder="Fuzzy search..."
           class="search-input"
@@ -35,7 +36,7 @@
     </div>
 
     <!-- Scrollable Content Area -->
-    <div class="content">
+    <div class="content" ref="rulesContainer">
       <table class="config-table">
         <thead>
           <tr>
@@ -142,7 +143,7 @@
             class="modal-input program-input" 
             placeholder="C:\\Program Files\\App\\app.exe" 
           />
-          <button class="browse-btn" @click="browseProgram" title="Browse for program">
+          <button class="browse-btn" @click="browseFile('ruleProgram')" title="Browse for program">
             📂
           </button>
         </div>
@@ -178,11 +179,16 @@
         <h2>Global Settings</h2>
 
         <label>Fallback Browser Path</label>
-        <input
-          v-model="editingGlobal.fallbackBrowserPath"
-          class="modal-input"
-          placeholder="e.g. C:\\Program Files\\Firefox\\firefox.exe"
-        />
+        <div class="program-input-wrapper">
+          <input
+            v-model="editingGlobal.fallbackBrowserPath"
+            class="modal-input"
+            placeholder="e.g. C:\\Program Files\\Firefox\\firefox.exe"
+          />
+          <button class="browse-btn" @click="browseFile('fallbackBrowser')" title="Browse for program">
+            📂
+          </button>
+        </div>
 
         <label>Fallback Browser Arguments</label>
         <input
@@ -197,18 +203,28 @@
         </label>
 
         <label>Default Config Editor</label>
-        <input
-          v-model="editingGlobal.defaultConfigEditor"
-          class="modal-input"
-          placeholder="e.g. notepad.exe"
-        />
+        <div class="program-input-wrapper">
+          <input
+            v-model="editingGlobal.defaultConfigEditor"
+            class="modal-input"
+            placeholder="e.g. notepad.exe"
+          />
+          <button class="browse-btn" @click="browseFile('defaultEditor')" title="Browse for program">
+            📂
+          </button>
+        </div>
 
         <label>Log Path</label>
-        <input
-          v-model="editingGlobal.logPath"
-          class="modal-input"
-          placeholder="e.g. C:\\logs\\linkrouter.log"
-        />
+        <div class="program-input-wrapper">
+          <input
+            v-model="editingGlobal.logPath"
+            class="modal-input"
+            placeholder="e.g. C:\\logs\\linkrouter.log"
+          />
+          <button class="browse-btn" @click="browseFile('logPath')" title="Browse for program">
+            📂
+          </button>
+        </div>
 
         <label>Supported Protocols (comma-separated)</label>
         <input
@@ -299,6 +315,15 @@ setTimeout(() => {
       } else if (showSettingsModal.value) {
         closeSettingsModal()
       }
+      if (contextMenu.value.visible) {
+        closeContextMenu()
+        return
+      }
+      if (document.activeElement !== rulesContainer.value) {
+        rulesContainer.value?.focus()
+      }
+
+      e.stopPropagation()
       return
     }
     if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
@@ -314,6 +339,16 @@ setTimeout(() => {
     if (e.ctrlKey && e.key === 's' && !e.shiftKey) {
       e.preventDefault()
       saveConfigAs()
+      return
+    }
+    if (e.ctrlKey && e.key === 'l' && !e.shiftKey) {
+      e.preventDefault()
+      searchInput.value?.focus()
+      return
+    }
+    if (e.key === '/' && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
+      e.preventDefault()
+      searchInput.value?.focus()
       return
     }
   })
@@ -332,6 +367,8 @@ const guessRegex = (url) => {
 const config = ref({});
 const configPath = ref('');
 const search = ref('');
+const rulesContainer = ref(null);
+const searchInput = ref(null);
 
 const showEditModal = ref(false);
 const showSettingsModal = ref(false);
@@ -554,14 +591,26 @@ const updateTestResult = async () => {
   }
 };
 
-const browseProgram = async () => {
+const browseFile = async (type) => {
   try {
-    const filePath = await OpenProgramDialog()
-    if (filePath) {
-      editingRule.program = filePath
+    if ( type == 'fallbackBrowser' ) {
+      const filePath = await OpenProgramDialog()
+      editingGlobal.value.fallbackBrowserPath = filePath
+    }
+    if ( type == 'defaultEditor' ) {
+      const filePath = await OpenProgramDialog()
+      editingGlobal.value.defaultConfigEditor = filePath
+    }
+    if ( type == 'logPath' ) {
+      const filePath = await OpenFileDialog("Select Log File", [])
+      editingGlobal.value.logPath = filePath
+    }
+    if ( type == 'ruleProgram' ) {
+      const filePath = await OpenProgramDialog()
+      editingRule.value.program = filePath
     }
   } catch (err) {
-    console.error("Program picker failed:", err)
+    runtime.LogInfo("File picker failed:", err)
   }
 }
 
