@@ -6,6 +6,7 @@ import (
 	"errors"
 	"linkrouter/internal/config"
 	"linkrouter/internal/dialogs"
+	"linkrouter/internal/launcher"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -201,4 +202,16 @@ func (a *App) UnregisterLinkRouter() error {
 		CmdLine: fullCmdLine,
 	}
 	return cmd.Start()
+}
+
+func (a *App) OpenInFallbackBrowser(browserPath string, url string) {
+	if strings.TrimSpace(browserPath) == "" {
+		dialogs.ShowError("fallback browser is not set\n" +
+			"go to settings and set it up")
+		return
+	}
+	err := launcher.LaunchApp(browserPath, "{URL}", url)
+	if err != nil {
+		dialogs.ShowError("unable to launch fallback browser: \n" + err.Error())
+	}
 }

@@ -42,7 +42,7 @@ func HandleNoArgs() {
 		// 	if !strings.Contains(argsTemplate, "{URL}") {
 		// 		argsTemplate += " {URL}"
 		// 	}
-		// 	launchApp(cfg.Global.FallbackBrowserPath, argsTemplate, url)
+		// 	LaunchApp(cfg.Global.FallbackBrowserPath, argsTemplate, url)
 		// } else {
 		// 	logger.Log("Error: fallbackBrowserPath in linkrouter.json is empty")
 		// 	dialogs.ShowError("fallbackBrowserPath in linkrouter.json is empty")
@@ -167,7 +167,7 @@ func HandleURL(url string) {
 		logger.Log(fmt.Sprintf("Captured groups: %s", logger.FormatCaptureGroups(matches)))
 
 		expandedArgs := expandPlaceholders(rule.Arguments, matches)
-		err := launchApp(rule.Program, expandedArgs, url)
+		err := LaunchApp(rule.Program, expandedArgs, url)
 		if err == nil {
 			return
 		} else {
@@ -211,7 +211,7 @@ func HandleURL(url string) {
 			logger.Log("Arguments are empty appending {URL}")
 			argsTemplate = "{URL}"
 		}
-		err := launchApp(cfg.Global.FallbackBrowserPath, argsTemplate, url)
+		err := LaunchApp(cfg.Global.FallbackBrowserPath, argsTemplate, url)
 		if err == nil {
 			return
 		} else {
@@ -255,7 +255,7 @@ func isExplorer(path string) bool {
 	return strings.EqualFold(filepath.Base(path), "explorer.exe")
 }
 
-func launchApp(programPath, argsTemplate, url string) error {
+func LaunchApp(programPath, argsTemplate, url string) error {
 	if programPath == "" {
 		logger.Log("Error: program path is empty")
 		return fmt.Errorf("program path is empty")

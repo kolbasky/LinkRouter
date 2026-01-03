@@ -73,7 +73,7 @@
                   @click.stop="copyToClipboard(item.rule.regex)"
                   title="Copy to clipboard"
                 >
-                  📋
+                  <span class="emoji">📋</span>
                 </button>
               </div>
             </td>
@@ -85,7 +85,7 @@
                   @click.stop="copyToClipboard(item.rule.program)"
                   title="Copy to clipboard"
                 >
-                  📋
+                  <span class="emoji">📋</span>
                 </button>
               </div>
             </td>
@@ -117,9 +117,9 @@
       </div>
 
       <div class="button-group">
-        <button class="add-rule-btn" @click="openAddRuleModal">➕</button>
-        <button class="save-btn" @click="saveConfigAs">💾</button>
-        <button class="settings-btn" @click="openSettingsModal" title="Global Settings">⚙️</button>
+        <button class="add-rule-btn" @click="openAddRuleModal"><span class="emoji">➕</span></button>
+        <button class="save-btn" @click="saveConfigAs"><span class="emoji">💾</span></button>
+        <button class="settings-btn" @click="openSettingsModal" title="Global Settings"><span class="emoji">⚙️</span></button>
         <button class="load-btn" @click="loadConfig">Load config</button>
       </div>
     </div>
@@ -150,7 +150,7 @@
             placeholder="C:\\Program Files\\App\\app.exe" 
           />
           <button class="browse-btn" @click="browseFile('ruleProgram')" title="Browse for program">
-            📂
+            <span class="emoji">📂</span>
           </button>
         </div>
 
@@ -170,6 +170,16 @@
             placeholder="URL to test regex"
             @input="updateTestResult"
           />
+        </div>
+        <div v-if="launchedInInteractiveMode" style="text-align: left; margin-top: 0.5rem;">
+          <button
+            v-if="testUrl"
+            class="browser-btn"
+            @click="openTestUrlInBrowser"
+            title="Open test URL in default browser"
+          >
+            🌐 Open in Browser
+          </button>
         </div>
 
         <div class="modal-buttons">
@@ -195,7 +205,7 @@
               placeholder="e.g. C:\\Program Files\\Firefox\\firefox.exe"
             />
             <button class="browse-btn" @click="browseFile('fallbackBrowser')" title="Browse for program">
-              📂
+              <span class="emoji">📂</span>
             </button>
           </div>
 
@@ -219,7 +229,7 @@
             placeholder="e.g. notepad.exe"
             />
             <button class="browse-btn" @click="browseFile('defaultEditor')" title="Browse for program">
-              📂
+              <span class="emoji">📂</span>
             </button>
           </div>
           
@@ -231,7 +241,7 @@
             placeholder="e.g. C:\\logs\\linkrouter.log"
             />
             <button class="browse-btn" @click="browseFile('logPath')" title="Browse for program">
-              📂
+              <span class="emoji">📂</span>
             </button>
           </div>
           
@@ -281,7 +291,7 @@
 
 <script setup>
 import { Fzf } from 'fzf'
-import { WindowMinimise, WindowToggleMaximise, Quit, LogInfo, EventsOn } from '../wailsjs/runtime/runtime';
+import { WindowMinimise, WindowToggleMaximise, Quit, LogInfo, EventsOn, WindowShow, WindowSetAlwaysOnTop, WindowUnminimise} from '../wailsjs/runtime/runtime';
 import { ref, computed, nextTick, onMounted } from 'vue';
 import {
   GetInteractiveMode,
@@ -296,18 +306,9 @@ import {
   TestRegex,
   IsValidRegex,
   RegisterLinkRouter,
-  UnregisterLinkRouter
+  UnregisterLinkRouter,
+  OpenInFallbackBrowser
 } from '../wailsjs/go/main/App';
-
-
-  nextTick(() => {
-    const app = document.querySelector('.app')
-    if (app) {
-      app.focus();
-      app.tabIndex = -1;
-    }
-    searchInput.value?.focus()
-  });
 
 Promise.all([
   GetConfig(),
@@ -321,16 +322,12 @@ Promise.all([
   configPath.value = path;
   saveToUndo();
   nextTick(() => {
-    const app = document.querySelector('.app')
-    if (app) {
-      app.focus();
-      app.tabIndex = -1;
-    }
     searchInput.value?.focus()
   });
 
 
   const mode = await GetInteractiveMode()
+  launchedInInteractiveMode.value = mode.enabled === "true";
   if (mode.enabled === "true" && mode.url) {
     testUrl.value = mode.url
     editingRule.value = {
@@ -343,14 +340,13 @@ Promise.all([
     editingRule.value.regex
     updateTestResult()
     nextTick(() => {
-    const app = document.querySelector('.app')
-      if (app) {
-        app.focus();
-        app.tabIndex = -1;
-      }
       regexInput.value?.focus()
     })
   }
+  runtime.WindowMinimise()
+  setTimeout(() => {
+    runtime.WindowUnminimise()
+  }, 10);
 });
 
 const guessRegex = (url) => {
@@ -385,7 +381,7 @@ setTimeout(() => {
     if (e.key === 'Escape') {
       if (showEditModal.value ) {
         e.preventDefault()
-        showEditModal.value = false;
+        closeEditModal()
         e.stopPropagation()
         return
       } else if (showSettingsModal.value) {
@@ -460,6 +456,14 @@ setTimeout(() => {
       e.stopPropagation()
       return
     }
+    if (e.ctrlKey && e.key === 'o' && !e.shiftKey) {
+      if (launchedInInteractiveMode.value && showEditModal.value) {
+        e.preventDefault()
+        openTestUrlInBrowser()
+        e.stopPropagation()
+        return
+      }
+    }
   })
 }, 100)
 
@@ -470,6 +474,7 @@ const search = ref('');
 const rulesContainer = ref(null);
 const searchInput = ref(null);
 const fallbackBrowserInput = ref(null);
+const launchedInInteractiveMode = ref(false);
 
 const showEditModal = ref(false);
 const showSettingsModal = ref(false);
@@ -747,6 +752,21 @@ const closeEditModal = () => {
     originalRule.value = null;
     regexError.value = null;
   }, 300);
+  if (launchedInInteractiveMode.value) {
+    runtime.Quit()
+  }
+};
+
+const openTestUrlInBrowser = async () => {
+  if (!testUrl.value?.trim()) return;
+  try {
+    await OpenInFallbackBrowser(config.value.global.fallbackBrowserPath, testUrl.value.trim());
+  } catch (err) {
+    runtime.LogError("Failed to open URL:", err);
+  }
+  if (launchedInInteractiveMode.value) {
+    runtime.Quit()
+  }
 };
 
 const saveRule = () => {
@@ -767,8 +787,8 @@ const saveRule = () => {
     config.value.rules.push({ ...editingRule.value });
   }
 
-  closeEditModal();
   saveConfig();
+  closeEditModal();
   saveToUndo();
 };
 

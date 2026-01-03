@@ -654,9 +654,15 @@ input[type="checkbox"] {
   gap: 10px;
 }
 
+.emoji {
+  /* filter: grayscale(100%); */
+  display: inline-block;
+}
+
 .cancel-btn,
 .ok-btn,
-.reg-btn {
+.reg-btn,
+.browser-btn {
   padding: 10px 20px;
   border: none;
   border-radius: 6px;
@@ -664,7 +670,8 @@ input[type="checkbox"] {
   transition: background 0.2s ease;
 }
 
-.reg-btn{
+.reg-btn,
+.browser-btn {
   background: #334155;
   color: #cbd5e1;
 }
