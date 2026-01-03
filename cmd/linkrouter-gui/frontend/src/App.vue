@@ -346,7 +346,7 @@ Promise.all([
   runtime.WindowMinimise()
   setTimeout(() => {
     runtime.WindowUnminimise()
-  }, 10);
+  }, 20);
 });
 
 const guessRegex = (url) => {

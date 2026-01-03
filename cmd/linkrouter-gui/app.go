@@ -177,14 +177,20 @@ func (a *App) RegisterLinkRouter() error {
 		dialogs.ShowError("linkrouter.exe not found\nplace it near linkrouter-gui.exe")
 		return nil
 	}
-	fullCmdLine := cmdPath + " --register"
 
-	cmd := exec.Command(cmdPath)
-	cmd.Path = cmdPath
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		CmdLine: fullCmdLine,
+	err := exec.Command(cmdPath, "--register").Start()
+	if err != nil {
+		dialogs.ShowError(err.Error())
+		return err
 	}
-	return cmd.Start()
+	return nil
+	// fullCmdLine := cmdPath + " --register"
+	// cmd := exec.Command(cmdPath)
+	// cmd.Path = cmdPath
+	// cmd.SysProcAttr = &syscall.SysProcAttr{
+	// 	CmdLine: fullCmdLine,
+	// }
+	// return cmd.Start()
 }
 
 func (a *App) UnregisterLinkRouter() error {

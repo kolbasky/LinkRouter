@@ -85,9 +85,8 @@ func EditConfig() {
 
 	err := exec.Command(editor, configPath).Start()
 	if err != nil {
-		dialogs.ShowError("Failed to find any known text editor in PATH.\n" +
-			"Your config is at " + configPath + "\n" +
-			"Set global.defaultConfigEditor manually.")
+		dialogs.ShowError("Failed to open config " + configPath +
+			" with " + editor + "\n" + err.Error())
 	}
 	os.Exit(0)
 }
