@@ -73,7 +73,7 @@
                   @click.stop="copyToClipboard(item.rule.regex)"
                   title="Copy to clipboard"
                 >
-                  <span class="emoji">📋</span>
+                  <span class="emoji">📋︎</span>
                 </button>
               </div>
             </td>
@@ -85,7 +85,7 @@
                   @click.stop="copyToClipboard(item.rule.program)"
                   title="Copy to clipboard"
                 >
-                  <span class="emoji">📋</span>
+                  <span class="emoji">📋︎</span>
                 </button>
               </div>
             </td>
@@ -117,10 +117,10 @@
       </div>
 
       <div class="button-group">
-        <button class="add-rule-btn" @click="openAddRuleModal"><span class="emoji">➕</span></button>
-        <button class="save-btn" @click="saveConfigAs"><span class="emoji">💾</span></button>
-        <button class="settings-btn" @click="openSettingsModal" title="Global Settings"><span class="emoji">⚙️</span></button>
-        <button class="load-btn" @click="loadConfig">Load config</button>
+        <button class="add-rule-btn" @click="openAddRuleModal" title="Add new rule"><span class="emoji">➕︎</span></button>
+        <button class="save-btn" @click="saveConfigAs" title="Save as"><span class="emoji">💾︎</span></button>
+        <button class="settings-btn" @click="openSettingsModal" title="Global settings"><span class="emoji">⚙</span></button>
+        <button class="load-btn" @click="loadConfig" title="Open config">📂︎</button>
       </div>
     </div>
 
@@ -150,7 +150,7 @@
             placeholder="C:\\Program Files\\App\\app.exe" 
           />
           <button class="browse-btn" @click="browseFile('ruleProgram')" title="Browse for program">
-            <span class="emoji">📂</span>
+            <span class="emoji">📂︎</span>
           </button>
         </div>
 
@@ -171,14 +171,14 @@
             @input="updateTestResult"
           />
         </div>
-        <div v-if="launchedInInteractiveMode" style="text-align: left; margin-top: 0.5rem;">
+        <div  style="text-align: left; margin-top: 0.5rem;">
           <button
             v-if="testUrl"
             class="browser-btn"
             @click="openTestUrlInBrowser"
             title="Open test URL in default browser"
           >
-            🌐 Open in Browser
+            🌐︎ Open in Browser
           </button>
         </div>
 
@@ -205,7 +205,7 @@
               placeholder="e.g. C:\\Program Files\\Firefox\\firefox.exe"
             />
             <button class="browse-btn" @click="browseFile('fallbackBrowser')" title="Browse for program">
-              <span class="emoji">📂</span>
+              <span class="emoji">📂︎</span>
             </button>
           </div>
 
@@ -229,7 +229,7 @@
             placeholder="e.g. notepad.exe"
             />
             <button class="browse-btn" @click="browseFile('defaultEditor')" title="Browse for program">
-              <span class="emoji">📂</span>
+              <span class="emoji">📂︎</span>
             </button>
           </div>
           
@@ -241,7 +241,7 @@
             placeholder="e.g. C:\\logs\\linkrouter.log"
             />
             <button class="browse-btn" @click="browseFile('logPath')" title="Browse for program">
-              <span class="emoji">📂</span>
+              <span class="emoji">📂︎</span>
             </button>
           </div>
           
@@ -274,9 +274,9 @@
       :style="{ top: contextMenu.y + 'px', left: contextMenu.x + 'px' }"
       @click.stop
     >
-      <button class="context-item" @click="openAddRuleModal">➕ Add</button>
-      <button class="context-item" @click="handleContextAction('edit')">✏️ Edit</button>
-      <button class="context-item" @click="handleContextAction('delete')">🗑️ Delete</button>
+      <button class="context-item" @click="openAddRuleModal">➕︎ &nbspAdd</button>
+      <button class="context-item" @click="handleContextAction('edit')">✎ &nbspEdit</button>
+      <button class="context-item" @click="handleContextAction('delete')">🗑 &nbsp&nbspDelete</button>
     </div>
 
     <!-- Context Menu Backdrop -->
