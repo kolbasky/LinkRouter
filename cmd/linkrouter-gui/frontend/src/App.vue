@@ -136,7 +136,7 @@
           class="modal-input" 
           :class="{ 'invalid-regex': regexError }"
           @input="validateRegex"
-          placeholder="e.g. ^https?://(.*\\.)?youtube\\.com/.*" 
+          placeholder="e.g. ^https?://(.*\.)?youtube\.com/.*" 
         />
         <div v-if="regexError" class="regex-error-message">
           {{ regexError }}
@@ -147,7 +147,7 @@
           <input 
             v-model="editingRule.program" 
             class="modal-input program-input" 
-            placeholder="C:\\Program Files\\App\\app.exe" 
+            placeholder="C:\Program Files\App\app.exe" 
           />
           <button class="browse-btn" @click="browseFile('ruleProgram')" title="Browse for program">
             <span class="emoji">📂︎</span>
@@ -158,7 +158,7 @@
         <input
           v-model="editingRule.arguments"
           class="modal-input"
-          placeholder="--url {url}"
+          placeholder="{URL} for URL; $1, $2 etc for captured groups"
         />
 
         <label>Test URL</label>
