@@ -202,7 +202,7 @@
               ref="fallbackBrowserInput"
               v-model="editingGlobal.fallbackBrowserPath"
               class="modal-input"
-              placeholder="e.g. C:\\Program Files\\Firefox\\firefox.exe"
+              placeholder="e.g. C:\Program Files\Firefox\firefox.exe"
             />
             <button class="browse-btn" @click="browseFile('fallbackBrowser')" title="Browse for program">
               <span class="emoji">📂︎</span>
@@ -238,7 +238,7 @@
             <input
             v-model="editingGlobal.logPath"
             class="modal-input"
-            placeholder="e.g. C:\\logs\\linkrouter.log"
+            placeholder="e.g. C:\logs\linkrouter.log"
             />
             <button class="browse-btn" @click="browseFile('logPath')" title="Browse for program">
               <span class="emoji">📂︎</span>
@@ -346,7 +346,7 @@ Promise.all([
   runtime.WindowMinimise()
   setTimeout(() => {
     runtime.WindowUnminimise()
-  }, 20);
+  }, 100);
 });
 
 const guessRegex = (url) => {
@@ -632,6 +632,15 @@ const handleRulesKeydown = (e) => {
     if (index >= 0 && index < filteredRules.value.length) {
       const rule = filteredRules.value[index].rule
       openEditModal(rule)
+    }
+  }
+  if ((e.key === 'Delete' || e.key === 'Backspace')) {
+    const index = selectedRowIndex.value
+    if (index >= 0 && index < filteredRules.value.length) {
+      e.preventDefault();
+      handleContextAction('delete', index);
+      e.stopPropagation();
+      return;
     }
   }
 }
@@ -936,9 +945,19 @@ function closeContextMenu() {
   contextMenu.value.visible = false;
 }
 
-function handleContextAction(action) {
-  const { rule, index } = contextMenu.value;
+function handleContextAction(action, indexOverride = null) {
+  let rule, index;
 
+  if (indexOverride !== null) {
+    const item = filteredRules.value[indexOverride];
+    if (!item) return;
+    rule = item.rule;
+    index = item.realIndex;
+  } else {
+    rule = contextMenu.value.rule;
+    index = contextMenu.value.index;
+  }
+  
   if (action === 'edit') {
     openEditModal(rule);
   } else if (action === 'delete') {
