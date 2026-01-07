@@ -111,8 +111,17 @@
     <div class="bottom-bar">
       <div class="status-info">
         {{ filteredRules.length }} of {{ config.rules?.length || 0 }} rules
-        <span class="config-path" :class="{ 'saving': isSaving }" :key="notificationKey">
-          • {{ statusMessage || (configPath ? `${configPath}` : '') }}
+        <span class="config-path-wrapper">
+          <span 
+            v-if="configPath"
+            class="config-path" 
+            :class="{ 'saving': isSaving }" 
+            :key="notificationKey"
+            @click="openConfigInExplorer"
+            title="Open config path"
+          >
+            • {{ statusMessage || (configPath ? `${configPath}` : '') }}
+          </span>
         </span>
       </div>
 
@@ -1035,6 +1044,15 @@ const statusMessage = ref('')
 const configPathDisplay = computed(() => {
   return statusMessage.value || (configPath.value ? `${configPath.value}` : '')
 })
+
+async function openConfigInExplorer() {
+  if (!configPath.value) return;
+  try {
+    await window.go.main.App.OpenConfigInExplorer(configPath.value);
+  } catch (err) {
+    runtime.LogInfo("Failed to open config in Explorer:", err);
+  }
+}
 
 const isSaving = ref(false)
 

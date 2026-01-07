@@ -221,3 +221,17 @@ func (a *App) OpenInFallbackBrowser(browserPath string, url string) {
 		dialogs.ShowError("unable to launch fallback browser: \n" + err.Error())
 	}
 }
+
+func (a *App) OpenConfigInExplorer(configPath string) error {
+	if configPath == "" {
+		return nil
+	}
+
+	absPath, err := filepath.Abs(configPath)
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command("explorer", "/select,", absPath)
+	return cmd.Start()
+}

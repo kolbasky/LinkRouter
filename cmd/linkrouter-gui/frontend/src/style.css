@@ -138,14 +138,14 @@ body {
 .search-wrapper {
   position: relative;
   display: inline-block;
-  width: 60%;
-  max-width: 1000px;
+  width: 80%;
+  max-width: 100%;
   margin: 0 3rem 0 0;
 }
 
 .search-input {
   width: 100%;
-  max-width: 1000px;
+  max-width: 100%;
   padding: 12px 36px 12px 12px;
   margin: 1rem 0 2rem;
   background: none;
@@ -194,7 +194,7 @@ body {
 
 .config-table {
   width: 100%;
-  max-width: 1080px;
+  max-width: 100%;
   margin: 0 auto;
   border-collapse: separate;
   border-spacing: 0;
@@ -273,16 +273,26 @@ body {
 
 .config-table code {
   background: rgba(0, 0, 0, 0.2);
-  padding: 0.25rem 0.5rem;
+  padding: 0.3em 0.5em;
   border-radius: 4px;
-  font-size: 0.92em;
-  text-overflow: ellipsis;
+  font-size: 1.0em;
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+  scrollbar-width: none;
+  text-overflow: "...";
+  white-space: nowrap;
+  cursor: text;
+  user-select: text;
+  transition: background 0.1s ease-in-out;
 }
 
+
 .code-wrapper {
-  position: relative;
-  align-items: center;
+  display: flex;
   width: 100%;
+  min-width: 0;
+  
 }
 
 .copy-btn {
@@ -295,13 +305,15 @@ body {
   height: 24px;
   border-radius: 4px;
   margin-left: 6px;
+  margin-top: 1px;
   font-size: 12px;
   cursor: pointer;
   transition: 
     opacity 0.1s ease,
     color 0.1s ease,
     background 0.1s ease-in-out;
-  flex-shrink: 0;
+  flex-shrink: 0; /* Never shrink */
+  display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
@@ -320,6 +332,17 @@ body {
 .copy-btn:active {
   background: rgba(255, 255, 255, 0.3);
   scale: 1.1;
+}
+
+.code-wrapper:has(.copy-btn:hover) code {
+/* original background */
+  /* background-size: 0% 100%; */
+  background-position: left center;
+}
+.code-wrapper:has(.copy-btn:active) code {
+  background: rgba(255, 255, 255, 0.1);
+  transition: background 0.1s ease-in-out;
+  /* background-size: 100% 100%; */
 }
 
 .drag-handle-cell {
@@ -413,10 +436,31 @@ body {
 .status-info {
   font-weight: 500;
   cursor: default;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.config-path-wrapper {
+  display: flex;
+  min-width: 0;
+  flex: 1;
 }
 
 .config-path {
-  opacity: 1;
+  margin-left: 12px;
+  color: #64748b;
+  font-size: 0.85rem;
+  user-select: text;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.config-path:hover {
+  text-decoration: underline;
 }
 
 .config-path.saving {
@@ -684,7 +728,8 @@ input[type="checkbox"] {
   color: #cbd5e1;
 }
 
-.cancel-btn:hover {
+.cancel-btn:hover,
+.browser-btn:hover {
   background: #475569;
 }
 
@@ -698,16 +743,7 @@ input[type="checkbox"] {
 }
 
 
-.config-path {
-  margin-left: 12px;
-  color: #64748b;
-  font-size: 0.85rem;
-  user-select: text;
-  cursor: text;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-}
+
 
 
 
