@@ -1,5 +1,6 @@
 :root{
   --title-bar-height: 32px;
+  font-family:      system-ui, -apple-system, Roboto, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
 html {
@@ -13,7 +14,7 @@ html {
 body {
   margin: 0;
   height: 100%;
-  font-family:    system-ui, -apple-system, Roboto, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  
   font-size: 1.2em;
 }
 
@@ -147,7 +148,7 @@ body {
   max-width: 1000px;
   padding: 12px 36px 12px 12px;
   margin: 1rem 0 2rem;
-  background: #1e293b;
+  background: none;
   border: 1px solid #334155;
   border-radius: 8px;
   color: white;
@@ -158,6 +159,7 @@ body {
 
 .search-input:focus {
   border-color: #64748b;
+  background: #1E293B;
   box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.2);
 }
 
@@ -286,7 +288,7 @@ body {
 .copy-btn {
   opacity: 0;
   visibility: hidden;
-  background: rgba(51, 65, 85, 0.7);
+  background: none;
   border: none;
   color: #cbd5e1;
   width: 24px;
@@ -380,6 +382,8 @@ body {
 
 .context-item:hover {
   background: #334155;
+  border-radius: 8px;
+  box-shadow: 0 0 0 3px rgb(30, 41, 59) inset;
 }
 
 .context-item:first-child {
@@ -566,7 +570,7 @@ body {
   right: 8px;
   top: 50%;
   transform: translateY(-50%);
-  background: #334155;
+  background: none;
   border: none;
   color: #cbd5e1;
   width: 28px;
@@ -581,7 +585,7 @@ body {
 }
 
 .browse-btn:hover {
-  background: #475569;
+  background: #5b7289;
 }
 
 .browse-btn:active {
@@ -776,7 +780,7 @@ input[type="checkbox"] {
 .button-group {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 /* Make the load button slightly smaller to match the group feel */
@@ -785,13 +789,12 @@ input[type="checkbox"] {
   width: 32px;
   height: 32px;
   /* padding: 8px 18px; */
-  padding-bottom: 4px;
-  padding-right: 4px;
-  background: #334155;
-  color: #e2e8f0;
+  margin-bottom: 7px;
+  background: none;
+  color: #94a3b8;
   border: none;
   border-radius: 6px;
-  font-size: 1.3rem;
+  font-size: 1.6rem;
   font-weight: 300;
   transition: background 0.2s ease;
   white-space: nowrap;
@@ -799,7 +802,8 @@ input[type="checkbox"] {
 }
 
 .load-btn:hover {
-  background: #475569;
+  color: #e2e8f0;
+  /* background: #475569; */
 }
 
 .load-btn:active {
@@ -812,21 +816,22 @@ input[type="checkbox"] {
   cursor: pointer;
   width: 32px;
   height: 32px;
-  background: #334155;
-  color: #e2e8f0;
+  background: none;
+  color: #94a3b8;;
   border: none;
   border-radius: 6px;
-  font-size: 1.45rem;
+  font-size: 2.0rem;
   display: flex;
   align-items: center;
   justify-content: center;
   text-shadow: 0 1px 1px  rgba(0,0,0,0.25);
   transition: background 0.2s ease;
-  padding-bottom: 3px;
+  padding-bottom: 4px;
 }
 
 .settings-btn:hover {
-  background: #475569;
+  /* background: #475569; */
+  color: #e2e8f0;
 }
 
 .settings-btn:active {
@@ -839,18 +844,21 @@ input[type="checkbox"] {
   width: 32px;
   height: 32px;
   padding: 0;
-  background: #334155;
-  color: #e2e8f0;
+  margin-bottom: -2px;
+  margin-right: -4px;
+  background: none;
+  color: #94a3b8;
   border: none;
   border-radius: 6px;
-  font-size: 1.0rem;
+  font-size: 1.4rem;
   font-weight: 600;
   transition: background 0.2s ease;
   white-space: nowrap;
 }
 
 .save-btn:hover {
-  background: #475569;
+  color: #e2e8f0;
+  /* background: #475569; */
 }
 
 .save-btn:active {

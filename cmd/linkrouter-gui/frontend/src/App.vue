@@ -118,9 +118,9 @@
 
       <div class="button-group">
         <button class="add-rule-btn" @click="openAddRuleModal" title="Add new rule"><span class="emoji">➕︎</span></button>
+        <button class="load-btn" @click="loadConfig" title="Open config">📂︎</button>
         <button class="save-btn" @click="saveConfigAs" title="Save as"><span class="emoji">💾︎</span></button>
         <button class="settings-btn" @click="openSettingsModal" title="Global settings"><span class="emoji">⚙</span></button>
-        <button class="load-btn" @click="loadConfig" title="Open config">📂︎</button>
       </div>
     </div>
 
@@ -274,9 +274,9 @@
       :style="{ top: contextMenu.y + 'px', left: contextMenu.x + 'px' }"
       @click.stop
     >
-      <button class="context-item" @click="openAddRuleModal">➕︎ &nbspAdd</button>
-      <button class="context-item" @click="handleContextAction('edit')">✎ &nbspEdit</button>
-      <button class="context-item" @click="handleContextAction('delete')">🗑 &nbsp&nbspDelete</button>
+      <button class="context-item" @click="openAddRuleModal">➕︎ &nbspAdd</button><br>
+      <button class="context-item" @click="handleContextAction('edit')">✎ &nbspEdit</button><br>
+      <button class="context-item" @click="handleContextAction('delete')">🗑 &nbsp&nbspDelete</button><br>
     </div>
 
     <!-- Context Menu Backdrop -->
