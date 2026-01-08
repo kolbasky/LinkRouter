@@ -57,27 +57,7 @@ func EditConfig() {
 	configPath := config.GetConfigPath()
 
 	if editor == "" {
-		for _, e := range []string{
-			"code.exe",
-			"subl.exe",
-			"atom.exe",
-			"webstorm.exe",
-			"phpstorm.exe",
-			"pycharm.exe",
-			"idea64.exe",
-			"notepad++.exe",
-			"notepad2.exe",
-			"notepad3.exe",
-			"notepad.exe",
-		} {
-			if path, err := exec.LookPath(e); err == nil {
-				editor = path
-				break
-			}
-		}
-		if editor == "" {
-			editor = "notepad.exe"
-		}
+		editor = config.GetConfigEditor()
 		cfg.Global.DefaultConfigEditor = editor
 		cfg.Save(configPath)
 		cfg, _ = config.LoadConfig()

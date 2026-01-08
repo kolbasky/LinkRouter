@@ -7,8 +7,10 @@ import (
 	"linkrouter/internal/logger"
 	"linkrouter/internal/utils"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	"golang.org/x/sys/windows/registry"
 )
@@ -130,6 +132,24 @@ func CanWrite(path string) bool {
 	return true
 }
 
+func isProgramFiles(path string) bool {
+	path = filepath.Clean(path)
+	progFiles := os.Getenv("ProgramFiles")
+	progFilesX86 := os.Getenv("ProgramFiles(x86)")
+
+	// Ensure trailing separator for safe prefix match
+	if !strings.HasSuffix(progFiles, string(filepath.Separator)) {
+		progFiles += string(filepath.Separator)
+	}
+	if !strings.HasSuffix(progFilesX86, string(filepath.Separator)) {
+		progFilesX86 += string(filepath.Separator)
+	}
+
+	// Case-insensitive prefix match (Windows paths are case-insensitive)
+	return strings.HasPrefix(strings.ToLower(path), strings.ToLower(progFiles)) ||
+		strings.HasPrefix(strings.ToLower(path), strings.ToLower(progFilesX86))
+}
+
 func GetConfigPath() string {
 	exe, _ := os.Executable()
 	exeDir := filepath.Dir(exe)
@@ -149,16 +169,41 @@ func GetConfigPath() string {
 		return candidateExe
 	}
 
-	// No config exists exist. Try exedir first
-	// But may fail when in Program Files and without admin privs
+	// No config exists exist. Try exedir first if not in ProgramFiles (portable mode)
 	testFile := filepath.Join(exeDir, "linkrouter_write_test.9a928eb3-bfa9-4736-a262-00274e36d973")
-	if CanWrite(testFile) {
+	if CanWrite(testFile) && !isProgramFiles(exeDir) {
 		return candidateExe
 	}
-	// Use localappdata then
+	// Use localappdata else
 	dialogs.ShowError("Unable to create config next to exe file. Config will be created in " + candidateAppData)
 	os.MkdirAll(filepath.Dir(candidateAppData), 0755)
 	return candidateAppData
+}
+
+func GetConfigEditor() string {
+	editor := ""
+	for _, e := range []string{
+		"code.exe",
+		"subl.exe",
+		"atom.exe",
+		"webstorm.exe",
+		"phpstorm.exe",
+		"pycharm.exe",
+		"idea64.exe",
+		"notepad++.exe",
+		"notepad2.exe",
+		"notepad3.exe",
+		"notepad.exe",
+	} {
+		if path, err := exec.LookPath(e); err == nil {
+			editor = path
+			break
+		}
+	}
+	if editor == "" {
+		editor = "notepad.exe"
+	}
+	return editor
 }
 
 func DefaultConfig() *Config {
@@ -171,8 +216,8 @@ func DefaultConfig() *Config {
 	return &Config{
 		Global: GlobalConfig{
 			FallbackBrowserPath: browserPath,
-			FallbackBrowserArgs: "{URL}",
-			DefaultConfigEditor: "",
+			FallbackBrowserArgs: "\"{URL}\"",
+			DefaultConfigEditor: GetConfigEditor(),
 			LogPath:             "",
 			InteractiveMode:     false,
 			SupportedProtocols:  []string{"http", "https", "linkrouter-ext"},

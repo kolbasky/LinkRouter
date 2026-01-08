@@ -91,9 +91,10 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags
 
 [Run]
 Filename: "{app}\linkrouter.exe"; Parameters: "--register --quiet"; Flags: runhidden runasoriginaluser; Check: not RunAsAdminChecked
-Filename: "{app}\linkrouter.exe"; Parameters: "--register --quiet"; Flags: runhidden; Check: RunAsAdminChecked
+Filename: "{app}\linkrouter.exe"; Parameters: "--register --quiet"; Flags: runhidden runascurrentuser; Check: RunAsAdminChecked
 Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""Expand-Archive -Path '{app}\linkrouter-extension.zip' -DestinationPath '{app}\chrome_extension' -Force; Remove-Item -Path '{app}\linkrouter-extension.zip'"""; Flags: runhidden
-Filename: "{app}\{#MyAppExeName}"; Description: "Launch LinkRouter GUI"; Flags: nowait postinstall skipifsilent; Check: not (RunAsAdminChecked)
+Filename: "{app}\{#MyAppExeName}"; Description: "Launch LinkRouter GUI"; Flags: nowait postinstall skipifsilent runasoriginaluser; Check: not RunAsAdminChecked
+Filename: "{app}\{#MyAppExeName}"; Description: "Launch LinkRouter GUI"; Flags: nowait postinstall skipifsilent runascurrentuser; Check: RunAsAdminChecked
 Filename: "{win}\explorer.exe"; Parameters: """ms-settings:defaultapps?registeredAppUser=LinkRouter"""; Description: "Show ""Default Apps"" dialog"; Flags: nowait postinstall
 
 [UninstallRun]
