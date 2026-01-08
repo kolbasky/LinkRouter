@@ -98,6 +98,8 @@ Filename: "{win}\explorer.exe"; Parameters: """ms-settings:defaultapps?registere
 
 [UninstallRun]
 Filename: "{app}\linkrouter.exe"; Parameters: "--unregister"; Flags: runhidden; RunOnceId: "unregisterLinkRouter"
+Filename: "{cmd}"; Parameters: "/C taskkill /IM linkrouter-gui.exe /F /T"; Flags: runhidden
+Filename: "{cmd}"; Parameters: "/C taskkill /IM linkrouter.exe /F /T"; Flags: runhidden
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\chrome_extension"
