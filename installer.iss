@@ -62,6 +62,11 @@ begin
   end;
 end;
 
+function RunAsAdminChecked: Boolean;
+begin
+  Result := WizardIsTaskSelected('runasadmin');
+end;
+
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 Name: "runasadmin"; Description: "Always run LinkRouter as administrator (required only if some rules launch apps that need elevated privileges)"; GroupDescription: "Advanced options:"; Flags: unchecked
@@ -85,9 +90,10 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags
   Tasks: runasadmin; Flags: uninsdeletevalue
 
 [Run]
-Filename: "{app}\linkrouter.exe"; Parameters: "--register --quiet"; Flags: runhidden runasoriginaluser
+Filename: "{app}\linkrouter.exe"; Parameters: "--register --quiet"; Flags: runhidden runasoriginaluser; Check: not RunAsAdminChecked
+Filename: "{app}\linkrouter.exe"; Parameters: "--register --quiet"; Flags: runhidden; Check: RunAsAdminChecked
 Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""Expand-Archive -Path '{app}\linkrouter-extension.zip' -DestinationPath '{app}\chrome_extension' -Force; Remove-Item -Path '{app}\linkrouter-extension.zip'"""; Flags: runhidden
-Filename: "{app}\{#MyAppExeName}"; Description: "Launch LinkRouter GUI"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "Launch LinkRouter GUI"; Flags: nowait postinstall skipifsilent; Check: not (RunAsAdminChecked)
 Filename: "{win}\explorer.exe"; Parameters: """ms-settings:defaultapps?registeredAppUser=LinkRouter"""; Description: "Show ""Default Apps"" dialog"; Flags: nowait postinstall
 
 [UninstallRun]
