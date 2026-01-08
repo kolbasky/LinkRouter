@@ -67,9 +67,9 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "runasadmin"; Description: "Always run LinkRouter as administrator (required only if some rules launch apps that need elevated privileges)"; GroupDescription: "Advanced options:"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\mtrag\git\link-router\bin\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\mtrag\git\link-router\bin\linkrouter.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\mtrag\git\link-router\bin\linkrouter-extension.zip"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\linkrouter.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\linkrouter-extension.zip"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
