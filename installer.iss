@@ -19,6 +19,8 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
+CloseApplications=yes
+CloseApplicationsFilter=linkrouter.exe,linkrouter-gui.exe
 DefaultDirName={autopf}\{#MyAppName}
 UninstallDisplayIcon={app}\{#MyAppExeName}
 ; "ArchitecturesAllowed=x64compatible" specifies that Setup cannot run
@@ -33,17 +35,36 @@ DisableProgramGroupPage=yes
 ; Remove the following line to run in administrative install mode (install for all users).
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
-OutputDir=C:\Users\mtrag\Desktop\New folder
-OutputBaseFilename=LinkRouter
-SetupIconFile=C:\Users\mtrag\git\link-router\cmd\linkrouter\linkrouter.ico
+OutputDir=bin\
+OutputBaseFilename=LinkRouter-Installer
+SetupIconFile=cmd\linkrouter\linkrouter.ico
 SolidCompression=yes
 WizardStyle=modern
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
+[Code]
+procedure CurPageChanged(CurPageID: Integer);
+begin
+  if CurPageID = wpReady then
+  begin
+    if WizardIsTaskSelected('runasadmin')  then
+    begin
+      if not IsAdmin then
+      begin
+        MsgBox('To enable "Always run as administrator", you must restart the installer with admin privs. Right-click it and select "Run as administrator".', mbError, MB_OK);
+        WizardForm.NextButton.Enabled := False;
+        WizardForm.BackButton.Enabled := True;
+        WizardForm.BackButton.OnClick(nil);
+      end;
+    end;
+  end;
+end;
+
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
+Name: "runasadmin"; Description: "Always run LinkRouter as administrator (required only if some rules launch apps that need elevated privileges)"; GroupDescription: "Advanced options:"; Flags: unchecked
 
 [Files]
 Source: "C:\Users\mtrag\git\link-router\bin\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
@@ -54,6 +75,15 @@ Source: "C:\Users\mtrag\git\link-router\bin\linkrouter-extension.zip"; DestDir: 
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
+[Registry]
+Root: HKCU; Subkey: "Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"; \
+  ValueType: string; ValueName: "{app}\linkrouter.exe"; ValueData: "RUNASADMIN"; \
+  Tasks: runasadmin; Check: IsWin64; Flags: uninsdeletevalue
+
+Root: HKCU; Subkey: "Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"; \
+  ValueType: string; ValueName: "{app}\linkrouter-gui.exe"; ValueData: "RUNASADMIN"; \
+  Tasks: runasadmin; Flags: uninsdeletevalue
+
 [Run]
 Filename: "{app}\linkrouter.exe"; Parameters: "--register --quiet"; Flags: runhidden runasoriginaluser
 Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""Expand-Archive -Path '{app}\linkrouter-extension.zip' -DestinationPath '{app}\chrome_extension' -Force; Remove-Item -Path '{app}\linkrouter-extension.zip'"""; Flags: runhidden
@@ -61,7 +91,7 @@ Filename: "{app}\{#MyAppExeName}"; Description: "Launch LinkRouter GUI"; Flags: 
 Filename: "{win}\explorer.exe"; Parameters: """ms-settings:defaultapps?registeredAppUser=LinkRouter"""; Description: "Show ""Default Apps"" dialog"; Flags: nowait postinstall
 
 [UninstallRun]
-Filename: "{app}\linkrouter.exe"; Parameters: "--unregister"; Flags: runhidden
+Filename: "{app}\linkrouter.exe"; Parameters: "--unregister"; Flags: runhidden; RunOnceId: "unregisterLinkRouter"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\chrome_extension"
