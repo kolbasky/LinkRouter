@@ -178,7 +178,12 @@ func (a *App) RegisterLinkRouter() error {
 		return nil
 	}
 
-	err := exec.Command(cmdPath, "--register").Start()
+	err := exec.Command(cmdPath, "--register", "--quiet").Start()
+	if err != nil {
+		dialogs.ShowError(err.Error())
+		return err
+	}
+	err = exec.Command(cmdPath, "--default-apps").Start()
 	if err != nil {
 		dialogs.ShowError(err.Error())
 		return err

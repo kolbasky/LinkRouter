@@ -1,6 +1,7 @@
 package dialogs
 
 import (
+	"linkrouter/internal/globals"
 	"syscall"
 	"unsafe"
 )
@@ -10,6 +11,9 @@ func ShowError(msg string) {
 }
 
 func ShowMessageBox(title, text string, icon uint) int {
+	if globals.QuietMode {
+		return 0
+	}
 	user32 := syscall.NewLazyDLL("user32.dll")
 	msgBox := user32.NewProc("MessageBoxW")
 

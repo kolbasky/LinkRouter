@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"linkrouter/internal/config"
 	"linkrouter/internal/dialogs"
+	"linkrouter/internal/globals"
 	"linkrouter/internal/logger"
 	"os"
 	"os/exec"
@@ -253,21 +254,7 @@ func RegisterApp() error {
 	createVerb("linkrouter_unregister", "Unregister LinkRouter", "--unregister")
 	createVerb("linkrouter_help", "Help with LinkRouter", "--help")
 	createVerb("linkrouter_edit", "Edit LinkRouter config", "--edit")
-
-	program := `${SYSTEMROOT}\explorer.exe`
-	args := "ms-settings:defaultapps?registeredAppUser=LinkRouter"
-	fullCmdLine := strconv.Quote(os.ExpandEnv(program)) + " " + strconv.Quote(args)
-	cmd_settings := exec.Command(os.ExpandEnv(program))
-	cmd_settings.SysProcAttr = &syscall.SysProcAttr{
-		CmdLine: fullCmdLine,
-	}
-	err = cmd_settings.Start()
-	if err != nil {
-		logger.Log("Error: can't open windows settings.")
-		msg := "Registered successfully. Now set LinkRouter as defaul app for desired link types in Windows Settings (Win+I and start typing \"default\")"
-		dialogs.ShowMessageBox("LinkRouter", msg, 0x00000040)
-		return nil
-	}
+	ShowWinDefaultApps()
 
 	if criticalError != nil {
 		dialogs.ShowError("Errors during registration.\nSet global.logPath in linkrouter.json and rerun --register for troubleshooting.")
@@ -283,8 +270,28 @@ func RegisterApp() error {
 		"LinkRouter registration",
 		"Registration sucessfull!\nYou can now right-click exe file for more actions.",
 		0x00000040)
+
 	logger.Log("Registration completed successfully")
 	return nil
+}
+
+func ShowWinDefaultApps() {
+	if globals.QuietMode {
+		return
+	}
+	program := `${SYSTEMROOT}\explorer.exe`
+	args := "ms-settings:defaultapps?registeredAppUser=LinkRouter"
+	fullCmdLine := strconv.Quote(os.ExpandEnv(program)) + " " + strconv.Quote(args)
+	cmd_settings := exec.Command(os.ExpandEnv(program))
+	cmd_settings.SysProcAttr = &syscall.SysProcAttr{
+		CmdLine: fullCmdLine,
+	}
+	err := cmd_settings.Start()
+	if err != nil {
+		logger.Log("Error: can't open windows settings.")
+		msg := "Registered successfully. Now set LinkRouter as defaul app for desired link types in Windows Settings (Win+I and start typing \"default\")"
+		dialogs.ShowMessageBox("LinkRouter", msg, 0x00000040)
+	}
 }
 
 func UnregisterApp() error {

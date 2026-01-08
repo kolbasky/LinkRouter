@@ -5,6 +5,7 @@ import (
 	"flag"
 
 	"linkrouter/internal/dialogs"
+	"linkrouter/internal/globals"
 	"linkrouter/internal/launcher"
 	"linkrouter/internal/logger"
 	"linkrouter/internal/registry"
@@ -12,13 +13,17 @@ import (
 
 func main() {
 	register := flag.Bool("register", false, "Register ourself in registry")
+	quiet := flag.Bool("quiet", false, "Do not show popups when registering")
 	unregister := flag.Bool("unregister", false, "Unregister ourself in registry")
 	help := flag.Bool("help", false, "Show help message")
 	version := flag.Bool("version", false, "Show version")
 	edit := flag.Bool("edit", false, "Edit config")
+	showDefaultApps := flag.Bool("default-apps", false, "Show default apps dialog")
 	flag.Parse()
 
 	args := flag.Args()
+
+	globals.QuietMode = *quiet
 
 	if *help {
 		launcher.Help()
@@ -37,6 +42,12 @@ func main() {
 
 	if *register {
 		registry.RegisterApp()
+		defer logger.Close()
+		return
+	}
+
+	if *showDefaultApps {
+		registry.ShowWinDefaultApps()
 		defer logger.Close()
 		return
 	}
