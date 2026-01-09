@@ -17,8 +17,8 @@ Key features:
 - ✅ Fire-and-forget: launches target app and exits — no background processes, no additional memory or cpu usage
 
 Use it in two ways:
-- System-wide: Set as default handler for HTTP/HTTPS or any other protocol: catches links from Word, PDF readers, messengers, etc.
-- Browser-only: Use the extension to send links from inside your browser
+- System: Set as default handler for HTTP/HTTPS or any other protocol to catch links from Word, PDF readers, messengers, etc.
+- Browser: Use the extension to send links from inside your browser
 
 > [!WARNING]
 > There are some false-positives on VirusTotal for this program: [4 out of 72 AVs mark this file suspicious](https://www.virustotal.com/gui/file/adf68c106da238d73d5d644a32a3da8f04325c7a9c97012e246e26e884409b3d). We can do nothing about it at the moment without sacrificing functionality. If the project lives we will try code signing and contacting AV vendors.
