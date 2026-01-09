@@ -69,12 +69,13 @@ end;
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
-Name: "runasadmin"; Description: "Always run LinkRouter as administrator (required only if some rules launch apps that need elevated privileges)"; GroupDescription: "Advanced options:"; Flags: unchecked
+Name: "copyextension"; Description: "Copy unpacked browser-extension for Chromium-based browsers to app folder. Use developer mode and load an upacked extesnion to install in browser."; GroupDescription: "Other options:"; Flags: checkedonce
+Name: "runasadmin"; Description: "Always run LinkRouter as administrator (required only if some rules launch apps that need elevated privileges)"; GroupDescription: "Other options:"; Flags: unchecked
 
 [Files]
 Source: "bin\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\linkrouter.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "bin\linkrouter-extension.zip"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\linkrouter-extension.zip"; DestDir: "{app}"; Flags: ignoreversion; Tasks: copyextension
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -92,7 +93,7 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags
 [Run]
 Filename: "{app}\linkrouter.exe"; Parameters: "--register --quiet"; Flags: runhidden runasoriginaluser; Check: not RunAsAdminChecked
 Filename: "{app}\linkrouter.exe"; Parameters: "--register --quiet"; Flags: runhidden runascurrentuser; Check: RunAsAdminChecked
-Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""Expand-Archive -Path '{app}\linkrouter-extension.zip' -DestinationPath '{app}\chrome_extension' -Force; Remove-Item -Path '{app}\linkrouter-extension.zip'"""; Flags: runhidden
+Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""Expand-Archive -Path '{app}\linkrouter-extension.zip' -DestinationPath '{app}\chrome_extension' -Force; Remove-Item -Path '{app}\linkrouter-extension.zip'"""; Flags: runhidden; Tasks: copyextension
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch LinkRouter GUI"; Flags: nowait postinstall skipifsilent runasoriginaluser; Check: not RunAsAdminChecked
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch LinkRouter GUI"; Flags: nowait postinstall skipifsilent runascurrentuser; Check: RunAsAdminChecked
 Filename: "{win}\explorer.exe"; Parameters: """ms-settings:defaultapps?registeredAppUser=LinkRouter"""; Description: "Show ""Default Apps"" dialog"; Flags: nowait postinstall
