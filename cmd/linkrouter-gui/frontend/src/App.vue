@@ -285,7 +285,10 @@
     >
       <button class="context-item" @click="openAddRuleModal">➕︎ &nbspAdd</button><br>
       <button class="context-item" @click="handleContextAction('edit')">✎ &nbspEdit</button><br>
-      <button class="context-item" @click="handleContextAction('delete')">🗑 &nbsp&nbspDelete</button><br>
+      <button class="context-item" @click="handleContextAction('copy')">⧉ Copy</button>
+      <button class="context-item" :disabled="!clipboardRule" @click="handleContextAction('paste')">📋︎ Paste</button>
+      <button class="context-item" @click="handleContextAction('duplicate')">⮻ Duplicate</button>
+      <button class="context-item" @click="handleContextAction('delete')">❌︎ &nbsp&nbspDelete</button><br>
     </div>
 
     <!-- Context Menu Backdrop -->
@@ -926,7 +929,7 @@ function openContextMenu(event, rule, index) {
   selectRow(index);
 
   const menuWidth = 180;
-  const menuHeight = 120;
+  const menuHeight = 250;
 
   let x = event.clientX;
   let y = event.clientY;
@@ -954,6 +957,8 @@ function closeContextMenu() {
   contextMenu.value.visible = false;
 }
 
+let clipboardRule = null;
+
 function handleContextAction(action, indexOverride = null) {
   let rule, index;
 
@@ -966,25 +971,50 @@ function handleContextAction(action, indexOverride = null) {
     rule = contextMenu.value.rule;
     index = contextMenu.value.index;
   }
-  
+
+  // Get the actual index in config.value.rules (not filtered list)
+  const actualIndex = config.value.rules.findIndex(r =>
+    r.regex === rule.regex &&
+    r.program === rule.program &&
+    r.arguments === rule.arguments
+  );
+
+  if (actualIndex === -1) {
+    console.warn('Rule not found in config');
+    return;
+  }
+
   if (action === 'edit') {
     openEditModal(rule);
-  } else if (action === 'delete') {
+  } 
+  else if (action === 'delete') {
     if (confirm(`Delete rule:\n${rule.regex}\n→ ${rule.program}?`)) {
-      const actualIndex = config.value.rules.findIndex(r =>
-        r.regex === rule.regex &&
-        r.program === rule.program &&
-        r.arguments === rule.arguments
-      );
-      if (actualIndex !== -1) {
-        config.value.rules.splice(actualIndex, 1);
-      }
+      config.value.rules.splice(actualIndex, 1);
       if (selectedRowIndex.value === index) {
         selectedRowIndex.value = -1;
       }
       saveConfig();
       saveToUndo();
     }
+  }
+  else if (action === 'copy') {
+    // Deep clone the rule
+    clipboardRule = JSON.parse(JSON.stringify(rule));
+  }
+  else if (action === 'paste') {
+    if (clipboardRule) {
+      // Insert AFTER the current rule
+      config.value.rules.splice(actualIndex + 1, 0, JSON.parse(JSON.stringify(clipboardRule)));
+      saveConfig();
+      saveToUndo();
+    }
+  }
+  else if (action === 'duplicate') {
+    // Clone and insert right after
+    const clonedRule = JSON.parse(JSON.stringify(rule));
+    config.value.rules.splice(actualIndex + 1, 0, clonedRule);
+    saveConfig();
+    saveToUndo();
   }
 
   closeContextMenu();

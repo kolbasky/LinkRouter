@@ -409,6 +409,12 @@ body {
   box-shadow: 0 0 0 3px rgb(30, 41, 59) inset;
 }
 
+.context-item:disabled {
+  color:#334155;
+  border-radius: 8px;
+  box-shadow: 0 0 0 3px rgb(30, 41, 59) inset;
+}
+
 .context-item:first-child {
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
