@@ -778,7 +778,7 @@ const closeEditModal = () => {
 const openTestUrlInBrowser = async () => {
   if (!testUrl.value?.trim()) return;
   try {
-    await OpenInFallbackBrowser(config.value.global.fallbackBrowserPath, testUrl.value.trim());
+    await OpenInFallbackBrowser(config.value.global.fallbackBrowserPath, '"' + testUrl.value.trim() + '"');
   } catch (err) {
     runtime.LogError("Failed to open URL:", err);
   }
