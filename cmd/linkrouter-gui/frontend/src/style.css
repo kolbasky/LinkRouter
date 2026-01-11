@@ -831,16 +831,17 @@ input[type="checkbox"] {
   width: 32px;
   height: 32px;
   /* padding: 8px 18px; */
-  margin-bottom: 7px;
+  /* padding-bottom: 8px; */
   background: none;
   color: #94a3b8;
   border: none;
   border-radius: 6px;
-  font-size: 1.6rem;
-  font-weight: 300;
+  font-size: 1.4rem;
+  /* font-weight: 300; */
   transition: background 0.2s ease;
   white-space: nowrap;
-  text-shadow: 1px 1px 1px 1px rgba(0,0,0,0.25);
+  text-shadow: 0 1px 1px  rgba(0,0,0,0.25);
+  overflow: hidden;
 }
 
 .load-btn:hover {
@@ -848,10 +849,10 @@ input[type="checkbox"] {
   /* background: #475569; */
 }
 
-.load-btn:active {
+/* .load-btn:active {
   background: #5b7289;
   scale: 0.98;
-}
+} */
 
 /* Settings button - square with gear icon */
 .settings-btn {
@@ -859,15 +860,16 @@ input[type="checkbox"] {
   width: 32px;
   height: 32px;
   background: none;
-  color: #94a3b8;;
+  color: #94a3b8;
   border: none;
   border-radius: 6px;
-  font-size: 2.0rem;
+  font-size: 1.9rem;
   display: flex;
   align-items: center;
   justify-content: center;
   text-shadow: 0 1px 1px  rgba(0,0,0,0.25);
   transition: background 0.2s ease;
+  overflow: hidden;
   padding-bottom: 4px;
 }
 
@@ -876,18 +878,18 @@ input[type="checkbox"] {
   color: #e2e8f0;
 }
 
-.settings-btn:active {
+/* .settings-btn:active {
   background: #5b7289;
   scale: 0.95;
-}
+} */
 
 .save-btn {
   cursor: pointer;
   width: 32px;
   height: 32px;
-  padding: 0;
-  margin-bottom: -2px;
-  margin-right: -4px;
+  /* padding: 0; */
+  /* margin-bottom: -2px; */
+  /* margin-right: -4px; */
   background: none;
   color: #94a3b8;
   border: none;
@@ -896,6 +898,8 @@ input[type="checkbox"] {
   font-weight: 600;
   transition: background 0.2s ease;
   white-space: nowrap;
+  text-shadow: 0 1px 1px  rgba(0,0,0,0.25);
+
 }
 
 .save-btn:hover {
@@ -903,10 +907,10 @@ input[type="checkbox"] {
   /* background: #475569; */
 }
 
-.save-btn:active {
+/* .save-btn:active {
   background: #5b7289;
   scale: 0.95;
-}
+} */
 
 .add-rule-btn {
   cursor: pointer;
@@ -916,7 +920,7 @@ input[type="checkbox"] {
   border-radius: 6px;
   color: white;
   border: none;
-  font-size: 1.0rem;
+  font-size: 1.4rem;
   padding: 0 0 0 0;
   transition: background 0.2s ease;
   z-index: 101;
@@ -928,10 +932,10 @@ input[type="checkbox"] {
   background: #2563eb;
 }
 
-.add-rule-btn:active {
+/* .add-rule-btn:active {
   background: #2563eb;
   scale: 0.95;
-}
+} */
 
 
 

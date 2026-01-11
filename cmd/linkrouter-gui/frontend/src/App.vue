@@ -126,9 +126,10 @@
       </div>
 
       <div class="button-group">
-        <button class="add-rule-btn" @click="openAddRuleModal" title="Add new rule"><span class="emoji">➕︎</span></button>
-        <button class="load-btn" @click="loadConfig" title="Open config">📂︎</button>
-        <button class="save-btn" @click="saveConfigAs" title="Save as"><span class="emoji">💾︎</span></button>
+        <button class="add-rule-btn" @click="openAddRuleModal" title="Add new rule"><span class="emoji">➕&#65038</span></button>
+        <button class="load-btn" @click="loadConfig" title="Open config">📁&#65038</button>
+        <button class="save-btn" @click="saveConfigAs" title="Save as"><span class="emoji">💾&#65038</span></button>
+        <!-- <button class="settings-btn" @click="openSettingsModal" title="Global settings"><span class="emoji">🔧&#65038</span></button> -->
         <button class="settings-btn" @click="openSettingsModal" title="Global settings"><span class="emoji">⚙</span></button>
       </div>
     </div>
