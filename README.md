@@ -28,6 +28,7 @@ Use it in two ways:
 ### Installer (recommended)
 1. **Download** [`LinkRouter-Installer.exe`](https://github.com/kolbasky/LinkRouter/releases/latest) and follow the instructions
 2. Use GUI editor to create/edit rules. See [configuration section](#%EF%B8%8F-configuration) to get you started.
+3. **optionally**, install the browser extension from [mozilla addons](https://addons.mozilla.org/en-US/firefox/addon/linkrouter/) or [chorme store](https://chromewebstore.google.com/detail/linkrouter/bglhinejoiniefbgkpkppjgckedilcki). If there are any problems with extension avaiability in web-stores, there is an according optional task during isntallation.
 
 ### Portable/custom
 1. Download [`linkrouter.exe`](https://github.com/kolbasky/LinkRouter/releases/latest)
@@ -35,7 +36,7 @@ Use it in two ways:
 3. Select "Yes" in dialog to register the app in the system.
 4. `Windows Settings` → `Apps` → `Default apps` dialog should pop-up automatically. If not press `Win+I` and start typing "default".
 5. **optionally select LinkRouter as the default handler for protocols** you want it to handle. `linkrouter-ext` protocol is created by default and is mandatory for browser-extension to work.
-6. **optionally**, install the browser extension from [mozilla addons](https://addons.mozilla.org/en-US/firefox/addon/linkrouter/) or add it manually. Extensions are  available on [Releases page](https://github.com/kolbasky/LinkRouter/releases/latest).
+6. **optionally**, install the browser extension from [mozilla addons](https://addons.mozilla.org/en-US/firefox/addon/linkrouter/) or [chorme store](https://chromewebstore.google.com/detail/linkrouter/bglhinejoiniefbgkpkppjgckedilcki). Also extension are  available on [Releases page](https://github.com/kolbasky/LinkRouter/releases/latest) and may be loaded in develoer mode.
 7. **Edit the config** by double-clicking `linkrouter.exe` again. Or copy [`linkrouter-gui.exe`](https://github.com/kolbasky/LinkRouter/releases/latest) to the same folder as `linkrouter.exe` and launch it.
 > [!NOTE]
 > Additional right-click menu entries are available on `linkrouter.exe` for you convenience after registration (may be hidden inside "show more options"):
