@@ -31,7 +31,7 @@ func main() {
 	}
 
 	if *version {
-		dialogs.ShowMessageBox("LinkRouter", "version 2.5.2", 0x00000040)
+		dialogs.ShowMessageBox("LinkRouter", "version 2.5.3", 0x00000040)
 		return
 	}
 

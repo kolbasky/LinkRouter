@@ -60,6 +60,9 @@ linkrouter.exe
 ### GUI editor
 For user convenience we developed a GUI config editor which can create/edit/search rules, validate regex syntax and indicate regex-matching on the fly AND it includes interactive mode - when no matching rule is found it opens a rule-creation dialog with the `regex` and `test URL` pre-filled. Search field searches in `program`, `arguments` and `regex` fields, and also checks search string against regexes, so you can easily find a matching rule by entering URL there. All actions are saved automatically.<br>
 ⌨️ **Hotkeys**:<br>
+- `Ctrl+N` → create new rule<br>
+- `Ctrl+C`/`Ctrl+V` → copy/paste rule<br>
+- `Ctrl+D` → duplicate rule<br>
 - `Ctrl+Z`/`Ctrl+Y` → undo/redo<br>
 - `Ctrl+F`,`Ctrl+L`,`/` → focus search field<br>
 - `Ctrl+S` in main window → save config as<br>

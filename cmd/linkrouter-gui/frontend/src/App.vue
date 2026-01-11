@@ -373,111 +373,80 @@ const guessRegex = (url) => {
 // Keyboard Hotkeys
 setTimeout(() => {
   window.addEventListener('keydown', (e) => {
-    if (e.ctrlKey && e.key === 'Enter' && !e.shiftKey) {
-      if (showSettingsModal.value || showEditModal.value) {
-        e.preventDefault()
-        saveGlobalSettings()
-        saveRule()
-        e.stopPropagation()
-        return
-      }
-    }
-    if (e.key === 'Enter') {
-      if (document.activeElement !== rulesContainer.value && !showSettingsModal.value && !showEditModal.value) {
-        e.preventDefault()
-        rulesContainer.value?.focus()
-        e.stopPropagation()
-        return
-      }
-    }
+    const isCtrl = e.ctrlKey || e.metaKey; // support Cmd on Mac too
+    const isPlain = !e.shiftKey && !e.altKey && !e.metaKey && !e.ctrlKey;
+
+    // Escape: close modals, context menu, navigate focus
     if (e.key === 'Escape') {
-      if (showEditModal.value ) {
-        e.preventDefault()
-        closeEditModal()
-        e.stopPropagation()
-        return
-      } else if (showSettingsModal.value) {
-        e.preventDefault()
-        closeSettingsModal()
-        e.stopPropagation()
-        return
-      }
-      if (contextMenu.value.visible) {
-        e.preventDefault()
-        closeContextMenu()
-        e.stopPropagation()
-        return
-      }
-      if (document.activeElement !== rulesContainer.value) {
-        e.preventDefault()
-        rulesContainer.value?.focus()
-        e.stopPropagation()
-        return
-      }
-      if (document.activeElement == rulesContainer.value) {
-        e.preventDefault()
-        searchInput.value?.focus()
-        e.stopPropagation()
-        return
-      }
-    }
-    if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
-      e.preventDefault()
-      undo()
-      e.stopPropagation()
-      return
-    }
-    if (e.ctrlKey && e.key === 'y' && !e.shiftKey) {
-      e.preventDefault()
-      redo()
-      e.stopPropagation()
-      return
-    }
-    if (e.ctrlKey && e.key === 's' && !e.shiftKey) {
       if (showEditModal.value) {
-        e.preventDefault()
-        saveRule();
-        e.stopPropagation()
-        return
+        e.preventDefault(); closeEditModal(); return;
       } else if (showSettingsModal.value) {
-        e.preventDefault()
-        saveGlobalSettings()
-        e.stopPropagation()
-        return
-      }
-      e.preventDefault()
-      saveConfigAs()
-      e.stopPropagation()
-      return
-    }
-    if ((e.ctrlKey && e.key === 'l' && !e.shiftKey) || (e.ctrlKey && e.key === 'f' && !e.shiftKey)) {
-      e.preventDefault()
-      searchInput.value?.focus()
-      e.stopPropagation()
-      return
-    }
-    if (e.key === '/' && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
-      e.preventDefault()
-      searchInput.value?.focus()
-      e.stopPropagation()
-      return
-    }
-    if (e.ctrlKey && e.key === 'n' && !e.shiftKey) {
-      e.preventDefault()
-      openAddRuleModal()
-      e.stopPropagation()
-      return
-    }
-    if (e.ctrlKey && e.key === 'o' && !e.shiftKey) {
-      if (launchedInInteractiveMode.value && showEditModal.value) {
-        e.preventDefault()
-        openTestUrlInBrowser()
-        e.stopPropagation()
-        return
+        e.preventDefault(); closeSettingsModal(); return;
+      } else if (contextMenu.value.visible) {
+        e.preventDefault(); closeContextMenu(); return;
+      } else if (document.activeElement !== rulesContainer.value) {
+        e.preventDefault(); rulesContainer.value?.focus(); return;
+      } else {
+        e.preventDefault(); searchInput.value?.focus(); return;
       }
     }
-  })
-}, 100)
+
+    // Enter: focus rules table if not in input/modal
+    if (e.key === 'Enter' && isPlain) {
+      if (!showEditModal.value && !showSettingsModal.value && document.activeElement !== rulesContainer.value) {
+        e.preventDefault();
+        rulesContainer.value?.focus();
+        return;
+      }
+    }
+
+    // Ctrl+Enter: save in modals
+    if (isCtrl && e.key === 'Enter' && !e.shiftKey) {
+      if (showEditModal.value || showSettingsModal.value) {
+        e.preventDefault();
+        saveRule();
+        saveGlobalSettings();
+        return;
+      }
+    }
+
+    // Undo / Redo
+    if (isCtrl && !e.shiftKey) {
+      if (e.code === 'KeyZ') { e.preventDefault(); undo(); return; }
+      if (e.code === 'KeyY') { e.preventDefault(); redo(); return; }
+    }
+
+    // Save
+    if (isCtrl && e.code === 'KeyS') {
+      e.preventDefault();
+      if (showEditModal.value) saveRule();
+      else if (showSettingsModal.value) saveGlobalSettings();
+      else saveConfigAs();
+      return;
+    }
+
+    // Search
+    if ((isCtrl && (e.code === 'KeyF' || e.code === 'KeyL')) || (e.key === '/' && isPlain)) {
+      e.preventDefault();
+      searchInput.value?.focus();
+      return;
+    }
+
+    // New Rule
+    if (isCtrl && e.code === 'KeyN') {
+      e.preventDefault();
+      openAddRuleModal();
+      return;
+    }
+
+    // Open Test URL in Browser
+    if (isCtrl && e.code === 'KeyO' && showEditModal.value) {
+      e.preventDefault();
+      openTestUrlInBrowser();
+      return;
+    }
+  });
+}, 100);
 
 // Reactive state
 const config = ref({});
@@ -654,6 +623,29 @@ const handleRulesKeydown = (e) => {
       e.stopPropagation();
       return;
     }
+  }
+
+  const isCtrl = e.ctrlKey || e.metaKey;
+  const isPlain = !e.shiftKey && !e.altKey && !e.metaKey && !e.ctrlKey;
+  // Copy (Ctrl+C)
+  if (isCtrl && e.code === 'KeyC' && selectedRowIndex.value >= 0) {
+    e.preventDefault();
+    handleContextAction('copy', selectedRowIndex.value);
+    return;
+  }
+
+  // Paste (Ctrl+V)
+  if (isCtrl && e.code === 'KeyV' && selectedRowIndex.value >= 0) {
+    e.preventDefault();
+    handleContextAction('paste', selectedRowIndex.value);
+    return;
+  }
+
+  // Duplicate (Ctrl+D)
+  if (isCtrl && e.code === 'KeyD' && selectedRowIndex.value >= 0) {
+    e.preventDefault();
+    handleContextAction('duplicate', selectedRowIndex.value);
+    return;
   }
 }
 

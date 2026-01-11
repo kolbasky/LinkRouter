@@ -3,13 +3,13 @@
         "FileVersion": {
             "Major": 2,
             "Minor": 5,
-            "Patch": 2,
+            "Patch": 3,
             "Build": 0
         },
         "ProductVersion": {
             "Major": 2,
             "Minor": 5,
-            "Patch": 2,
+            "Patch": 3,
             "Build": 0
         },
         "FileFlagsMask": "3f",
@@ -22,14 +22,14 @@
         "Comments": "",
         "CompanyName": "",
         "FileDescription": "LinkRouter GUI",
-        "FileVersion": "2.5.2.0",
+        "FileVersion": "2.5.3.0",
         "InternalName": "",
         "LegalCopyright": "https://github.com/kolbasky/LinkRouter",
         "LegalTrademarks": "",
         "OriginalFilename": "linkrouter-gui.exe",
         "PrivateBuild": "",
         "ProductName": "LinkRouter",
-        "ProductVersion": "v2.5.2",
+        "ProductVersion": "v2.5.3",
         "SpecialBuild": ""
     },
     "VarFileInfo": {
