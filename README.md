@@ -13,7 +13,7 @@ Windows lets you choose a program to handle specific protocols, but there is no 
 Key features:
 - ✅ Zero telemetry, zero network access
 - ✅ Portable (single .exe) or installer with GUI config editor
-- ✅ Companion browser extension for Chrome, Edge, Opera (side-loadable) and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/linkrouter/).
+- ✅ Companion browser extension for [Chrome, Edge, Opera](https://chromewebstore.google.com/detail/linkrouter/bglhinejoiniefbgkpkppjgckedilcki) and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/linkrouter/). Also available on [Releases page](https://github.com/kolbasky/LinkRouter/releases/latest) for loading in developer mode.
 - ✅ Fire-and-forget: launches target app and exits — no background processes, no additional memory or cpu usage
 
 Use it in two ways:
@@ -36,7 +36,7 @@ Use it in two ways:
 3. Select "Yes" in dialog to register the app in the system.
 4. `Windows Settings` → `Apps` → `Default apps` dialog should pop-up automatically. If not press `Win+I` and start typing "default".
 5. **optionally select LinkRouter as the default handler for protocols** you want it to handle. `linkrouter-ext` protocol is created by default and is mandatory for browser-extension to work.
-6. **optionally**, install the browser extension from [mozilla addons](https://addons.mozilla.org/en-US/firefox/addon/linkrouter/) or [chorme store](https://chromewebstore.google.com/detail/linkrouter/bglhinejoiniefbgkpkppjgckedilcki). Also extension are  available on [Releases page](https://github.com/kolbasky/LinkRouter/releases/latest) and may be loaded in develoer mode.
+6. **optionally**, install the browser extension from [mozilla addons](https://addons.mozilla.org/en-US/firefox/addon/linkrouter/) or [chorme store](https://chromewebstore.google.com/detail/linkrouter/bglhinejoiniefbgkpkppjgckedilcki). Also extension are available on [Releases page](https://github.com/kolbasky/LinkRouter/releases/latest) and may be loaded in develoer mode.
 7. **Edit the config** by double-clicking `linkrouter.exe` again. Or copy [`linkrouter-gui.exe`](https://github.com/kolbasky/LinkRouter/releases/latest) to the same folder as `linkrouter.exe` and launch it.
 > [!NOTE]
 > Additional right-click menu entries are available on `linkrouter.exe` for you convenience after registration (may be hidden inside "show more options"):
