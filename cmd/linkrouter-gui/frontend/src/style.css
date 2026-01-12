@@ -254,7 +254,7 @@ body {
 
 .config-table tbody tr:hover {
   background: #27344b;
-  transition: all 0.15s ease;
+  /* transition: all 0.15s ease; */
 }
 
 .config-table tbody tr:nth-child(even) {
@@ -285,7 +285,7 @@ body {
   white-space: nowrap;
   cursor: text;
   user-select: text;
-  transition: background 0.1s ease-in-out;
+  /* transition: background 0.1s ease-in-out; */
 }
 
 
@@ -310,10 +310,8 @@ body {
   font-size: 12px;
   cursor: pointer;
   transition: 
-    opacity 0.1s ease,
-    color 0.1s ease,
-    background 0.1s ease-in-out;
-  flex-shrink: 0; /* Never shrink */
+    all 0.1s ease;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -357,7 +355,7 @@ body {
   opacity: 0.4;
   font-size: 14px;
   padding: 6px 0;
-  transition: opacity 0.2s ease;
+  /* transition: opacity 0.2s ease; */
   user-select: none;
 }
 
@@ -458,7 +456,7 @@ body {
 .config-path {
   margin-left: 12px;
   color: #64748b;
-  font-size: 1.0rem;
+  font-size: 0.9rem;
   user-select: text;
   cursor: pointer;
   text-overflow: ellipsis;
@@ -832,7 +830,7 @@ input[type="checkbox"] {
   width: 36px;
   height: 36px;
   /* padding: 8px 18px; */
-  padding-bottom: 2px;
+  /* padding-bottom: 2px; */
   background: none;
   color: #94a3b8;
   border: none;
@@ -890,7 +888,7 @@ input[type="checkbox"] {
   width: 36px;
   height: 36px;
   /* padding: 0; */
-  /* margin-bottom: -2px; */
+  margin-bottom: -2px;
   /* margin-right: -4px; */
   background: none;
   color: #94a3b8;
@@ -901,7 +899,7 @@ input[type="checkbox"] {
   transition: color 0.2s ease;
   white-space: nowrap;
   /* text-shadow: 0 1px 1px  rgba(0,0,0,0.25); */
-
+  padding-bottom: -4px;
 }
 
 .save-btn:hover {
@@ -923,7 +921,7 @@ input[type="checkbox"] {
   color: white;
   border: none;
   font-size: 1.4rem;
-  padding: 0 0 1px 0;
+  padding: 0 0 2px 0;
   transition: background 0.2s ease;
   z-index: 101;
   /* text-shadow: 0 1px 1px  rgba(0,0,0,0.25); */
