@@ -130,7 +130,7 @@
         <button class="load-btn" @click="loadConfig" title="Open config">📁&#65038</button>
         <button class="save-btn" @click="saveConfigAs" title="Save as"><span class="emoji">💾&#65038</span></button>
         <!-- <button class="settings-btn" @click="openSettingsModal" title="Global settings"><span class="emoji">🔧&#65038</span></button> -->
-        <button class="settings-btn" @click="openSettingsModal" title="Global settings"><span class="emoji">⚙</span></button>
+        <button class="settings-btn" @click="openSettingsModal" title="Global settings"><span class="emoji">⛭&#65038</span></button>
       </div>
     </div>
 
@@ -284,12 +284,12 @@
       :style="{ top: contextMenu.y + 'px', left: contextMenu.x + 'px' }"
       @click.stop
     >
-      <button class="context-item" @click="openAddRuleModal">➕︎ &nbspAdd</button><br>
-      <button class="context-item" @click="handleContextAction('edit')">✎ &nbspEdit</button><br>
-      <button class="context-item" @click="handleContextAction('copy')">⧉ Copy</button>
-      <button class="context-item" :disabled="!clipboardRule" @click="handleContextAction('paste')">📋︎ Paste</button>
-      <button class="context-item" @click="handleContextAction('duplicate')">⮻ Duplicate</button>
-      <button class="context-item" @click="handleContextAction('delete')">❌︎ &nbsp&nbspDelete</button><br>
+      <button class="context-item" @click="openAddRuleModal">➕︎&nbsp&nbspAdd</button><br>
+      <button class="context-item" @click="handleContextAction('edit')">✎&nbsp&nbspEdit</button><br>
+      <button class="context-item" @click="handleContextAction('copy')">⧉&nbsp&nbspCopy</button><br>
+      <button class="context-item" :disabled="!clipboardRule" @click="handleContextAction('paste')">📋︎&nbsp&nbspPaste</button><br>
+      <button class="context-item" @click="handleContextAction('duplicate')">⮻&nbsp&nbspDuplicate</button><br>
+      <button class="context-item" @click="handleContextAction('delete')">❌︎&nbsp&nbspDelete</button><br>
     </div>
 
     <!-- Context Menu Backdrop -->
