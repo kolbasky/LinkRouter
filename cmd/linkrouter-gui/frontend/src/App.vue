@@ -117,7 +117,7 @@
           <span 
             v-if="configPath"
             class="config-path" 
-            :class="{ 'saving': isSaving }" 
+            :class="{ 'report-success': reportSuccess }" 
             :key="notificationKey"
             @click="openConfigInExplorer"
             title="Open config path"
@@ -129,6 +129,7 @@
 
       <div class="button-group">
         <button class="add-rule-btn" @click="openAddRuleModal" title="Add new rule"><span class="emoji">➕&#65038</span></button>
+        <button class="reload-btn" @click="reloadConfig(false)" title="Reload config from disk">🔄&#65038</button>
         <button class="load-btn" @click="loadConfig" title="Open config">📂︎&#65038</button>
         <button class="save-btn" @click="saveConfigAs" title="Save as"><span class="emoji">💾&#65038</span></button>
         <!-- <button class="settings-btn" @click="openSettingsModal" title="Global settings"><span class="emoji">🔧&#65038</span></button> -->
@@ -302,6 +303,28 @@
       @contextmenu.prevent="closeContextMenu"
     ></div>
   </div>
+
+  <!-- Alert Modal -->
+  <div v-if="showAlert" class="modal-overlay" @click="showAlert = false">
+    <div class="modal alert-modal" @click.stop>
+      <p>{{ alertMessage }}</p>
+      <div class="modal-buttons">
+        <button class="ok-btn" @click="showAlert = false">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div v-if="showConfirm" class="modal-overlay" @click="showConfirm = false">
+    <div class="modal confirm-modal" @click.stop>
+      <h2>{{ confirmHeader }}</h2>
+      <p>{{ confirmMessage }}</p>
+      <div class="modal-buttons">
+        <button class="cancel-btn" @click="showConfirm = false">{{ confirmCancelBtn }}</button>
+        <button class="ok-btn" @click="handleConfirm">{{ confirmOkBtn }}</button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -329,40 +352,51 @@ Promise.all([
   GetConfig(),
   GetCurrentConfigPath()
 ]).then(async ([cfg, path]) => {
-  cfg.rules = (cfg.rules || []).map((rule, index) => ({
-    ...rule,
-    id: rule.id || `rule-${index}-${Date.now()}`
-  }));
-  config.value = cfg;
-  configPath.value = path;
-  saveToUndo();
-  nextTick(() => {
-    searchInput.value?.focus()
-  });
-
-
-  const mode = await GetInteractiveMode()
-  launchedInInteractiveMode.value = mode.enabled === "true";
-  if (mode.enabled === "true" && mode.url) {
-    testUrl.value = mode.url
-    editingRule.value = {
-      regex: guessRegex(mode.url),
-      program: '',
-      arguments: ''
-    }
-    originalRule.value = null
-    showEditModal.value = true
-    editingRule.value.regex
-    updateTestResult()
+    cfg.rules = (cfg.rules || []).map((rule, index) => ({
+      ...rule,
+      id: rule.id || `rule-${index}-${Date.now()}`
+    }));
+    config.value = cfg;
+    configPath.value = path;
+    saveToUndo();
     nextTick(() => {
-      regexInput.value?.focus()
-    })
-  }
-  runtime.WindowMinimise()
-  setTimeout(() => {
-    runtime.WindowUnminimise()
-  }, 100);
+      searchInput.value?.focus()
+    });
+
+
+    const mode = await GetInteractiveMode()
+    launchedInInteractiveMode.value = mode.enabled === "true";
+    if (mode.enabled === "true" && mode.url) {
+      testUrl.value = mode.url
+      editingRule.value = {
+        regex: guessRegex(mode.url),
+        program: '',
+        arguments: ''
+      }
+      originalRule.value = null
+      showEditModal.value = true
+      editingRule.value.regex
+      updateTestResult()
+      nextTick(() => {
+        regexInput.value?.focus()
+      })
+    }
+    runtime.WindowMinimise()
+    setTimeout(() => {
+      runtime.WindowUnminimise()
+    }, 100);
+}).catch((err) => {
+  showAlertModal(`Loading config failed:\n\n${err.message || err}`)
 });
+
+nextTick(() => {
+  let lastFocus = 0;
+  window.addEventListener('focus', () => {
+    if (Date.now() - lastFocus > 3000) reloadConfig(true);
+    lastFocus = Date.now();
+  });
+});
+
 
 const guessRegex = (url) => {
   try {
@@ -374,79 +408,126 @@ const guessRegex = (url) => {
 }
 
 // Keyboard Hotkeys
+const isAnyModalOpen = computed(() => {
+  return (
+    showEditModal.value ||
+    showSettingsModal.value ||
+    showAlert.value ||
+    showConfirm.value ||
+    contextMenu.value.visible
+  )
+})
+
+const isInputFocused = () => {
+  const active = document.activeElement
+  return (
+    active?.tagName === 'INPUT' ||
+    active?.tagName === 'TEXTAREA' ||
+    active?.isContentEditable
+  )
+}
+
+const shouldAllowGlobalShortcuts = () => {
+  return !isAnyModalOpen.value && !isInputFocused()
+}
+
+
+
 setTimeout(() => {
   window.addEventListener('keydown', (e) => {
-    const isCtrl = e.ctrlKey || e.metaKey; // support Cmd on Mac too
-    const isPlain = !e.shiftKey && !e.altKey && !e.metaKey && !e.ctrlKey;
+    const isCtrl  = e.ctrlKey || e.metaKey
+    const isPlain = !e.shiftKey && !e.altKey && !e.metaKey && !e.ctrlKey
 
-    // Escape: close modals, context menu, navigate focus
+    // ─────────────────────────────────────────────────────────────
+    // Always-working keys
+    // ─────────────────────────────────────────────────────────────
+
     if (e.key === 'Escape') {
-      if (showEditModal.value) {
-        e.preventDefault(); closeEditModal(); return;
-      } else if (showSettingsModal.value) {
-        e.preventDefault(); closeSettingsModal(); return;
-      } else if (contextMenu.value.visible) {
-        e.preventDefault(); closeContextMenu(); return;
-      } else if (document.activeElement !== rulesContainer.value) {
-        e.preventDefault(); rulesContainer.value?.focus(); return;
+      e.preventDefault()
+
+      if (showAlert.value)          { showAlert.value = false; return }
+      if (showConfirm.value)        { showConfirm.value = false; return }
+      if (showEditModal.value)      { closeEditModal(); return }
+      if (showSettingsModal.value)  { closeSettingsModal(); return }
+      if (contextMenu.value.visible){ closeContextMenu(); return }
+
+      if (document.activeElement !== searchInput.value) {
+        searchInput.value?.focus()
       } else {
-        e.preventDefault(); searchInput.value?.focus(); return;
+        rulesContainer.value?.focus()
+      }
+      return
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Priority 2: Enter in modals (confirm / default action)
+    // ─────────────────────────────────────────────────────────────
+
+    if (e.key === 'Enter' && !isCtrl) {
+      if (showAlert.value) {
+        e.preventDefault()
+        showAlert.value = false
+        return
+      }
+      if (showConfirm.value) {
+        e.preventDefault()
+        handleConfirm()
+        return
+      }
+      if (document.activeElement === searchInput.value) {
+        e.preventDefault()
+        rulesContainer.value?.focus()
+        return
       }
     }
 
-    // Enter: focus rules table if not in input/modal
-    if (e.key === 'Enter' && isPlain) {
-      if (!showEditModal.value && !showSettingsModal.value && document.activeElement !== rulesContainer.value) {
-        e.preventDefault();
-        rulesContainer.value?.focus();
-        return;
-      }
+    if ((e.key === 'Enter' && isCtrl) && (showEditModal.value || showSettingsModal.value)) {
+      e.preventDefault()
+      if (showEditModal.value)  saveRule()
+      if (showSettingsModal.value) saveGlobalSettings()
+      return
     }
-
-    // Ctrl+Enter: save in modals
-    if (isCtrl && e.key === 'Enter' && !e.shiftKey) {
-      if (showEditModal.value || showSettingsModal.value) {
-        e.preventDefault();
-        saveRule();
-        saveGlobalSettings();
-        return;
-      }
-    }
-
-    // Undo / Redo
-    if (isCtrl && !e.shiftKey) {
-      if (e.code === 'KeyZ') { e.preventDefault(); undo(); return; }
-      if (e.code === 'KeyY') { e.preventDefault(); redo(); return; }
+    
+    // Test URL in browser (only when edit modal open)
+    if (isCtrl && e.code === 'KeyO' && showEditModal.value) {
+      e.preventDefault()
+      openTestUrlInBrowser()
+      return
     }
 
     // Save
     if (isCtrl && e.code === 'KeyS') {
-      e.preventDefault();
-      if (showEditModal.value) saveRule();
-      else if (showSettingsModal.value) saveGlobalSettings();
-      else saveConfigAs();
-      return;
+      e.preventDefault()
+      if (showEditModal.value)      { saveRule(); return }
+      if (showSettingsModal.value)  { saveGlobalSettings(); return }
+      saveConfig()
+      return
+    }
+
+    if (!isAnyModalOpen.value) {
+      if (isCtrl && e.code === 'KeyN') {
+        e.preventDefault()
+        openAddRuleModal()
+        return
+      }
+    }
+    // ─────────────────────────────────────────────────────────────
+    // No modals opened, no inputs focused
+    // ─────────────────────────────────────────────────────────────
+
+    if (!shouldAllowGlobalShortcuts()) return
+
+    // Undo / Redo
+    if (isCtrl && !e.shiftKey) {
+      if (e.code === 'KeyZ') { e.preventDefault(); undo(); return }
+      if (e.code === 'KeyY') { e.preventDefault(); redo(); return }
     }
 
     // Search
     if ((isCtrl && (e.code === 'KeyF' || e.code === 'KeyL')) || (e.key === '/' && isPlain)) {
-      e.preventDefault();
-      searchInput.value?.focus();
-      return;
-    }
-
-    // New Rule
-    if (isCtrl && e.code === 'KeyN') {
-      e.preventDefault();
-      openAddRuleModal();
-      return;
-    }
-
-    // Open Test URL in Browser
-    if (isCtrl && e.code === 'KeyO' && showEditModal.value) {
-      e.preventDefault();
-      openTestUrlInBrowser();
-      return;
+      e.preventDefault()
+      searchInput.value?.focus()
+      return
     }
   });
 }, 100);
@@ -461,6 +542,15 @@ const rulesContainer = ref(null);
 const searchInput = ref(null);
 const fallbackBrowserInput = ref(null);
 const launchedInInteractiveMode = ref(false);
+
+const alertMessage = ref('');
+const showAlert = ref(false);
+const confirmHeader = ref('');
+const confirmMessage = ref('');
+const confirmOkBtn = ref('');
+const confirmCancelBtn = ref('');
+const onConfirm = ref(null); // callback function
+const showConfirm = ref(false);
 
 const showEditModal = ref(false);
 const showSettingsModal = ref(false);
@@ -596,24 +686,34 @@ const handleRulesKeydown = (e) => {
     const direction = e.key === 'ArrowUp' ? -1 : 1
     let newIndex = selectedRowIndex.value + direction
 
-    // Wrap around or clamp? We'll clamp.
-    if (newIndex < 0) newIndex = 0
-    if (newIndex >= filteredRules.value.length) newIndex = filteredRules.value.length - 1
-
+    // Clamp index
+    newIndex = Math.max(0, Math.min(newIndex, filteredRules.value.length - 1))
     selectedRowIndex.value = newIndex
 
-    // Optional: auto-scroll to ensure selected row is visible
     nextTick(() => {
       const container = rulesContainer.value
+      if (!container) return
+
       const selectedRow = container.querySelector('.rule-row.selected')
-      if (selectedRow) {
-        selectedRow.scrollIntoView({ block: 'nearest' })
+      if (!selectedRow) return
+
+      // Option 1: Most reliable — scroll with exact offset to clear header
+      const headerHeight = 60;
+      const rowTop = selectedRow.getBoundingClientRect().top
+      const containerTop = container.getBoundingClientRect().top
+
+      if (rowTop < containerTop + headerHeight) {
+        // Row is hidden under header → scroll it down just enough
+        container.scrollTop += (rowTop - containerTop - headerHeight - 10) // +10px margin
+      } else if (rowTop + selectedRow.offsetHeight > container.clientHeight + containerTop) {
+        // Row is below viewport → scroll up
+        container.scrollTop += (rowTop + selectedRow.offsetHeight - container.clientHeight - containerTop + 10)
       }
     })
   }
 
   // Handle Enter to edit
-  if (e.key === 'Enter') {
+  if (e.key === 'Enter' && shouldAllowGlobalShortcuts()) {
     const index = selectedRowIndex.value
     if (index >= 0 && index < filteredRules.value.length) {
       const rule = filteredRules.value[index].rule
@@ -700,6 +800,7 @@ async function copyToClipboard(text, rowIndex, field) {
 
 // Config operations
 const loadConfig = async () => {
+  searchInput.value?.focus()
   try {
     const filePath = await OpenConfigDialog();
     if (!filePath) return;
@@ -711,7 +812,51 @@ const loadConfig = async () => {
       search.value = '';
     }
   } catch (err) {
-    alert("Failed to load config: " + err);
+    showAlertModal(`Failed to load config:\n\n${err.message || err}`);
+  }
+};
+
+const reloadConfig = async (silent = false) => {
+  try {
+    // Re-fetch config from backend (reads file again)
+    const [cfg, path] = await Promise.all([
+      GetConfig(),
+      GetCurrentConfigPath()
+    ]);
+
+    // Preserve selection if possible
+    const oldSelectedRule = selectedRowIndex.value >= 0 
+      ? filteredRules.value[selectedRowIndex.value]?.rule 
+      : null;
+
+    // Update config
+    cfg.rules = (cfg.rules || []).map((rule, index) => ({
+      ...rule,
+      id: rule.id || `rule-${index}-${Date.now()}`
+    }));
+    config.value = cfg;
+    configPath.value = path;
+    saveToUndo();
+
+    // Try to restore selection
+    if (oldSelectedRule) {
+      nextTick(() => {
+        const newIndex = filteredRules.value.findIndex(
+          item => 
+            item.rule.regex === oldSelectedRule.regex &&
+            item.rule.program === oldSelectedRule.program &&
+            item.rule.arguments === oldSelectedRule.arguments
+        );
+        if (newIndex !== -1) {
+          selectedRowIndex.value = newIndex;
+        }
+      });
+    }
+    if (!silent) {
+      showSavedNotification('Config reloaded!');
+    }
+  } catch (err) {
+    showAlertModal(`Reload failed ${err.message || err}`);
   }
 };
 
@@ -723,8 +868,9 @@ const saveConfigAs = async () => {
       showSavedNotification();
     }
   } catch (err) {
-    alert('Failed to save config as: ' + err);
+    showAlertModal(`Failed to save config as:\n\n${err.message || err}`);
   }
+  searchInput.value?.focus()
 };
 
 const saveConfig = async () => {
@@ -734,7 +880,7 @@ const saveConfig = async () => {
       configPath.value = Path;
     }
   } catch (err) {
-    alert('Failed to save config: ' + err);
+    showAlertModal(`Failed to save config:\n\n${err.message || err}`);
   }
   showSavedNotification();
 };
@@ -788,6 +934,7 @@ const closeEditModal = () => {
     originalRule.value = null;
     regexError.value = null;
   }, 300);
+  rulesContainer.value?.focus()
   if (launchedInInteractiveMode.value) {
     runtime.Quit()
   }
@@ -807,12 +954,12 @@ const openTestUrlInBrowser = async () => {
 
 const saveRule = () => {
   if (!editingRule.value.regex || !editingRule.value.program) {
-    alert('Regex and Program are required!');
+    showAlertModal('Regex and Program are required!');
     return;
   }
 
   if (regexError.value) {
-    alert('Please fix the regex syntax:\n' + regexError.value)
+    showAlertModal('Please fix the regex syntax:\n\n' + regexError.value)
     return
   }
 
@@ -897,6 +1044,7 @@ const closeSettingsModal = () => {
     };
     originalGlobal.value = null;
   }, 300);
+  searchInput.value?.focus()
 };
 
 const saveGlobalSettings = async () => {
@@ -912,11 +1060,9 @@ const saveGlobalSettings = async () => {
 
     Object.assign(config.value.global, editingGlobal.value);
 
-    LogInfo('Protocols being saved: ' + JSON.stringify(editingGlobal.value.supportedProtocols));
-
     closeSettingsModal();
   } catch (err) {
-    alert('Failed to save settings: ' + err);
+    showAlertModal(`Failed to save settings:\n\n${err.message || err}`);
   }
     saveConfig();
     saveToUndo();
@@ -924,16 +1070,36 @@ const saveGlobalSettings = async () => {
 
 const registerApp = async () => {
     saveGlobalSettings()
-    await RegisterLinkRouter()
+    try { await RegisterLinkRouter() }
+    catch { 
+      showAlertModal(`Failed to unregister:\n\n${err.message || err}`) 
+      return
+    }
+    showSavedNotification("Registered successfully")
 }
 
-const unregisterApp = async () => {
-  if (!confirm('Unregister LinkRouter from the system?')) return
-  try {
-    await UnregisterLinkRouter()
-  } catch (err) {
-  }
-}
+const unregisterApp = () => {
+  showConfirmModal(
+    'Unregister LinkRouter',
+    'Are you sure you want to unregister LinkRouter from the system?\n\nThis will remove protocol handlers and browser integration.',
+    'Unregister',
+    'Cancel',
+    async () => {
+      try {
+        await UnregisterLinkRouter();
+        // Optional: show success notification
+        statusMessage.value = 'Unregistered successfully';
+        showSavedNotification(statusMessage.value)
+        // setTimeout(() => statusMessage.value = '', 3000);
+      } catch (err) {
+        // Optional: show error
+        showAlertModal(`Failed to unregister:\n\n${err.message || err}`);
+        return
+      }
+      showSettingsModal.value = false
+    }
+  );
+};
 
 // Row selection & context menu
 function selectRow(index) {
@@ -1003,14 +1169,16 @@ function handleContextAction(action, indexOverride = null) {
     openEditModal(rule);
   } 
   else if (action === 'delete') {
-    if (confirm(`Delete rule:\n${rule.regex}\n→ ${rule.program}?`)) {
+    const header = `Delete rule #${index + 1}?`
+    const message = `${rule.regex}\n↓\n"${basename(rule.program)}" ${rule.arguments}`;
+    showConfirmModal(header, message, "Delete", "Cancel", () => {
       config.value.rules.splice(actualIndex, 1);
       if (selectedRowIndex.value === index) {
         selectedRowIndex.value = -1;
       }
       saveConfig();
       saveToUndo();
-    }
+    });
   }
   else if (action === 'copy') {
     // Deep clone the rule
@@ -1095,18 +1263,18 @@ async function openConfigInExplorer() {
   try {
     await window.go.main.App.OpenConfigInExplorer(configPath.value);
   } catch (err) {
-    runtime.LogInfo("Failed to open config in Explorer:", err);
+    showAlertModal(`Failed to open config in Explorer:\n\n${err.message || err}`);
   }
 }
 
-const isSaving = ref(false)
+const reportSuccess = ref(false)
 
 let saveNotificationTimeout = null
 const notificationKey = ref(0)
 
-const showSavedNotification = () => {
-  isSaving.value = true
-  statusMessage.value = 'Config saved!'
+const showSavedNotification = (message = "Config saved!") => {
+  reportSuccess.value = true
+  statusMessage.value = message
   notificationKey.value++
 
   // Clear previous timer
@@ -1116,7 +1284,7 @@ const showSavedNotification = () => {
 
   // Set new timer from last call
   saveNotificationTimeout = setTimeout(() => {
-    isSaving.value = false
+    reportSuccess.value = false
     statusMessage.value = ''
   }, 4000)
 }
@@ -1157,4 +1325,27 @@ const redo = () => {
   config.value = JSON.parse(JSON.stringify(history.value[historyIndex.value]))
   saveConfig();
 }
+
+// Alerts
+function showAlertModal(message) {
+  alertMessage.value = message;
+  showAlert.value = true;
+}
+
+function showConfirmModal(header, message, okBtn = "OK", cancelBtn = "Cancel", callback) {
+
+  confirmHeader.value = header;
+  confirmMessage.value = message;
+  confirmOkBtn.value = okBtn;
+  confirmCancelBtn.value = cancelBtn;
+  onConfirm.value = callback;
+  showConfirm.value = true;
+}
+
+const handleConfirm = () => {
+  if (onConfirm.value) {
+    onConfirm.value();
+  }
+  showConfirm.value = false;
+};
 </script>

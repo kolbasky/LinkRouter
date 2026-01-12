@@ -344,7 +344,7 @@ body {
 }
 
 .copy-btn:hover {
-  color: #ffffff;
+  color: #e2e8f0;
 }
 
 .code-wrapper:has(:not(.emoji.checkmark)) code {
@@ -352,7 +352,7 @@ body {
 }
 
 .code-wrapper:has(.emoji.checkmark) code {
-  background: rgba(71, 85, 105, 0.3);
+  background: rgba(26, 172, 140, 0.3);
   transition: background 0.4s ease, transform 0.15s ease;
 }
 
@@ -479,7 +479,7 @@ body {
   text-decoration: underline;
 }
 
-.config-path.saving {
+.config-path.report-success {
   opacity: 1;
   font-weight: 500;
   color: #1aac8c;
@@ -526,6 +526,18 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 10000;
+}
+
+.modal-overlay h2 {
+  flex-shrink: 0;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 1.4rem;
+}
+
+.modal-overlay p {
+  text-align: center;
 }
 
 /* Modal box */
@@ -836,7 +848,8 @@ input[type="checkbox"] {
 }
 
 /* Make the load button slightly smaller to match the group feel */
-.load-btn {
+.load-btn,
+.reload-btn {
   cursor: pointer;
   width: 42px;
   height: 42px;
@@ -857,6 +870,12 @@ input[type="checkbox"] {
 .load-btn:hover {
   color: #e2e8f0;
   /* background: #475569; */
+}
+
+.reload-btn {
+  font-size: 1.5rem;
+  /* padding-top: 2px; */
+  /* font-weight: 600; */
 }
 
 /* .load-btn:active {
@@ -950,3 +969,38 @@ input[type="checkbox"] {
   background: #2563eb;
   scale: 0.95;
 } */
+
+
+.alert-modal {
+  background: #1e293b;
+  color: #f1f5f9;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 400px;
+  text-align: center;
+}
+
+.alert-modal p {
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+
+
+.confirm-modal {
+  background: #1e293b;
+  color: #f1f5f9;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 400px;
+  text-align: center;
+}
+
+.confirm-modal p,
+.modal-overlay p {
+  margin-bottom: 1.25rem;
+  white-space: pre-line; /* preserves \n line breaks */
+  word-wrap: break-word;
+  /* line-height: 1.5; */
+}
