@@ -67,25 +67,27 @@
             <td class="index-cell">{{ item.originalIndex }}</td>
             <td>
               <div class="code-wrapper">
-                <code>{{ item.rule.regex }}</code>
+                <code>{{ !(copiedIndex === idx && copiedField === 'regex') ? item.rule.regex : 'Copied!'}}</code>
                 <button
                   class="copy-btn"
-                  @click.stop="copyToClipboard(item.rule.regex)"
-                  title="Copy to clipboard"
+                  @click.stop="copyToClipboard(item.rule.regex, idx, 'regex')"
+                  :title="copiedIndex !== idx || copiedField !== 'regex' ? 'Copy to clipboard' : 'Copied!'"
                 >
-                  <span class="emoji">📋︎</span>
+                  <span class="emoji" v-if="!(copiedIndex === idx && copiedField === 'regex')">📋︎</span>
+                  <span class="emoji checkmark" v-else>✔</span>
                 </button>
               </div>
             </td>
             <td>
               <div class="code-wrapper">
-                <code>{{ basename(item.rule.program) }}</code>
+                <code>{{ !(copiedIndex === idx && copiedField === 'program') ? basename(item.rule.program) : 'Copied!'}}</code>
                 <button
                   class="copy-btn"
-                  @click.stop="copyToClipboard(item.rule.program)"
-                  title="Copy to clipboard"
+                  @click.stop="copyToClipboard(item.rule.program, idx, 'program')"
+                  :title="copiedIndex !== idx || copiedField !== 'program' ? 'Copy to clipboard' : 'Copied!'"
                 >
-                  <span class="emoji">📋︎</span>
+                  <span class="emoji" v-if="!(copiedIndex === idx && copiedField === 'program')">📋︎</span>
+                  <span class="emoji checkmark" v-else>✓</span>
                 </button>
               </div>
             </td>
@@ -98,9 +100,9 @@
             </td>
           </tr>
           <tr v-if="filteredRules.length === 0">
-            <td colspan="4" style="text-align: center; padding: 2rem; color: #64748b;">
+            <td colspan="4" style="text-align: center; padding: 2rem; color: #64748b;" @click="openAddRuleModal">
               No rules found<br>
-              <small>Double-click a row to edit it</small>
+              <small>Click here to create new rule</small>
             </td>
           </tr>
         </tbody>
@@ -127,7 +129,7 @@
 
       <div class="button-group">
         <button class="add-rule-btn" @click="openAddRuleModal" title="Add new rule"><span class="emoji">➕&#65038</span></button>
-        <button class="load-btn" @click="loadConfig" title="Open config">📁&#65038</button>
+        <button class="load-btn" @click="loadConfig" title="Open config">📂︎&#65038</button>
         <button class="save-btn" @click="saveConfigAs" title="Save as"><span class="emoji">💾&#65038</span></button>
         <!-- <button class="settings-btn" @click="openSettingsModal" title="Global settings"><span class="emoji">🔧&#65038</span></button> -->
         <button class="settings-btn" @click="openSettingsModal" title="Global settings"><span class="emoji">⛭&#65038</span></button>
@@ -188,7 +190,7 @@
             @click="openTestUrlInBrowser"
             title="Open test URL in default browser"
           >
-            🌐︎ Open in Browser
+            🌐︎&nbsp&nbspOpen in browser
           </button>
         </div>
 
@@ -452,6 +454,8 @@ setTimeout(() => {
 // Reactive state
 const config = ref({});
 const configPath = ref('');
+const copiedIndex = ref(-1)
+const copiedField = ref(null)
 const search = ref('');
 const rulesContainer = ref(null);
 const searchInput = ref(null);
@@ -662,17 +666,35 @@ function basename(path) {
   return parts[parts.length - 1] || path;
 }
 
-async function copyToClipboard(text) {
+async function copyToClipboard(text, rowIndex, field) {
   if (!text) return;
+
   try {
     await navigator.clipboard.writeText(text);
+    
+    copiedIndex.value = rowIndex;
+    copiedField.value = field;
+    
+    setTimeout(() => {
+      if (copiedIndex.value === rowIndex && copiedField.value === field) {
+        copiedIndex.value = -1;
+      }
+    }, 2000);
+
   } catch (err) {
+    // Fallback
     const textarea = document.createElement('textarea');
     textarea.value = text;
     document.body.appendChild(textarea);
     textarea.select();
     document.execCommand('copy');
     document.body.removeChild(textarea);
+
+    // Still show feedback on fallback
+    copiedIndex.value = rowIndex;
+    setTimeout(() => {
+      if (copiedIndex.value === rowIndex && copiedField.value === field) copiedIndex.value = -1;
+    }, 2000);
   }
 }
 

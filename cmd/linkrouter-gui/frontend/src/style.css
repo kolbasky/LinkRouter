@@ -1,6 +1,6 @@
 :root{
   --title-bar-height: 32px;
-  font-family:      system-ui, -apple-system, Roboto, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-family: system-ui, -apple-system, Roboto, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
 html {
@@ -188,8 +188,8 @@ body {
 }
 
 .search-clear:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #e2e8f0;
+  /* background: rgba(255, 255, 255, 0.1); */
+  color: #ffffff;
 }
 
 
@@ -298,50 +298,62 @@ body {
 
 .copy-btn {
   opacity: 0;
-  visibility: hidden;
+  /* visibility: hidden; */
   background: none;
   border: none;
-  color: #cbd5e1;
-  width: 24px;
-  height: 24px;
+  color: #94a3b8;
+  width: 26px;
+  height: 26px;
   border-radius: 4px;
   margin-left: 6px;
-  margin-top: 1px;
-  font-size: 12px;
+  font-size: 0.8em;
   cursor: pointer;
-  transition: 
-    all 0.1s ease;
+  transition: background 0.2s ease, transform 0.15s ease;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  padding: auto;
 }
 
+.copy-btn .emoji.checkmark {
+  color: #1aac8c;
+  animation: pop-in 0.3s ease-in-out;
+}
+
+.copy-btn:has(.emoji.checkmark){
+  visibility: visible;
+  opacity: 1;
+  transition: all 0.3s;
+}
+
+@keyframes pop-in {
+  0%   { transform: scale(0.6); opacity: 0; }
+  60%  { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+.code-wrapper:hover .copy-btn .emoji.checkmark {
+  transition: none;
+}
 
 .code-wrapper:hover .copy-btn {
   opacity: 1;
   visibility: visible;
+  transition: all 0.3s ease-in-out;
 }
 
 .copy-btn:hover {
-  background: rgba(71, 85, 105, 0.9);
+  color: #ffffff;
 }
 
-.copy-btn:active {
-  background: rgba(255, 255, 255, 0.3);
-  scale: 1.1;
+.code-wrapper:has(:not(.emoji.checkmark)) code {
+  transition: background 0.2s ease, transform 0.15s ease;
 }
 
-.code-wrapper:has(.copy-btn:hover) code {
-/* original background */
-  /* background-size: 0% 100%; */
-  background-position: left center;
-}
-.code-wrapper:has(.copy-btn:active) code {
-  background: rgba(255, 255, 255, 0.1);
-  transition: background 0.1s ease-in-out;
-  /* background-size: 100% 100%; */
+.code-wrapper:has(.emoji.checkmark) code {
+  background: rgba(71, 85, 105, 0.3);
+  transition: background 0.4s ease, transform 0.15s ease;
 }
 
 .drag-handle-cell {
@@ -355,7 +367,6 @@ body {
   opacity: 0.4;
   font-size: 14px;
   padding: 6px 0;
-  /* transition: opacity 0.2s ease; */
   user-select: none;
 }
 
@@ -821,21 +832,21 @@ input[type="checkbox"] {
 .button-group {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
 }
 
 /* Make the load button slightly smaller to match the group feel */
 .load-btn {
   cursor: pointer;
-  width: 36px;
-  height: 36px;
-  /* padding: 8px 18px; */
-  /* padding-bottom: 2px; */
+  width: 42px;
+  height: 42px;
+  padding-left: 8px;
+  padding-bottom: 3px;
   background: none;
   color: #94a3b8;
   border: none;
   border-radius: 6px;
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   /* font-weight: 300; */
   transition: color 0.2s ease;
   white-space: nowrap;
@@ -856,13 +867,13 @@ input[type="checkbox"] {
 /* Settings button - square with gear icon */
 .settings-btn {
   cursor: pointer;
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   background: none;
   color: #94a3b8;
   border: none;
   border-radius: 6px;
-  font-size: 1.6rem;
+  font-size: 1.59rem;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -870,7 +881,8 @@ input[type="checkbox"] {
   /* text-shadow: 0 1px 1px  rgba(0,0,0,0.25); */
   transition: color 0.2s ease;
   overflow: hidden;
-  padding-bottom: 3px;
+  padding-bottom: 2px;
+  /* padding-left: 2px; */
 }
 
 .settings-btn:hover {
@@ -885,8 +897,8 @@ input[type="checkbox"] {
 
 .save-btn {
   cursor: pointer;
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   /* padding: 0; */
   margin-bottom: -2px;
   /* margin-right: -4px; */
@@ -900,6 +912,7 @@ input[type="checkbox"] {
   white-space: nowrap;
   /* text-shadow: 0 1px 1px  rgba(0,0,0,0.25); */
   padding-bottom: -4px;
+  padding-left: 8px;
 }
 
 .save-btn:hover {
@@ -924,6 +937,7 @@ input[type="checkbox"] {
   padding: 0 0 2px 0;
   transition: background 0.2s ease;
   z-index: 101;
+  margin-right: 6px;
   /* text-shadow: 0 1px 1px  rgba(0,0,0,0.25); */
   
 }
@@ -936,7 +950,3 @@ input[type="checkbox"] {
   background: #2563eb;
   scale: 0.95;
 } */
-
-
-
-
