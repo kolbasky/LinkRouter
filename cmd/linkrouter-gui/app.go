@@ -169,7 +169,7 @@ func getExePath() string {
 	return filepath.Dir(exe)
 }
 
-func (a *App) RegisterLinkRouter() error {
+func (a *App) RegisterLinkRouter(silent bool) error {
 	dir := getExePath()
 	cmdPath := filepath.Join(dir, "linkrouter.exe")
 	if _, err := os.Stat(cmdPath); err != nil {
@@ -182,19 +182,14 @@ func (a *App) RegisterLinkRouter() error {
 		dialogs.ShowError(err.Error())
 		return err
 	}
-	err = exec.Command(cmdPath, "--default-apps").Start()
+	if silent {
+		err = exec.Command(cmdPath, "--default-apps").Start()
+	}
 	if err != nil {
 		dialogs.ShowError(err.Error())
 		return err
 	}
 	return nil
-	// fullCmdLine := cmdPath + " --register"
-	// cmd := exec.Command(cmdPath)
-	// cmd.Path = cmdPath
-	// cmd.SysProcAttr = &syscall.SysProcAttr{
-	// 	CmdLine: fullCmdLine,
-	// }
-	// return cmd.Start()
 }
 
 func (a *App) UnregisterLinkRouter() error {

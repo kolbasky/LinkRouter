@@ -1,5 +1,5 @@
 <template>
-  <div class="app">
+  <div class="app" spellcheck="false">
     <!-- Title Bar -->
     <!--WWW <div class="title-bar" @dblclick="maximizeWindow">
       <div class="title">LinkRouter Config Editor</div>
@@ -258,6 +258,7 @@
           v-model="protocolsInput"
           class="modal-input"
           placeholder="http, https, ssh, mailto"
+          @input="protocolsInput = protocolsInput.replace(/[^a-zA-Z0-9+.,\s-]/g, '')"
           />
         </div>
 
@@ -1083,17 +1084,26 @@ const closeSettingsModal = () => {
 
 const saveGlobalSettings = async () => {
   try {
-    editingGlobal.value.supportedProtocols = protocolsInput.value
+    const cleanProtocols = protocolsInput.value
+      .replace(/\s+/g, ',')
+      .replace(/,+/g, ',')
+      .replace(/[^a-zA-Z0-9+.,-]/g, '')
+      .replace(/^,|,$/g, ''); 
+    editingGlobal.value.supportedProtocols = cleanProtocols
       .split(',')
       .map(s => s.trim())
-      .filter(s => s.length > 0);
+      .filter(s => s && /^[a-z][a-z0-9+.-]*$/i.test(s));
 
     if (!config.value.global) {
       config.value.global = {};
     }
 
     Object.assign(config.value.global, editingGlobal.value);
-
+    try { await RegisterLinkRouter() }
+    catch { 
+      showAlertModal(`Failed to unregister:\n\n${err.message || err}`) 
+      return
+    }
     closeSettingsModal();
   } catch (err) {
     showAlertModal(`Failed to save settings:\n\n${err.message || err}`);
@@ -1104,7 +1114,7 @@ const saveGlobalSettings = async () => {
 
 const registerApp = async () => {
     saveGlobalSettings()
-    try { await RegisterLinkRouter() }
+    try { await RegisterLinkRouter(true) }
     catch { 
       showAlertModal(`Failed to unregister:\n\n${err.message || err}`) 
       return

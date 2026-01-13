@@ -44,6 +44,8 @@ html {
   cursor: default;
   user-select: none;
   font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeSpeed;
 }
 
 body {
@@ -82,7 +84,6 @@ body {
 .search-input {
   width: 100%;
   padding: 12px 36px 12px 12px;
-  margin: var(--spacing-xs) auto;
   background: none;
   border: 1px solid var(--color-border);
   border-radius: 8px;
