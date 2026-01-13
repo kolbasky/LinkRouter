@@ -46,7 +46,14 @@ body {
 }
 
 .title-bar-buttons {
+  width: 140px;
   --wails-draggable: no-drag;
+  display: flex;
+  gap: 0;
+  margin: 0;
+  border-collapse: collapse;
+  border-spacing: 0;
+  padding: 0;
 }
 
 .title {
@@ -55,7 +62,7 @@ body {
 }
 
 .titlebar-btn {
-  width: 46px;
+  width: 48px;
   height: 32px;
   background: transparent;
   border: none;
@@ -78,12 +85,13 @@ body {
   background: #334155;
 }
 .close-btn:hover {
-  background: #ef4444;
+  background: #e81123;
   color: white;
 }
 
 .minimize-btn {
   font-size: 14px;
+  /* margin-right: 2px; */
 }
 .maximize-btn {
   font-size: 18px;
@@ -92,6 +100,7 @@ body {
 .close-btn {
   font-size: 28px;
   font-weight: 100;
+  margin-right: 2px;
 }
 
 .header {
@@ -933,4 +942,8 @@ input[type="checkbox"] {
   white-space: pre-line; /* preserves \n line breaks */
   word-wrap: break-word;
   line-height: 1.5;
+}
+
+a {
+color: rgb(203, 213, 225)
 }

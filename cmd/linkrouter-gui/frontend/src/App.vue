@@ -1,18 +1,13 @@
 <template>
   <div class="app">
     <!-- Title Bar -->
-    <div class="title-bar">
+    <div class="title-bar" @dblclick="maximizeWindow">
       <div class="title">LinkRouter Config Editor</div>
       <div class="title-bar-buttons">
-        <table>
-          <tbody>
-            <tr>
-              <td><button class="titlebar-btn minimize-btn" @click="minimizeWindow">―</button></td>
-              <td><button class="titlebar-btn maximize-btn" @click="maximizeWindow">◻</button></td>
-              <td><button class="titlebar-btn close-btn" @click="closeWindow">⨯</button></td>
-            </tr>
-          </tbody>
-        </table>
+              <button class="titlebar-btn minimize-btn" @click="minimizeWindow">―</button>
+              <button class="titlebar-btn maximize-btn" @click="maximizeWindow">◻</button>
+              <button class="titlebar-btn close-btn" @click="closeWindow">⨯</button>
+    
       </div>
     </div>
 
