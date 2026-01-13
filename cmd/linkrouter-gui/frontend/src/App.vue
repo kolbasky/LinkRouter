@@ -435,6 +435,9 @@ const shouldAllowGlobalShortcuts = () => {
 
 setTimeout(() => {
   window.addEventListener('keydown', (e) => {
+    if (e.shiftKey || e.altKey) {
+      return
+    }
     const isCtrl  = e.ctrlKey || e.metaKey
     const isPlain = !e.shiftKey && !e.altKey && !e.metaKey && !e.ctrlKey
 
@@ -495,6 +498,20 @@ setTimeout(() => {
       return
     }
 
+    // Open
+    if (isCtrl && e.code === 'KeyO' && !isAnyModalOpen.value) {
+      e.preventDefault()
+      loadConfig()
+      return
+    }
+
+    // Global Settings
+    if (isCtrl && e.code === 'KeyG' && !isAnyModalOpen.value) {
+      e.preventDefault()
+      showSettingsModal.value = true
+      return
+    }
+
     // Save
     if (isCtrl && e.code === 'KeyS') {
       e.preventDefault()
@@ -511,6 +528,13 @@ setTimeout(() => {
         return
       }
     }
+
+    if (!isAnyModalOpen.value && (e.key === 'F5' || (isCtrl && e.code === 'KeyR'))) {
+      e.preventDefault();
+      reloadConfig(false);
+      return;
+    }
+
     // ─────────────────────────────────────────────────────────────
     // No modals opened, no inputs focused
     // ─────────────────────────────────────────────────────────────

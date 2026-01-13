@@ -317,7 +317,8 @@ body {
 }
 
 .copy-btn .emoji.checkmark {
-  color: #1aac8c;
+  /* color: #1aac8c; */
+  color: #e2e8f0;
   animation: pop-in 0.3s ease-in-out;
 }
 
@@ -352,7 +353,7 @@ body {
 }
 
 .code-wrapper:has(.emoji.checkmark) code {
-  background: rgba(26, 172, 140, 0.3);
+  background: rgba(148, 163, 184, 0.2);
   transition: background 0.4s ease, transform 0.15s ease;
 }
 
@@ -717,7 +718,6 @@ input[type="checkbox"] {
 }
 
 .emoji {
-  /* filter: grayscale(100%); */
   display: inline-block;
 }
 
@@ -770,12 +770,7 @@ input[type="checkbox"] {
   background: #2563eb;
 }
 
-
-
-
-
-
-
+/* Rules */
 .rule-row-tag {
   min-width: 100px;
   max-width: 400px;
@@ -832,117 +827,59 @@ input[type="checkbox"] {
   outline: 1px dashed #64748b;
 }
 
-.bottom-buttons {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-
-
-/* Group the two buttons together */
+/* Buttons bottom right corner */
 .button-group {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-/* Make the load button slightly smaller to match the group feel */
 .load-btn,
-.reload-btn {
+.reload-btn,
+.settings-btn,
+.save-btn {
   cursor: pointer;
   width: 42px;
   height: 42px;
-  padding-left: 8px;
-  padding-bottom: 3px;
   background: none;
   color: #94a3b8;
   border: none;
   border-radius: 6px;
   font-size: 1.6rem;
-  /* font-weight: 300; */
   transition: color 0.2s ease;
   white-space: nowrap;
-  /* text-shadow: 0 1px 1px  rgba(0,0,0,0.25); */
   overflow: hidden;
 }
 
-.load-btn:hover {
+.load-btn:hover,
+.reload-btn:hover,
+.settings-btn:hover,
+.save-btn:hover {
   color: #e2e8f0;
-  /* background: #475569; */
+}
+
+.load-btn {
+  padding-left: 8px;
+  padding-bottom: 3px;
 }
 
 .reload-btn {
-  font-size: 1.5rem;
-  /* padding-top: 2px; */
-  /* font-weight: 600; */
+  font-size: 1.4rem;
 }
 
-/* .load-btn:active {
-  background: #5b7289;
-  scale: 0.98;
-} */
-
-/* Settings button - square with gear icon */
 .settings-btn {
-  cursor: pointer;
-  width: 42px;
-  height: 42px;
-  background: none;
-  color: #94a3b8;
-  border: none;
-  border-radius: 6px;
-  font-size: 1.59rem;
+  font-size: 1.55rem;
   font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* text-shadow: 0 1px 1px  rgba(0,0,0,0.25); */
-  transition: color 0.2s ease;
-  overflow: hidden;
   padding-bottom: 2px;
-  /* padding-left: 2px; */
 }
-
-.settings-btn:hover {
-  /* background: #475569; */
-  color: #e2e8f0;
-}
-
-/* .settings-btn:active {
-  background: #5b7289;
-  scale: 0.95;
-} */
 
 .save-btn {
-  cursor: pointer;
-  width: 42px;
-  height: 42px;
-  /* padding: 0; */
   margin-bottom: -2px;
-  /* margin-right: -4px; */
-  background: none;
-  color: #94a3b8;
-  border: none;
-  border-radius: 6px;
   font-size: 1.4rem;
   font-weight: 600;
-  transition: color 0.2s ease;
-  white-space: nowrap;
-  /* text-shadow: 0 1px 1px  rgba(0,0,0,0.25); */
   padding-bottom: -4px;
   padding-left: 8px;
 }
-
-.save-btn:hover {
-  color: #e2e8f0;
-  /* background: #475569; */
-}
-
-/* .save-btn:active {
-  background: #5b7289;
-  scale: 0.95;
-} */
 
 .add-rule-btn {
   cursor: pointer;
@@ -957,20 +894,13 @@ input[type="checkbox"] {
   transition: background 0.2s ease;
   z-index: 101;
   margin-right: 6px;
-  /* text-shadow: 0 1px 1px  rgba(0,0,0,0.25); */
-  
 }
 
 .add-rule-btn:hover {
   background: #2563eb;
 }
 
-/* .add-rule-btn:active {
-  background: #2563eb;
-  scale: 0.95;
-} */
-
-
+/* Alert modals */
 .alert-modal {
   background: #1e293b;
   color: #f1f5f9;
@@ -1002,5 +932,5 @@ input[type="checkbox"] {
   margin-bottom: 1.25rem;
   white-space: pre-line; /* preserves \n line breaks */
   word-wrap: break-word;
-  /* line-height: 1.5; */
+  line-height: 1.5;
 }

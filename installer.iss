@@ -3,7 +3,7 @@
 ; Non-commercial use only
 
 #define MyAppName "LinkRouter"
-#define MyAppVersion "2.5.3"
+#define MyAppVersion "2.5.4"
 #define MyAppPublisher "kolbasky"
 #define MyAppURL "https://github.com/kolbasky/LinkRouter"
 #define MyAppExeName "linkrouter-gui.exe"
