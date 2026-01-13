@@ -66,9 +66,12 @@ For user convenience we developed a GUI config editor which can create/edit/sear
 - `Ctrl+D` → duplicate rule<br>
 - `Ctrl+Z`/`Ctrl+Y` → undo/redo<br>
 - `Ctrl+F`,`Ctrl+L`,`/` → focus search field<br>
-- `Ctrl+S` in main window → save config as<br>
+- `Ctrl+S` in main window → save config<br>
 - `Ctrl+S`/`Ctrl+ENTER` in edit/settings dialog → save config, close dialog<br>
-- `Ctrl+O` → open Test URL in browser. useful in interactive mode<br>
+- `Ctrl+R`/`F5` reload config<br>
+- `Ctrl+O` in edit rule dialog → open Test URL in browser. useful in interactive mode<br>
+- `Ctrl+O` in main window → open "Load config" file-picker<br>
+- `Ctrl+G` in main window → open Global Settings<br>
 - `ARROWS` → navigate rules<br>
 - `ENTER` → edit selected rule<br>
 - `DELETE` → delete selected rule<br>
