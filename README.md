@@ -68,7 +68,7 @@ For user convenience we developed a GUI config editor which can create/edit/sear
 - `Ctrl+F`,`Ctrl+L`,`/` → focus search field<br>
 - `Ctrl+S` in main window → save config<br>
 - `Ctrl+S`/`Ctrl+ENTER` in edit/settings dialog → save config, close dialog<br>
-- `Ctrl+R`/`F5` reload config<br>
+- `Ctrl+R`/`F5` → reload config<br>
 - `Ctrl+O` in edit rule dialog → open Test URL in browser. useful in interactive mode<br>
 - `Ctrl+O` in main window → open "Load config" file-picker<br>
 - `Ctrl+G` in main window → open Global Settings<br>
