@@ -1,7 +1,7 @@
 <template>
   <div class="app">
     <!-- Title Bar -->
-    <div class="title-bar" @dblclick="maximizeWindow">
+    <!--WWW <div class="title-bar" @dblclick="maximizeWindow">
       <div class="title">LinkRouter Config Editor</div>
       <div class="title-bar-buttons">
               <button class="titlebar-btn minimize-btn" @click="minimizeWindow">―</button>
@@ -9,7 +9,7 @@
               <button class="titlebar-btn close-btn" @click="closeWindow">⨯</button>
     
       </div>
-    </div>
+    </div> -->
 
     <div class="header">
       <div class="search-wrapper">
@@ -40,10 +40,10 @@
       <table class="config-table">
         <thead>
           <tr>
-            <th style="width:3%; text-align: center;">#</th>
-            <th style="width:62%">Regex</th>
-            <th style="width:30%">Program</th>
-            <th style="width:5%; min-width:32px;"></th>
+            <th style="width:1%; min-width:12px; text-align: center;">#</th>
+            <th style="width:64%">Regex</th>
+            <th style="width:34%">Program</th>
+            <th style="width:1%; min-width:12px;"></th>
           </tr>
         </thead>
         <tbody>
@@ -136,58 +136,59 @@
     <div v-if="showEditModal" class="modal-overlay"> <!--  @mousedown.self="closeEditModal" -->
       <div class="modal" @click.stop>
         <h2>Edit Rule</h2>
-
-        <label>Pattern (Regex)</label>
-        <input 
-          ref="regexInput"
-          v-model="editingRule.regex" 
-          class="modal-input" 
-          :class="{ 'invalid-regex': regexError }"
-          @input="validateRegex"
-          placeholder="e.g. ^https?://(.*\.)?youtube\.com/.*" 
-        />
-        <div v-if="regexError" class="regex-error-message">
-          {{ regexError }}
-        </div>
-
-        <label>Program</label>
-        <div class="program-input-wrapper">
+        <div class="modal-form-content">
+          <label>Pattern (Regex)</label>
           <input 
-            v-model="editingRule.program" 
-            class="modal-input program-input" 
-            placeholder="C:\Program Files\App\app.exe" 
+            ref="regexInput"
+            v-model="editingRule.regex" 
+            class="modal-input" 
+            :class="{ 'invalid-regex': regexError }"
+            @input="validateRegex"
+            placeholder="e.g. ^https?://(.*\.)?youtube\.com/.*" 
           />
-          <button class="browse-btn" @click="browseFile('ruleProgram')" title="Browse for program">
-            <span class="emoji">📂︎</span>
-          </button>
-        </div>
+          <div v-if="regexError" class="regex-error-message">
+            {{ regexError }}
+          </div>
 
-        <label>Arguments (optional)</label>
-        <input
-          v-model="editingRule.arguments"
-          class="modal-input"
-          placeholder="{URL} for URL; $1, $2 etc for captured groups"
-        />
+          <label>Program</label>
+          <div class="program-input-wrapper">
+            <input 
+              v-model="editingRule.program" 
+              class="modal-input program-input" 
+              placeholder="C:\Program Files\App\app.exe" 
+            />
+            <button class="browse-btn" @click="browseFile('ruleProgram')" title="Browse for program">
+              <span class="emoji">📂︎</span>
+            </button>
+          </div>
 
-        <label>Test URL</label>
-        <div class="test-url-wrapper">
+          <label>Arguments (optional)</label>
           <input
-            v-model="testUrl"
-            class="modal-input test-url-input"
-            :class="{ 'match': testResult === true, 'no-match': testResult === false }"
-            placeholder="URL to test regex"
-            @input="updateTestResult"
+            v-model="editingRule.arguments"
+            class="modal-input"
+            placeholder="{URL} for URL; $1, $2 etc for captured groups"
           />
-        </div>
-        <div  style="text-align: left; margin-top: 0.5rem;">
-          <button
-            v-if="testUrl"
-            class="browser-btn"
-            @click="openTestUrlInBrowser"
-            title="Open test URL in default browser"
-          >
-            🌐︎&nbsp&nbspOpen in browser
-          </button>
+
+          <label>Test URL</label>
+          <div class="test-url-wrapper">
+            <input
+              v-model="testUrl"
+              class="modal-input test-url-input"
+              :class="{ 'match': testResult === true, 'no-match': testResult === false }"
+              placeholder="URL to test regex"
+              @input="updateTestResult"
+            />
+          </div>
+          <div  style="text-align: left; margin-top: 0.5rem;">
+            <button
+              v-if="testUrl"
+              class="browser-btn"
+              @click="openTestUrlInBrowser"
+              title="Open test URL in default browser"
+            >
+              🌐︎&nbsp&nbspOpen in browser
+            </button>
+          </div>
         </div>
 
         <div class="modal-buttons">
@@ -203,13 +204,12 @@
         <h2>Global Settings</h2>
 
         <div class="modal-form-content">
-
           <label>Fallback Browser Path</label>
           <div class="program-input-wrapper">
             <input
               ref="fallbackBrowserInput"
               v-model="editingGlobal.fallbackBrowserPath"
-              class="modal-input"
+              class="modal-input program-input"
               placeholder="e.g. C:\Program Files\Firefox\firefox.exe"
             />
             <button class="browse-btn" @click="browseFile('fallbackBrowser')" title="Browse for program">
@@ -233,7 +233,7 @@
           <div class="program-input-wrapper">
             <input
             v-model="editingGlobal.defaultConfigEditor"
-            class="modal-input"
+            class="modal-input program-input"
             placeholder="e.g. notepad.exe"
             />
             <button class="browse-btn" @click="browseFile('defaultEditor')" title="Browse for program">
@@ -302,7 +302,9 @@
   <!-- Alert Modal -->
   <div v-if="showAlert" class="modal-overlay" @click="showAlert = false">
     <div class="modal alert-modal" @click.stop>
-      <p>{{ alertMessage }}</p>
+      <div class="modal-form-content">
+        <p>{{ alertMessage }}</p>
+      </div>
       <div class="modal-buttons">
         <button class="ok-btn" @click="showAlert = false">OK</button>
       </div>
@@ -313,7 +315,9 @@
   <div v-if="showConfirm" class="modal-overlay" @click="showConfirm = false">
     <div class="modal confirm-modal" @click.stop>
       <h2>{{ confirmHeader }}</h2>
-      <p>{{ confirmMessage }}</p>
+      <div class="modal-form-content">
+        <p>{{ confirmMessage }}</p>
+      </div>
       <div class="modal-buttons">
         <button class="cancel-btn" @click="showConfirm = false">{{ confirmCancelBtn }}</button>
         <button class="ok-btn" @click="handleConfirm">{{ confirmOkBtn }}</button>
@@ -323,9 +327,9 @@
 </template>
 
 <script setup>
-import { Fzf } from 'fzf'
-import { WindowMinimise, WindowToggleMaximise, Quit, LogInfo, EventsOn, WindowShow, WindowSetAlwaysOnTop, WindowUnminimise} from '../wailsjs/runtime/runtime';
-import { ref, computed, nextTick, onMounted } from 'vue';
+// import { Fzf } from 'fzf'
+import { WindowMinimise, WindowToggleMaximise, Quit, WindowUnminimise } from '../wailsjs/runtime/runtime';
+import { ref, computed, nextTick } from 'vue';
 import {
   GetInteractiveMode,
   OpenFileDialog,
@@ -342,6 +346,15 @@ import {
   UnregisterLinkRouter,
   OpenInFallbackBrowser
 } from '../wailsjs/go/main/App';
+
+// reload config on focus, but with 3sec debounce
+let lastFocus = Date.now();
+window.addEventListener('focus', () => {
+  if (Date.now() - lastFocus > 3000) {
+    reloadConfig(true);
+  }
+  lastFocus = Date.now();
+});
 
 Promise.all([
   GetConfig(),
@@ -376,22 +389,24 @@ Promise.all([
         regexInput.value?.focus()
       })
     }
+
+    // Dirty hack to focus the app
     runtime.WindowMinimise()
-    setTimeout(() => {
-      runtime.WindowUnminimise()
-    }, 100);
+    let attempts = 0;
+    const maxAttempts = 20;
+    const tryUnminimize = () => {
+      runtime.WindowUnminimise();
+      if (++attempts < maxAttempts) {
+        setTimeout(tryUnminimize, 30 * attempts); // gradually increase timeout every attempt
+        if (document.activeElement === searchInput.value) {
+          attempts = 99
+        }
+      }
+    };
+    setTimeout(tryUnminimize, 30);
 }).catch((err) => {
   showAlertModal(`Loading config failed:\n\n${err.message || err}`)
 });
-
-nextTick(() => {
-  let lastFocus = 0;
-  window.addEventListener('focus', () => {
-    if (Date.now() - lastFocus > 3000) reloadConfig(true);
-    lastFocus = Date.now();
-  });
-});
-
 
 const guessRegex = (url) => {
   try {

@@ -1,5 +1,5 @@
 :root{
-  --title-bar-height: 32px;
+  --title-bar-height: 0px;
   font-family: system-ui, -apple-system, Roboto, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -217,7 +217,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
-  box-shadow: 0 12px 6px -6px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 12px 6px -6px rgba(0, 0, 0, 0.15);
 }
 
 .config-table thead th {
@@ -252,7 +252,8 @@ body {
 }
 
 .config-table td {
-  max-width: 300px;
+  max-width: 0;
+  min-width: 0;
   padding: 1rem 1.25rem;
   color: #cbd5e1;
   border-top: 1px solid #334155;
@@ -287,7 +288,6 @@ body {
   border-radius: 4px;
   font-size: 1.0em;
   flex: 1;
-  min-width: 0;
   overflow: auto;
   scrollbar-width: none;
   text-overflow: "...";
@@ -302,7 +302,6 @@ body {
   display: flex;
   width: 100%;
   min-width: 0;
-  
 }
 
 .copy-btn {
@@ -457,6 +456,8 @@ body {
   flex-shrink: 0;
   font-size: 0.9rem;
   color: #94a3b8;
+  box-shadow: 0 -12px 6px -6px rgba(0, 0, 0, 0.15);
+  z-index: 101;
 }
 
 .status-info {
@@ -781,7 +782,7 @@ input[type="checkbox"] {
 
 /* Rules */
 .rule-row-tag {
-  min-width: 100px;
+  min-width: 60px;
   max-width: 400px;
   position: relative;
   display: inline-block;

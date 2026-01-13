@@ -29,9 +29,9 @@ func main() {
 		Title:     "LinkRouter Config Editor",
 		Width:     1024,
 		Height:    768,
-		MinWidth:  800,
-		MinHeight: 600,
-		Frameless: true,
+		MinWidth:  512,
+		MinHeight: 384,
+		Frameless: false,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
@@ -45,14 +45,15 @@ func main() {
 			WindowIsTranslucent:  true,
 			DisableWindowIcon:    true,
 			WebviewUserDataPath:  "",
-			// Theme:                windows.Dark,
-			// CustomTheme: &windows.ThemeSettings{
-			// 	DarkModeTitleBar:          windows.RGB(27, 38, 54),
-			// 	DarkModeTitleBarInactive:  windows.RGB(27, 38, 54),
-			// 	DarkModeTitleText:         windows.RGB(203, 213, 225),
-			// 	DarkModeTitleTextInactive: windows.RGB(203, 213, 225),
-			// 	DarkModeBorder:            windows.RGB(27, 38, 54),
-			// },
+			Theme:                windows.Dark,
+			CustomTheme: &windows.ThemeSettings{
+				DarkModeTitleBar:          windows.RGB(27, 38, 54),
+				DarkModeTitleText:         windows.RGB(203, 213, 225),
+				DarkModeBorder:            windows.RGB(27, 38, 54),
+				DarkModeTitleBarInactive:  windows.RGB(20, 28, 40),
+				DarkModeTitleTextInactive: windows.RGB(148, 163, 184),
+				DarkModeBorderInactive:    windows.RGB(20, 28, 40),
+			},
 		},
 	})
 
