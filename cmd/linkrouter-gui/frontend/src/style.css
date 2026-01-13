@@ -158,7 +158,7 @@ body {
   background: var(--color-border);
   color: var(--color-text-primary);
   font-weight: 600;
-  padding: var(--spacing-md) var(--spacing-xl);
+  padding: var(--spacing-md) 1.6rem;
   font-size: 0.95rem;
   letter-spacing: 0.5px;
   text-transform: uppercase;
