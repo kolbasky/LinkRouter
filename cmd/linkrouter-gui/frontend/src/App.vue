@@ -40,10 +40,10 @@
       <table class="config-table">
         <thead>
           <tr>
-            <th style="width:1%; min-width:12px; text-align: center;">#</th>
-            <th style="width:64%">Regex</th>
-            <th style="width:34%">Program</th>
-            <th style="width:1%; min-width:12px;"></th>
+            <th>#</th>
+            <th style="width:60%">Regex</th>
+            <th style="width:30%">Program</th>
+            <th style="width:5%;"></th>
           </tr>
         </thead>
         <tbody>
@@ -144,7 +144,7 @@
             class="modal-input" 
             :class="{ 'invalid-regex': regexError }"
             @input="validateRegex"
-            placeholder="e.g. ^https?://(.*\.)?youtube\.com/.*" 
+            placeholder="^https?://(.*\.)?youtube\.com/.*" 
           />
           <div v-if="regexError" class="regex-error-message">
             {{ regexError }}
@@ -210,7 +210,7 @@
               ref="fallbackBrowserInput"
               v-model="editingGlobal.fallbackBrowserPath"
               class="modal-input program-input"
-              placeholder="e.g. C:\Program Files\Firefox\firefox.exe"
+              placeholder="C:\Program Files\Firefox\firefox.exe"
             />
             <button class="browse-btn" @click="browseFile('fallbackBrowser')" title="Browse for program">
               <span class="emoji">📂︎</span>
@@ -221,7 +221,7 @@
           <input
             v-model="editingGlobal.fallbackBrowserArgs"
             class="modal-input"
-            placeholder="e.g. -private-window {url}"
+            placeholder="--incognito {URL}"
           />
 
           <label>
@@ -234,7 +234,7 @@
             <input
             v-model="editingGlobal.defaultConfigEditor"
             class="modal-input program-input"
-            placeholder="e.g. notepad.exe"
+            placeholder="notepad.exe"
             />
             <button class="browse-btn" @click="browseFile('defaultEditor')" title="Browse for program">
               <span class="emoji">📂︎</span>
@@ -246,7 +246,7 @@
             <input
             v-model="editingGlobal.logPath"
             class="modal-input"
-            placeholder="e.g. C:\logs\linkrouter.log"
+            placeholder="logs\linkrouter.log"
             />
             <button class="browse-btn" @click="browseFile('logPath')" title="Browse for program">
               <span class="emoji">📂︎</span>
@@ -257,7 +257,7 @@
           <input
           v-model="protocolsInput"
           class="modal-input"
-          placeholder="e.g. http,https,ftp"
+          placeholder="http, https, ssh, mailto"
           />
         </div>
 
