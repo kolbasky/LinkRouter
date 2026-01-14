@@ -198,7 +198,7 @@
             title="Test this rule with current test URL"
             :disabled="!testUrl || !editingRule.program || !testResult"
           >
-            Test Rule
+            Test rule
           </button>
           <button class="cancel-btn" @click="closeEditModal">Cancel</button>
           <button class="ok-btn" @click="saveRule">Save</button>
