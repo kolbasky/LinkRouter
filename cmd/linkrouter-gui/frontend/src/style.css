@@ -215,7 +215,7 @@ body {
 .index-cell {
   text-align: center;
   font-size: 0.8em;
-  font-weight: 600;
+  font-weight: 400;
   color: var(--color-text-disabled);
   opacity: 0.8;
   white-space: nowrap;
