@@ -471,11 +471,16 @@ Promise.all([
     const maxAttempts = 30;
     const tryUnminimize = () => {
       runtime.WindowUnminimise();
+      const currentActive = document.activeElement;
+      const isInputFocused = currentActive && 
+        currentActive.tagName.toLowerCase() === 'input';
+      
+      if (isInputFocused) {
+        return;
+      }
+      
       if (++attempts < maxAttempts) {
         setTimeout(tryUnminimize, 10 * attempts);
-        if (document.activeElement === searchInput.value) {
-          attempts = 65535
-        }
       }
     };
     setTimeout(tryUnminimize, 10);
