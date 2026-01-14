@@ -20,6 +20,7 @@
             v-model="search"
             placeholder="Search rules..."
             class="search-input"
+            title="Search rules (Ctrl+F)"
           />
           <button 
             v-if="search" 
@@ -126,7 +127,7 @@
       </div>
 
       <div class="button-group">
-        <button class="add-rule-btn" @click="openAddRuleModal" title="Add new rule"><span class="emoji">➕&#65038</span></button>
+        <button class="add-rule-btn" @click="openAddRuleModal" title="New rule (Ctrl+N)"><span class="emoji">➕&#65038</span></button>
                 <!-- Undo Button -->
         <button 
           class="undo-btn"
@@ -144,11 +145,11 @@
         >
           ↷
         </button>
-        <button class="reload-btn" @click="reloadConfig(false)" title="Reload config from disk">🔄&#65038</button>
-        <button class="load-btn" @click="loadConfig" title="Open config">📂︎&#65038</button>
-        <button class="save-btn" @click="saveConfigAs" title="Save as"><span class="emoji">💾&#65038</span></button>
+        <button class="reload-btn" @click="reloadConfig(false)" title="Reload config (Ctrl+R)">🔄&#65038</button>
+        <button class="load-btn" @click="loadConfig" title="Open config (Ctrl+O)">📂︎&#65038</button>
+        <button class="save-btn" @click="saveConfigAs" title="Save config as (Ctrl+S)"><span class="emoji">💾&#65038</span></button>
         <!-- <button class="settings-btn" @click="openSettingsModal" title="Global settings"><span class="emoji">🔧&#65038</span></button> -->
-        <button class="settings-btn" @click="openSettingsModal" title="Global settings"><span class="emoji">⛭&#65038</span></button>
+        <button class="settings-btn" @click="openSettingsModal" title="Global settings (Ctrl+G)"><span class="emoji">⛭&#65038</span></button>
       </div>
     </div>
 
@@ -203,7 +204,7 @@
             <button
               class="browser-btn"
               @click="openTestUrlInBrowser"
-              title="Open test URL in default browser"
+              title="Open test URL in default browser (Ctrl+O)"
               :disabled="!testUrl"
             >
               🌐︎&nbsp&nbspOpen in browser
@@ -215,13 +216,13 @@
           <button 
             class="test-rule-btn"
             @click="testRuleLocally"
-            title="Test this rule with current test URL"
+            title="Test this rule with current test URL (Ctrl+T)"
             :disabled="!testUrl || !editingRule.program || !testResult"
           >
             Test rule
           </button>
-          <button class="cancel-btn" @click="closeEditModal">Cancel</button>
-          <button class="ok-btn" @click="saveRule">Save</button>
+          <button class="cancel-btn" @click="closeEditModal" title="Cancel (Esc)">Cancel</button>
+          <button class="ok-btn" @click="saveRule" title="Save rule (Ctrl+Enter)">Save</button>
         </div>
       </div>
     </div>
@@ -1419,7 +1420,7 @@ const undo = () => {
 }
 
 const redo = () => {
-  if (historyIndex.value >= history.value.length) return
+  if (historyIndex.value >= history.value.length - 1) return
 
   historyIndex.value++
   config.value = JSON.parse(JSON.stringify(history.value[historyIndex.value]))
