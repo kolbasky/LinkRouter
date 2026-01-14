@@ -137,7 +137,7 @@
       <div class="modal" @click.stop>
         <h2>Edit Rule</h2>
         <div class="modal-form-content">
-          <label>Pattern (Regex)</label>
+          <label>Regex Pattern</label>
           <input 
             ref="regexInput"
             v-model="editingRule.regex" 
@@ -162,7 +162,7 @@
             </button>
           </div>
 
-          <label>Arguments (optional)</label>
+          <label>Arguments</label>
           <input
             v-model="editingRule.arguments"
             class="modal-input"
@@ -389,7 +389,7 @@ Promise.all([
       editingRule.value = {
         regex: guessRegex(mode.url),
         program: '',
-        arguments: ''
+        arguments: '"{URL}"'
       }
       originalRule.value = null
       showEditModal.value = true
@@ -952,7 +952,7 @@ const validateRegex = async () => {
 
 // Rule editing
 const openAddRuleModal = () => {
-  editingRule.value = { regex: '', program: '', arguments: '' };
+  editingRule.value = { regex: '.*', program: '', arguments: '"{URL}"' };
   originalRule.value = null;
   showEditModal.value = true;
   closeContextMenu();
@@ -1006,8 +1006,9 @@ const testRuleLocally = async () => {
   }
 
   try {
+    const unquotedProgram = editingRule.value.program.replace(/^"+|^'+|"+$|'+$/g, "");
     await TestRule(
-      editingRule.value,
+      { ...editingRule.value, program: unquotedProgram },
       testUrl.value
     )
   } catch(err) {
