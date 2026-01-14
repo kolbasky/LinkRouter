@@ -40,7 +40,7 @@
       <table class="config-table">
         <thead>
           <tr>
-            <th>#</th>
+            <th style="width:5%;">#</th>
             <th style="width:60%">Regex</th>
             <th style="width:30%">Program</th>
             <th style="width:5%;"></th>
@@ -181,10 +181,10 @@
           </div>
           <div  style="text-align: left; margin-top: 0.5rem;">
             <button
-              v-if="testUrl"
               class="browser-btn"
               @click="openTestUrlInBrowser"
               title="Open test URL in default browser"
+              :disabled="!testUrl"
             >
               🌐︎&nbsp&nbspOpen in browser
             </button>
@@ -192,6 +192,14 @@
         </div>
 
         <div class="modal-buttons">
+          <button 
+            class="test-rule-btn"
+            @click="testRuleLocally"
+            title="Test this rule with current test URL"
+            :disabled="!testUrl || !editingRule.program || !testResult"
+          >
+            Test Rule
+          </button>
           <button class="cancel-btn" @click="closeEditModal">Cancel</button>
           <button class="ok-btn" @click="saveRule">Save</button>
         </div>
@@ -345,7 +353,8 @@ import {
   IsValidRegex,
   RegisterLinkRouter,
   UnregisterLinkRouter,
-  OpenInFallbackBrowser
+  OpenInFallbackBrowser,
+  TestRule
 } from '../wailsjs/go/main/App';
 
 // reload config on focus, but with 3sec debounce
@@ -441,8 +450,6 @@ const isInputFocused = () => {
 const shouldAllowGlobalShortcuts = () => {
   return !isAnyModalOpen.value && !isInputFocused()
 }
-
-
 
 setTimeout(() => {
   window.addEventListener('keydown', (e) => {
@@ -543,6 +550,12 @@ setTimeout(() => {
     if (!isAnyModalOpen.value && (e.key === 'F5' || (isCtrl && e.code === 'KeyR'))) {
       e.preventDefault();
       reloadConfig(false);
+      return;
+    }
+
+    if (isCtrl && e.code === 'KeyT' && testUrl.value && editingRule.value.program && testResult.value) {
+      e.preventDefault();
+      testRuleLocally();
       return;
     }
 
@@ -986,6 +999,21 @@ const openTestUrlInBrowser = async () => {
     runtime.Quit()
   }
 };
+
+const testRuleLocally = async () => {
+  if (!testUrl.value || !editingRule.value.program) {
+    return;
+  }
+
+  try {
+    await TestRule(
+      editingRule.value,
+      testUrl.value
+    )
+  } catch(err) {
+    showAlertModal(`Failed to launch:\n\n${err.message || err}`);
+  }
+}
 
 const saveRule = () => {
   if (!editingRule.value.regex || !editingRule.value.program) {

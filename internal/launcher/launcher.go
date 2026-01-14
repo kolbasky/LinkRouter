@@ -145,7 +145,7 @@ func HandleURL(url string) {
 		logger.Log(fmt.Sprintf("Matched rule #%d: regex=%q", ruleIndex, rule.Regex))
 		logger.Log(fmt.Sprintf("Captured groups: %s", logger.FormatCaptureGroups(matches)))
 
-		expandedArgs := expandPlaceholders(rule.Arguments, matches)
+		expandedArgs := ExpandPlaceholders(rule.Arguments, matches)
 		err := LaunchApp(rule.Program, expandedArgs, url)
 		if err == nil {
 			return
@@ -289,7 +289,7 @@ func LaunchApp(programPath, argsTemplate, url string) error {
 	return cmd.Start()
 }
 
-func expandPlaceholders(template string, matches []string) string {
+func ExpandPlaceholders(template string, matches []string) string {
 	result := template
 	for i, match := range matches {
 		placeholder := "$" + strconv.Itoa(i)

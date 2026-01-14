@@ -234,3 +234,31 @@ func (a *App) OpenConfigInExplorer(configPath string) error {
 	cmd := exec.Command("explorer", "/select,", absPath)
 	return cmd.Start()
 }
+
+type Rule struct {
+	Regex     string `json:"regex"`
+	Program   string `json:"program"`
+	Arguments string `json:"arguments"`
+}
+
+func (a *App) TestRule(rule Rule, url string) error {
+	go func() {
+		re, err := regexp.Compile(rule.Regex)
+		if err != nil {
+			dialogs.ShowError("Unable to complie regex:\n" + err.Error())
+			return
+		}
+		matches := re.FindStringSubmatch(url)
+
+		if len(matches) == 0 {
+			dialogs.ShowError("Test URL doesn't match regex")
+		}
+
+		expandedArgs := launcher.ExpandPlaceholders(rule.Arguments, matches)
+		err = launcher.LaunchApp(rule.Program, expandedArgs, url)
+		if err != nil {
+			dialogs.ShowError("Unable to launch program:\n" + err.Error())
+		}
+	}()
+	return nil
+}

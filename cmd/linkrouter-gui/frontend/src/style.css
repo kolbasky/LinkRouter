@@ -45,7 +45,7 @@ html {
   user-select: none;
   font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeSpeed;
+  /* text-rendering: optimizeSpeed; */
 }
 
 body {
@@ -132,6 +132,7 @@ body {
   overflow: auto;
   display: flex;
   flex-direction: column;
+  scrollbar-gutter: stable;
 }
 
 /* Table Styles */
@@ -171,7 +172,7 @@ body {
 .config-table td {
   max-width: 0;
   min-width: 0;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-md) var(--spacing-md);
   color: var(--color-text-secondary);
   border-top: 1px solid var(--color-border);
   overflow: hidden;
@@ -213,7 +214,8 @@ body {
 
 .index-cell {
   text-align: center;
-  font-size: 0.9em;
+  font-size: 0.8em;
+  font-weight: 600;
   color: var(--color-text-disabled);
   opacity: 0.8;
   white-space: nowrap;
@@ -593,7 +595,8 @@ input[type="checkbox"] {
 .cancel-btn,
 .ok-btn,
 .reg-btn,
-.browser-btn {
+.browser-btn,
+.test-rule-btn {
   cursor: pointer;
   padding: 10px 20px;
   border: none;
@@ -605,15 +608,35 @@ input[type="checkbox"] {
 
 .cancel-btn,
 .reg-btn,
-.browser-btn {
+.browser-btn,
+.test-rule-btn {
   background: var(--color-border);
   color: var(--color-text-secondary);
 }
 
 .cancel-btn:hover,
 .browser-btn:hover,
-.reg-btn:hover {
+.reg-btn:hover,
+.test-rule-btn:hover {
   background: #475569;
+}
+
+.browser-btn:disabled,
+.test-rule-btn:disabled {
+  cursor: default;
+  background: var(--color-border);
+  color: var(--color-text-disabled);
+  opacity: 0.8;
+}
+
+.browser-btn:disabled:hover,
+.test-rule-btn:disabled:hover {
+  background: var(--color-border);
+  color: var(--color-text-disabled);
+}
+
+.browser-btn {
+  margin-top: 6px;
 }
 
 .reg-btn.warning {
