@@ -354,11 +354,26 @@
       </div>
     </div>
   </div>
+
+  <div
+    v-if="showHelpOverlay"
+    class="help-overlay"
+    @click="showHelpOverlay = false"
+  >
+  <button class="close-help" @click="showHelpOverlay = false">×</button>
+    <div class="help-content" @click.stop ref="helpContainer" tabindex="-1">
+      <div class="help-body" v-html="helpContent" ref="helpBody" @click="handleHelpLinkClick"></div>
+      <div class="help-footer">
+        Press F1 • Esc • or click outside to close
+      </div>
+    </div>
+  </div>
+
 </template>
 
 <script setup>
 // import { Fzf } from 'fzf'
-import { WindowMinimise, WindowToggleMaximise, Quit, WindowUnminimise } from '../wailsjs/runtime/runtime';
+import { WindowMinimise, WindowToggleMaximise, Quit, WindowUnminimise, BrowserOpenURL } from '../wailsjs/runtime/runtime';
 import { ref, computed, nextTick } from 'vue';
 import {
   GetInteractiveMode,
@@ -487,6 +502,7 @@ setTimeout(() => {
     if (e.key === 'Escape') {
       e.preventDefault()
 
+      if (showHelpOverlay.value)    { showHelpOverlay.value = false; return }
       if (showAlert.value)          { showAlert.value = false; return }
       if (showConfirm.value)        { showConfirm.value = false; return }
       if (showEditModal.value)      { closeEditModal(); return }
@@ -498,6 +514,16 @@ setTimeout(() => {
       } else {
         rulesContainer.value?.focus()
       }
+
+      return
+    }
+
+    if (e.key === 'F1') {
+      e.preventDefault()
+      showHelpOverlay.value = !showHelpOverlay.value
+      nextTick(() => {
+        helpContainer.value?.focus()
+      })
       return
     }
 
@@ -601,6 +627,8 @@ setTimeout(() => {
   });
 }, 100);
 
+
+
 // Reactive state
 const canUndo = ref(false);
 const canRedo = ref(false);
@@ -620,8 +648,10 @@ const confirmHeader = ref('');
 const confirmMessage = ref('');
 const confirmOkBtn = ref('');
 const confirmCancelBtn = ref('');
-const onConfirm = ref(null); // callback function
+const onConfirm = ref(null);
 const showConfirm = ref(false);
+const showHelpOverlay = ref(false);
+const helpContainer = ref(null);
 
 const showEditModal = ref(false);
 const showSettingsModal = ref(false);
@@ -1022,6 +1052,11 @@ const openTestUrlInBrowser = async () => {
     runtime.Quit()
   }
 };
+
+const openExternal = (url) => {
+  showAlert(url)
+  BrowserOpenURL(url)
+}
 
 const testRuleLocally = async () => {
   if (!testUrl.value || !editingRule.value.program) {
@@ -1451,4 +1486,149 @@ const handleConfirm = () => {
   }
   showConfirm.value = false;
 };
+
+
+const handleHelpLinkClick = (event) => {
+  let target = event.target
+  while (target && target.tagName !== 'A') {
+    target = target.parentElement
+  }
+
+  if (target && target.tagName === 'A' && target.href) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const url = target.getAttribute('href')
+    if (url && url !== '#' && !url.startsWith('javascript:')) {
+      BrowserOpenURL(url)
+    } else if (target.hasAttribute('data-external')) {
+      const customUrl = target.getAttribute('data-external')
+      if (customUrl) BrowserOpenURL(customUrl)
+    }
+  }
+}
+
+/* help */
+const helpContent = computed(() => {
+  if (showEditModal.value) {
+    return `
+      <h2>Working with rules</h2>
+      <p><strong>Regex Pattern</strong><br>
+         If incoming URL mathces this regular exprssion specified program will be launched and further rule processing stops.<br>
+         Examples:
+      </p>
+      <ul>
+        <li><code>https://store.steampowered.com.*</code> — simple regex</li>
+        <li><code>https?://(.*\\.)?youtube\\.com</code> — more flexible</li>
+        <li><code>mailto:(.*@(company1|company2).(com|ru))</code> — capture groups</li>
+      </ul>
+
+      <p><strong>Program</strong><br>
+         Full path to the program to launch if regex matches. If only filname provided, it is looked up in <code>%PATH%</code>.
+      </p>
+
+      <p><strong>Arguments</strong><br>
+        Command-line options passed to the program.<br>
+        <code>{URL}</code> is replaced with incoming URL; <code>$1</code>,<code>$2</code>... are replaced with capture groups' contents. It is recommended to always quote resulting URL with doublequotes.
+      </p>
+
+      <p><strong>Test URL</strong><br>
+         Type/paste any link here to see live test result against you regex (green = match, red = no match). Convenient when composing new rules.
+      </p>
+
+      <p><strong>Buttons</strong><br></p>
+        <ul>
+          <li><code>Open in browser</code> — open test URL in fallback browser</li>
+          <li><code>Test rule</code> — run specified program with specified arguments and test URL</li>
+        </ul>
+      <hr>
+      <h2>Keyboard shortcuts in this modal</h2>
+      <ul>
+        <li><code>Ctrl+Enter</code> — Save rule, close modal</li>
+        <li><code>Ctrl+T</code> — Test rule</li>
+        <li><code>Ctrl+O</code> — Open test URL in fallback browser</li>
+        <li><code>Esc</code> — Close modal</li>
+      </ul>
+    `
+  }
+
+  if (showSettingsModal.value) {
+    return `
+      <h2>Global Settings</h2>
+
+      <p><strong>Fallback Browser</strong><br>
+        If none of the rules matches the incoming URL, it will be opened in this program.
+      </p>
+
+      <p><strong>Fallback Arguments</strong><br>
+        Arguments used when launching fallback browser. It is recommended to quote resulting URL with doublequotes. For example: <code>--private-window "{URL}"</code>
+      </p>
+
+      <p><strong>Interactive Mode</strong><br>
+        When turned on, and no matching rule is found, launch rule creation dialog instead of opening URL in fallback browser. Regex and test url fields are auto-filled in this case. Press <code>Open in browser</code> button or <code>Ctrl+O</code> if want to skip rule creation and use fallback browser.
+      </p>
+
+      <p><strong>Default config editor</strong><br>
+        Program to edit config when <code>linkrouter.exe</code> is double-clicked. It is usually not needed since you are using LinkRouter GUI config editor.
+      </p>
+
+      <p><strong>Log path</strong><br>
+        Path to a logfile (relative or absolute) to log linkrouter's URL handling process. Please attach those when submitting issues on github.
+      </p>
+
+      <p><strong>Supported Protocols</strong><br>
+         Comma-separated list of protocols LinkRouter should handle.<br>
+         Example: <code>http, https, ssh, mailto</code>
+      </p>
+      <hr>
+      <h2>Register / Unregister</h2>
+      <p>
+        These buttons register/unregister LinkRouter as the default handler for the listed protocols in OS. <code>Register</code> button also shows windows settings to select LinkRouter as the default app. Usually there is no need to use these. Everything is handled automtically when pressing <code>Save</code> button.
+      </p>
+    `
+  }
+
+  // Default: main screen
+  return `
+    <h2>LinkRouter Config Editor</h2>
+    <a href="https://github.com/kolbasky/LinkRouter">Github repo</a>
+    <p>LinkRouter is a lightweight Windows app that routes links to specific applications based on regex rules.<br>
+    For user convenience we developed this GUI config editor which can create/edit/search rules, validate regex syntax and indicate regex-matching on the fly AND it includes interactive mode - when no matching rule is found it opens a rule-creation dialog with the regex and test URL pre-filled.<br>
+    Double click rule to edit, or use right-click context menu for more options.<br>
+    Rules are processed in order, processing stops on first match.<br>
+    Search field searches in <code>program</code>, <code>arguments</code> and <code>regex</code> fields, and also checks search string against regexes, so you can easily find a matching rule by entering URL there.<br> 
+    All actions are saved automatically. Use <code>undo</code>/<code>redo</code> buttons or <code>Ctrl+Z</code>/<code>Ctrl+Y</code> to revert changes.<br>
+    Config is stored in JSON format and may also be edited in any text editor. Path to config is displayd in the bottom of current window. Clicking on it reveals config in explorer.</p>
+
+    <hr>
+    <h2>Buttons</h2>
+      <ul>
+        <li><code>➕&#65038</code> → Create new rule (<code>Ctrl+N</code>)</li>
+        <li><code>↶</code> → Undo (<code>Ctrl+Z</code>)</li>
+        <li><code>↷</code> → Redo (<code>Ctrl+Y</code>)</li>
+        <li><code>🔄&#65038</code> → Reload config (<code>Ctrl+R</code>) or <code>F5</code></li>
+        <li><code>📂︎&#65038</code> → Open config file (<code>Ctrl+O</code>)</li>
+        <li><code>💾&#65038</code> → Save config as… (<code>Ctrl+S</code>)</li>
+        <li><code>⛭&#65038</code> → Global settings (<code>Ctrl+G</code>)</li>
+      </ul>
+
+    <h2>Keyboard shortcuts in main window</h2>
+    <ul>
+        <li><code>Ctrl+N</code> → create new rule</li>
+        <li><code>Ctrl+C</code>/<code>Ctrl+V</code> → copy/paste rule</li>
+        <li><code>Ctrl+D</code> → duplicate rule</li>
+        <li><code>Ctrl+Z</code>/<code>Ctrl+Y</code> → undo/redo</li>
+        <li><code>Ctrl+F</code>,<code>Ctrl+L</code>,<code>/</code> → focus search field</li>
+        <li><code>Ctrl+S</code> → save config</li>
+        <li><code>Ctrl+R</code>/<code>F5</code> → reload config</li>
+        <li><code>Ctrl+O</code> → open "Load config" file-picker</li>
+        <li><code>Ctrl+G</code> → open Global Settings</li>
+        <li><code>ARROWS</code> → navigate rules</li>
+        <li><code>ENTER</code> → edit selected rule</li>
+        <li><code>DELETE</code>/<code>Backspace</code> → delete selected rule</li>
+    </ul>
+    There are also dialog-specific keyboard shortcuts - see help for a particular dialog.
+  `
+})
+
 </script>
