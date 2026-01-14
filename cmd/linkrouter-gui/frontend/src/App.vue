@@ -12,21 +12,24 @@
     </div> -->
 
     <div class="header">
-      <div class="search-wrapper">
-        <input
-          ref="searchInput"
-          v-model="search"
-          placeholder="Search rules..."
-          class="search-input"
-        />
-        <button 
-          v-if="search" 
-          class="search-clear" 
-          @click="search = ''"
-          title="Clear search"
-        >
-          ✕
-        </button>
+      <div class="search-container">
+        <!-- Search Wrapper -->
+        <div class="search-wrapper">
+          <input
+            ref="searchInput"
+            v-model="search"
+            placeholder="Search rules..."
+            class="search-input"
+          />
+          <button 
+            v-if="search" 
+            class="search-clear" 
+            @click="search = ''"
+            title="Clear search"
+          >
+            ✕
+          </button>
+        </div>
       </div>
     </div>
 
@@ -124,6 +127,23 @@
 
       <div class="button-group">
         <button class="add-rule-btn" @click="openAddRuleModal" title="Add new rule"><span class="emoji">➕&#65038</span></button>
+                <!-- Undo Button -->
+        <button 
+          class="undo-btn"
+          @click="undo()"
+          :disabled="!canUndo"
+          title="Undo (Ctrl+Z)"
+        >
+          ↶
+        </button>
+        <button 
+          class="redo-btn"
+          @click="redo()"
+          :disabled="!canRedo"
+          title="Redo (Ctrl+Y)"
+        >
+          ↷
+        </button>
         <button class="reload-btn" @click="reloadConfig(false)" title="Reload config from disk">🔄&#65038</button>
         <button class="load-btn" @click="loadConfig" title="Open config">📂︎&#65038</button>
         <button class="save-btn" @click="saveConfigAs" title="Save as"><span class="emoji">💾&#65038</span></button>
@@ -581,6 +601,8 @@ setTimeout(() => {
 }, 100);
 
 // Reactive state
+const canUndo = ref(false);
+const canRedo = ref(false);
 const config = ref({});
 const configPath = ref('');
 const copiedIndex = ref(-1)
@@ -1375,12 +1397,15 @@ const saveToUndo = () => {
   const deepCopy = JSON.parse(JSON.stringify(config.value))
   history.value.push(deepCopy)
   historyIndex.value = history.value.length - 1
-
+  
   // Limit history size
   if (history.value.length > 30) {
     history.value.shift()
     historyIndex.value--
   }
+  
+  canUndo.value = historyIndex.value > 0;
+  canRedo.value = false;
 }
 
 const undo = () => {
@@ -1389,6 +1414,8 @@ const undo = () => {
   historyIndex.value--
   config.value = JSON.parse(JSON.stringify(history.value[historyIndex.value]))
   saveConfig();
+  canRedo.value = true;
+  canUndo.value = historyIndex.value > 0;
 }
 
 const redo = () => {
@@ -1397,6 +1424,8 @@ const redo = () => {
   historyIndex.value++
   config.value = JSON.parse(JSON.stringify(history.value[historyIndex.value]))
   saveConfig();
+  canUndo.value = true;
+  canRedo.value = historyIndex.value < history.value.length - 1;
 }
 
 // Alerts
