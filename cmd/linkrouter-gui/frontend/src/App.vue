@@ -199,6 +199,15 @@
             placeholder="{URL} for URL; $1, $2 etc for captured groups"
           />
 
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              v-model="editingRule.interactive"
+              class="interactive-checkbox"
+            />
+            <span class="checkbox-hint">Add rule as button to open Test URL</span>
+          </label>
+
           <label>Test URL</label>
           <div class="test-url-wrapper">
             <input
@@ -209,15 +218,23 @@
               @input="updateTestResult"
             />
           </div>
+
           <div  style="text-align: left; margin-top: 0.5rem;">
-            <button
-              class="browser-btn"
-              @click="openTestUrlInBrowser"
-              title="Open test URL in default browser (Ctrl+O)"
-              :disabled="!testUrl"
-            >
-              🌐︎&nbsp&nbspOpen in browser
-            </button>
+            <div v-if="testUrl && interactivePrograms.length > 0" class="interactive-buttons">
+              <div 
+                v-for="(prog, index) in interactivePrograms" 
+                :key="index"
+                class="interactive-button-row"
+              >
+                <button
+                  class="browser-btn"
+                  @click="openTestUrlInBrowser(prog.program, prog.arguments)"
+                  :title="`Open in ${prog.name} (Ctrl+${index + 1})`"
+                >
+                  <span class="browser-btn-icon">{{ getIcon(prog.arguments) }}&#65038</span>&nbsp;&nbsp;{{ index + 1 }}.&nbsp;{{ prog.name }}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -436,7 +453,8 @@ Promise.all([
       editingRule.value = {
         regex: guessRegex(mode.url),
         program: '',
-        arguments: '"{URL}"'
+        arguments: '"{URL}"',
+        interactive: false
       }
       originalRule.value = null
       showEditModal.value = true
@@ -450,17 +468,17 @@ Promise.all([
     // Dirty hack to focus the app
     runtime.WindowMinimise()
     let attempts = 0;
-    const maxAttempts = 20;
+    const maxAttempts = 30;
     const tryUnminimize = () => {
       runtime.WindowUnminimise();
       if (++attempts < maxAttempts) {
-        setTimeout(tryUnminimize, 30 * attempts); // gradually increase timeout every attempt
+        setTimeout(tryUnminimize, 10 * attempts);
         if (document.activeElement === searchInput.value) {
-          attempts = 99
+          attempts = 65535
         }
       }
     };
-    setTimeout(tryUnminimize, 30);
+    setTimeout(tryUnminimize, 10);
 }).catch((err) => {
   showAlertModal(`Loading config failed:\n\n${err.message || err}`)
 });
@@ -576,6 +594,14 @@ setTimeout(() => {
       openTestUrlInBrowser()
       return
     }
+    if (isCtrl && testUrl.value) {
+      const keyNum = parseInt(e.key);
+      if (!isNaN(keyNum) && keyNum >= 1 && keyNum <= interactivePrograms.value.length + 1) {
+        e.preventDefault();
+        openTestUrlInBrowser(interactivePrograms.value[keyNum - 1].program, interactivePrograms.value[keyNum - 1].arguments);
+        return;
+      }
+    }
 
     // Open
     if (isCtrl && e.code === 'KeyO' && !isAnyModalOpen.value) {
@@ -672,7 +698,7 @@ const showEditModal = ref(false);
 const showSettingsModal = ref(false);
 const selectedRowIndex = ref(-1);
 
-const editingRule = ref({ regex: '', program: '', arguments: '' });
+const editingRule = ref({ regex: '', program: '', arguments: '', interactive: false });
 const originalRule = ref(null);
 
 const editingGlobal = ref({
@@ -1054,7 +1080,7 @@ const validateRegex = async () => {
 
 // Rule editing
 const openAddRuleModal = () => {
-  editingRule.value = { regex: '.*', program: '', arguments: '"{URL}"' };
+  editingRule.value = { regex: '.*', program: '', arguments: '"{URL}"', interactive: false };
   originalRule.value = null;
   showEditModal.value = true;
   closeContextMenu();
@@ -1068,7 +1094,8 @@ const openEditModal = (rule) => {
   editingRule.value = {
     regex: rule.regex || '',
     program: rule.program || '',
-    arguments: rule.arguments || ''
+    arguments: rule.arguments || '',
+    interactive: rule.interactive || false
   };
   originalRule.value = rule;
   showEditModal.value = true;
@@ -1081,7 +1108,7 @@ const openEditModal = (rule) => {
 const closeEditModal = () => {
   showEditModal.value = false;
   setTimeout(() => {
-    editingRule.value = { regex: '', program: '', arguments: '' };
+    editingRule.value = { regex: '', program: '', arguments: '', interactive: false };
     originalRule.value = null;
     regexError.value = null;
   }, 300);
@@ -1091,10 +1118,53 @@ const closeEditModal = () => {
   }
 };
 
-const openTestUrlInBrowser = async () => {
+const interactivePrograms = computed(() => {
+  const programs = [];
+  if (config.value.global?.fallbackBrowserPath) {
+    programs.push({
+      program: config.value.global.fallbackBrowserPath,
+      arguments: config.value.global.fallbackBrowserArgs || '{URL}',
+      name: 'default'
+    });
+  }
+  programs.push(...config.value.rules
+    .filter(rule => rule.interactive)
+    .map(rule => ({
+      program: rule.program,
+      arguments: rule.arguments,
+      name: getProgramName(rule.program)
+    }))
+  );
+  return programs;
+});
+
+// Helper function to extract program name from path
+const getProgramName = (programPath) => {
+  if (!programPath) return 'Unknown';
+  
+  // Remove quotes if present
+  let cleanPath = programPath;
+  if (cleanPath.startsWith('"') && cleanPath.endsWith('"')) {
+    cleanPath = cleanPath.slice(1, -1);
+  }
+  
+  // Get filename without extension
+  const filename = cleanPath.split(/[\\/]/).pop() || cleanPath;
+  return filename.replace(/\.[^/.]+$/, ''); // Remove extension
+};
+
+const getIcon = (args) => {
+  if (!args) return '🌐︎';
+  const lower = args.toLowerCase();
+  return (lower.includes('--incognito') || lower.includes('-private-window')) 
+    ? '👓' // 🥷 👓 🕶️ 👤 👻 🎭 🤿
+    : '🌐︎';
+};
+
+const openTestUrlInBrowser = async (path = config.value.global.fallbackBrowserPath, args = "{URL}") => {
   if (!testUrl.value?.trim()) return;
   try {
-    await OpenInFallbackBrowser(config.value.global.fallbackBrowserPath, '"' + testUrl.value.trim() + '"');
+    await OpenInFallbackBrowser(path, args, '"' + testUrl.value.trim() + '"');
   } catch (err) {
     runtime.LogError("Failed to open URL:", err);
   }
@@ -1598,16 +1668,25 @@ const helpContent = computed(() => {
          Recommendation: always wrap the URL in double quotes, e.g. <code>"{URL}"</code> or <code>"mailto:$1"</code>.
       </p>
 
+      <p><strong>Add as button below Test URL</strong><br>
+        When enabled, this rule appears as a button in the rule-creation dialog when Test URL is not empty.<br>
+        <br>
+        Use it to turn LinkRouter into a quick app/browser selector:<br>
+        • No matching rule → dialog opens with pre-filled URL<br>
+        • Click button → opens link in the chosen program<br>
+        • Keyboard: <code>Ctrl+1</code>, <code>Ctrl+2</code>, …<br>
+        <br>
+        Note: Since no regex matching happens, captured groups are not expanded in <code>Arguments</code> - only <code>{URL}</code> is replaced. Place these rules in the bottom of rule list or fill regex with something unique e.g "Interactive rule #1" to not interfere with normal rule flow.
+      </p>
+
       <p><strong>Test URL</strong><br>
          Type or paste any link here to see a live test against your current regex.<br>
          Green border = match, red border = no match. Very useful while writing new rules.
       </p>
 
-      <p><strong>Buttons</strong></p>
-      <ul>
-        <li><code>Open in browser</code> — opens the test URL in the fallback browser</li>
-        <li><code>Test rule</code> — launches the specified program with the current arguments and test URL</li>
-      </ul>
+      <p><strong>Test rule button</strong><br>
+      <code>Test rule</code> launches the specified program with the current arguments and test URL.
+      </p>
 
       <hr>
       <h2>Keyboard shortcuts in this modal</h2>

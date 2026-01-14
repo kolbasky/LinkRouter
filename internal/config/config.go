@@ -35,9 +35,10 @@ type GlobalConfig struct {
 
 // Rule defines a URL routing rule
 type Rule struct {
-	Regex     string `json:"regex"`
-	Program   string `json:"program"`
-	Arguments string `json:"arguments"`
+	Regex       string `json:"regex"`
+	Program     string `json:"program"`
+	Arguments   string `json:"arguments"`
+	Interactive bool   `json:"interactive,omitempty"`
 }
 
 func getDefaultBrowserPath() string {
@@ -224,9 +225,10 @@ func DefaultConfig() *Config {
 		},
 		Rules: []Rule{
 			{
-				Regex:     `https://(.*)`,
-				Program:   browserPath,
-				Arguments: "{URL}",
+				Regex:       `https://(.*)`,
+				Program:     browserPath,
+				Arguments:   "{URL}",
+				Interactive: false,
 			},
 		},
 	}

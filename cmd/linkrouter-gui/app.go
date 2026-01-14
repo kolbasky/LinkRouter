@@ -209,13 +209,16 @@ func (a *App) UnregisterLinkRouter() error {
 	return cmd.Start()
 }
 
-func (a *App) OpenInFallbackBrowser(browserPath string, url string) {
+func (a *App) OpenInFallbackBrowser(browserPath string, argsTemplate string, url string) {
+	if argsTemplate == "" {
+		argsTemplate = "\"{URL}\""
+	}
 	if strings.TrimSpace(browserPath) == "" {
 		dialogs.ShowError("fallback browser is not set\n" +
 			"go to settings and set it up")
 		return
 	}
-	err := launcher.LaunchApp(browserPath, "{URL}", url)
+	err := launcher.LaunchApp(browserPath, argsTemplate, url)
 	if err != nil {
 		dialogs.ShowError("unable to launch fallback browser: \n" + err.Error())
 	}

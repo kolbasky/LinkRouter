@@ -998,3 +998,31 @@ tr:last-child td[colspan] {
   scale: 1.1;
   opacity: 1;
 }
+
+
+.interactive-buttons {
+  margin-top: 0.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.interactive-button-row {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.browser-btn {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.browser-btn-icon {
+  font-size: 1.4em;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
