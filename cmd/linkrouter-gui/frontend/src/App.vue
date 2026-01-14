@@ -31,6 +31,13 @@
             ✕
           </button>
         </div>
+        <button 
+          class="help-btn-main"
+          @click="showHelp"
+          title="Show Help (F1)"
+        >
+          ❓&#65038
+        </button>
       </div>
     </div>
 
@@ -156,7 +163,9 @@
     <!-- Edit Rule Modal -->
     <div v-if="showEditModal" class="modal-overlay"> <!--  @mousedown.self="closeEditModal" -->
       <div class="modal" @click.stop>
-        <h2>Edit Rule</h2>
+        <h2>Edit Rule
+          <sup><button class="help-btn-modal" @click="showHelp" title="Show Help (F1)">❓&#65038</button></sup>
+        </h2>
         <div class="modal-form-content">
           <label>Regex Pattern</label>
           <input 
@@ -230,7 +239,9 @@
     <!-- Global Settings Modal -->
     <div v-if="showSettingsModal" class="modal-overlay">
       <div class="modal" @click.stop>
-        <h2>Global Settings</h2>
+        <h2>Global Settings
+          <sup><button class="help-btn-modal" @click="showHelp" title="Show Help (F1)">❓&#65038</button></sup>
+        </h2>
 
         <div class="modal-form-content">
           <label>Fallback Browser Path</label>
@@ -502,12 +513,12 @@ setTimeout(() => {
     if (e.key === 'Escape') {
       e.preventDefault()
 
-      if (showHelpOverlay.value)    { showHelpOverlay.value = false; return }
-      if (showAlert.value)          { showAlert.value = false; return }
-      if (showConfirm.value)        { showConfirm.value = false; return }
-      if (showEditModal.value)      { closeEditModal(); return }
-      if (showSettingsModal.value)  { closeSettingsModal(); return }
-      if (contextMenu.value.visible){ closeContextMenu(); return }
+      if (showHelpOverlay.value)    { showHelpOverlay.value = false; restoreFocus(); return }
+      if (showAlert.value)          { showAlert.value = false; restoreFocus(); return }
+      if (showConfirm.value)        { showConfirm.value = false; restoreFocus(); return }
+      if (showEditModal.value)      { closeEditModal(); restoreFocus(); return }
+      if (showSettingsModal.value)  { closeSettingsModal(); restoreFocus(); return }
+      if (contextMenu.value.visible){ closeContextMenu(); restoreFocus(); return }
 
       if (document.activeElement !== searchInput.value) {
         searchInput.value?.focus()
@@ -519,12 +530,15 @@ setTimeout(() => {
     }
 
     if (e.key === 'F1') {
-      e.preventDefault()
-      showHelpOverlay.value = !showHelpOverlay.value
-      nextTick(() => {
-        helpContainer.value?.focus()
-      })
-      return
+      e.preventDefault();
+      if (showHelpOverlay.value) {
+        showHelpOverlay.value = false;
+        restoreFocus();
+      } else {
+        rememberFocus();
+        showHelp();
+      }
+      return;
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -573,7 +587,7 @@ setTimeout(() => {
     // Global Settings
     if (isCtrl && e.code === 'KeyG' && !isAnyModalOpen.value) {
       e.preventDefault()
-      showSettingsModal.value = true
+      openSettingsModal();
       return
     }
 
@@ -641,6 +655,7 @@ const rulesContainer = ref(null);
 const searchInput = ref(null);
 const fallbackBrowserInput = ref(null);
 const launchedInInteractiveMode = ref(false);
+const lastFocusedElement = ref(null);
 
 const alertMessage = ref('');
 const showAlert = ref(false);
@@ -730,6 +745,40 @@ const dragSourceIndex = ref(-1);
 
 //   return result
 // })
+
+const rememberFocus = () => {
+  const active = document.activeElement;
+  if (!active || 
+      active === document.body || 
+      active === document.documentElement ||
+      active.classList.contains('settings-btn') ||
+      active.classList.contains('help-btn-main') ||
+      active.classList.contains('help-btn-modal') ||
+      active.classList.contains('modal-help-btn')) {
+    return;
+  }
+  lastFocusedElement.value = active;
+};
+
+const restoreFocus = () => {
+  nextTick(() => {
+    if (lastFocusedElement.value) {
+      lastFocusedElement.value.focus();
+      lastFocusedElement.value = null;
+      return
+    }
+    if (showHelpOverlay.value) {
+      helpContainer.value?.focus();
+    } else if (showEditModal.value) {
+      regexInput.value?.focus();
+    } else if (showSettingsModal.value) {
+      fallbackBrowserInput.value?.focus();
+    } else {
+
+      searchInput.value?.focus();
+    }
+  });
+};
 
 const filteredRules = computed(() => {
   const query = search.value.trim()
@@ -1015,6 +1064,7 @@ const openAddRuleModal = () => {
 };
 
 const openEditModal = (rule) => {
+  rememberFocus();
   editingRule.value = {
     regex: rule.regex || '',
     program: rule.program || '',
@@ -1138,6 +1188,7 @@ const browseFile = async (type) => {
 
 // Global settings
 const openSettingsModal = () => {
+  rememberFocus();
   editingGlobal.value = {
     fallbackBrowserPath: config.value.global?.fallbackBrowserPath || '',
     fallbackBrowserArgs: config.value.global?.fallbackBrowserArgs || '',
@@ -1149,9 +1200,9 @@ const openSettingsModal = () => {
   originalGlobal.value = config.value.global;
   protocolsInput.value = editingGlobal.value.supportedProtocols.join(', ');
   showSettingsModal.value = true;
-  // nextTick(() => {
-  //   fallbackBrowserInput.value?.focus()
-  // });
+  nextTick(() => {
+    fallbackBrowserInput.value?.focus()
+  });
 };
 
 const closeSettingsModal = () => {
@@ -1509,44 +1560,61 @@ const handleHelpLinkClick = (event) => {
 }
 
 /* help */
+const showHelp = () => {
+  rememberFocus();
+  showHelpOverlay.value = true;
+  
+  nextTick(() => {
+    if (helpContainer.value) {
+      helpContainer.value?.focus();
+      helpContainer.value.scrollTop = 0;
+    }
+  });
+};
+
 const helpContent = computed(() => {
   if (showEditModal.value) {
     return `
-      <h2>Working with rules</h2>
+      <h2>Working with Rules</h2>
       <p><strong>Regex Pattern</strong><br>
-         If incoming URL mathces this regular exprssion specified program will be launched and further rule processing stops.<br>
-         Examples:
+         If the incoming URL matches this regular expression, the specified program will be launched and further rule processing will stop.
       </p>
+      <p>Examples:</p>
       <ul>
-        <li><code>https://store.steampowered.com.*</code> — simple regex</li>
+        <li><code>https://store.steampowered.com.*</code> — simple pattern</li>
         <li><code>https?://(.*\\.)?youtube\\.com</code> — more flexible</li>
-        <li><code>mailto:(.*@(company1|company2).(com|ru))</code> — capture groups</li>
+        <li><code>mailto:(.*@(company1|company2)\\.(com|ru))</code> — using capture groups</li>
       </ul>
 
       <p><strong>Program</strong><br>
-         Full path to the program to launch if regex matches. If only filname provided, it is looked up in <code>%PATH%</code>.
+         Full path to the application to launch when the regex matches.<br>
+         If you provide only a filename, LinkRouter will look for it in <code>%PATH%</code>.
       </p>
 
       <p><strong>Arguments</strong><br>
-        Command-line options passed to the program.<br>
-        <code>{URL}</code> is replaced with incoming URL; <code>$1</code>,<code>$2</code>... are replaced with capture groups' contents. It is recommended to always quote resulting URL with doublequotes.
+         Command-line arguments passed to the program.<br>
+         <code>{URL}</code> is replaced with the full incoming URL.<br>
+         <code>$1</code>, <code>$2</code>, … are replaced with contents of capture groups.<br>
+         Recommendation: always wrap the URL in double quotes, e.g. <code>"{URL}"</code> or <code>"mailto:$1"</code>.
       </p>
 
       <p><strong>Test URL</strong><br>
-         Type/paste any link here to see live test result against you regex (green = match, red = no match). Convenient when composing new rules.
+         Type or paste any link here to see a live test against your current regex.<br>
+         Green border = match, red border = no match. Very useful while writing new rules.
       </p>
 
-      <p><strong>Buttons</strong><br></p>
-        <ul>
-          <li><code>Open in browser</code> — open test URL in fallback browser</li>
-          <li><code>Test rule</code> — run specified program with specified arguments and test URL</li>
-        </ul>
+      <p><strong>Buttons</strong></p>
+      <ul>
+        <li><code>Open in browser</code> — opens the test URL in the fallback browser</li>
+        <li><code>Test rule</code> — launches the specified program with the current arguments and test URL</li>
+      </ul>
+
       <hr>
       <h2>Keyboard shortcuts in this modal</h2>
       <ul>
-        <li><code>Ctrl+Enter</code> — Save rule, close modal</li>
-        <li><code>Ctrl+T</code> — Test rule</li>
-        <li><code>Ctrl+O</code> — Open test URL in fallback browser</li>
+        <li><code>Ctrl + Enter</code> — Save rule and close modal (config is saved automatically)</li>
+        <li><code>Ctrl + T</code> — Test rule</li>
+        <li><code>Ctrl + O</code> — Open test URL in fallback browser</li>
         <li><code>Esc</code> — Close modal</li>
       </ul>
     `
@@ -1557,33 +1625,43 @@ const helpContent = computed(() => {
       <h2>Global Settings</h2>
 
       <p><strong>Fallback Browser</strong><br>
-        If none of the rules matches the incoming URL, it will be opened in this program.
+         If no rule matches the incoming URL, it will be opened using this program.
       </p>
 
       <p><strong>Fallback Arguments</strong><br>
-        Arguments used when launching fallback browser. It is recommended to quote resulting URL with doublequotes. For example: <code>--private-window "{URL}"</code>
+         Arguments passed to the fallback browser.<br>
+         Recommendation: wrap the URL in quotes, e.g. <code>--private-window "{URL}"</code>
       </p>
 
       <p><strong>Interactive Mode</strong><br>
-        When turned on, and no matching rule is found, launch rule creation dialog instead of opening URL in fallback browser. Regex and test url fields are auto-filled in this case. Press <code>Open in browser</code> button or <code>Ctrl+O</code> if want to skip rule creation and use fallback browser.
+         When enabled and no rule matches, instead of opening URL in fallback browser:<br>
+         • the rule creation dialog opens automatically<br>
+         • regex and test URL fields are pre-filled<br>
+         • you can press <code>Open in browser</code> or <code>Ctrl+O</code> to skip rule creation and use the fallback browser
       </p>
 
-      <p><strong>Default config editor</strong><br>
-        Program to edit config when <code>linkrouter.exe</code> is double-clicked. It is usually not needed since you are using LinkRouter GUI config editor.
+      <p><strong>Default Config Editor</strong><br>
+         Program used to open the config file when <code>linkrouter.exe</code> is double-clicked.<br>
+         Usually not needed — you're already using this graphical config editor.
       </p>
 
-      <p><strong>Log path</strong><br>
-        Path to a logfile (relative or absolute) to log linkrouter's URL handling process. Please attach those when submitting issues on github.
+      <p><strong>Log Path</strong><br>
+         Path to the log file (relative or absolute).<br>
+         LinkRouter logs all URL handling actions here.<br>
+         Please attach this file when reporting issues on GitHub.
       </p>
 
       <p><strong>Supported Protocols</strong><br>
-         Comma-separated list of protocols LinkRouter should handle.<br>
-         Example: <code>http, https, ssh, mailto</code>
+         Comma-separated list of protocols LinkRouter should register/handle.<br>
+         Example: <code>http, https, ssh, mailto, magnet</code>
       </p>
+
       <hr>
       <h2>Register / Unregister</h2>
       <p>
-        These buttons register/unregister LinkRouter as the default handler for the listed protocols in OS. <code>Register</code> button also shows windows settings to select LinkRouter as the default app. Usually there is no need to use these. Everything is handled automtically when pressing <code>Save</code> button.
+        These buttons register or unregister LinkRouter as the default handler for the listed protocols in the operating system.<br>
+        The <strong>Register</strong> button also opens Windows settings so you can confirm/select LinkRouter as the default app for those protocols.<br>
+        <strong>In most cases you don't need to use these buttons manually</strong> — pressing <strong>Save</strong> usually handles everything automatically.
       </p>
     `
   }
@@ -1591,43 +1669,62 @@ const helpContent = computed(() => {
   // Default: main screen
   return `
     <h2>LinkRouter Config Editor</h2>
-    <a href="https://github.com/kolbasky/LinkRouter">Github repo</a>
-    <p>LinkRouter is a lightweight Windows app that routes links to specific applications based on regex rules.<br>
-    For user convenience we developed this GUI config editor which can create/edit/search rules, validate regex syntax and indicate regex-matching on the fly AND it includes interactive mode - when no matching rule is found it opens a rule-creation dialog with the regex and test URL pre-filled.<br>
-    Double click rule to edit, or use right-click context menu for more options.<br>
-    Rules are processed in order, processing stops on first match.<br>
-    Search field searches in <code>program</code>, <code>arguments</code> and <code>regex</code> fields, and also checks search string against regexes, so you can easily find a matching rule by entering URL there.<br> 
-    All actions are saved automatically. Use <code>undo</code>/<code>redo</code> buttons or <code>Ctrl+Z</code>/<code>Ctrl+Y</code> to revert changes.<br>
-    Config is stored in JSON format and may also be edited in any text editor. Path to config is displayd in the bottom of current window. Clicking on it reveals config in explorer.</p>
+    <p>
+      <a href="https://github.com/kolbasky/LinkRouter">GitHub repository</a>
+    </p>
+    <p>
+      LinkRouter is a lightweight Windows application that routes URLs/links to specific programs according to regex-based rules.<br>
+      This GUI editor helps you create, edit, search and validate rules, test regex matching in real time, and supports an interactive mode — when no rule matches, it automatically opens a dialog with suggested regex and the clicked URL pre-filled.
+    </p>
+    <p>
+      • Double-click a rule (or press Enter) to edit it<br>
+      • Right-click for additional options (copy, paste, duplicate, delete…)<br>
+      • Rules are evaluated from top to bottom — processing stops at the first match
+    </p>
+    <p>
+      The search field looks inside <code>regex</code>, <code>program</code> and <code>arguments</code> fields.<br>
+      It also tests the search string against each regex — so you can quickly find which rule would match a particular URL.
+    </p>
+    <p>
+      All changes are saved automatically.<br>
+      Use the <strong>undo</strong>/<strong>redo</strong> buttons or <code>Ctrl+Z</code> / <code>Ctrl+Y</code> to revert actions.
+    </p>
+    <p>
+      The configuration is stored in JSON format and can also be edited manually in any text editor.<br>
+      The current config path is shown at the bottom of the window — click it to open the file in Explorer.
+    </p>
 
     <hr>
     <h2>Buttons</h2>
-      <ul>
-        <li><code>➕&#65038</code> → Create new rule (<code>Ctrl+N</code>)</li>
-        <li><code>↶</code> → Undo (<code>Ctrl+Z</code>)</li>
-        <li><code>↷</code> → Redo (<code>Ctrl+Y</code>)</li>
-        <li><code>🔄&#65038</code> → Reload config (<code>Ctrl+R</code>) or <code>F5</code></li>
-        <li><code>📂︎&#65038</code> → Open config file (<code>Ctrl+O</code>)</li>
-        <li><code>💾&#65038</code> → Save config as… (<code>Ctrl+S</code>)</li>
-        <li><code>⛭&#65038</code> → Global settings (<code>Ctrl+G</code>)</li>
-      </ul>
-
-    <h2>Keyboard shortcuts in main window</h2>
     <ul>
-        <li><code>Ctrl+N</code> → create new rule</li>
-        <li><code>Ctrl+C</code>/<code>Ctrl+V</code> → copy/paste rule</li>
-        <li><code>Ctrl+D</code> → duplicate rule</li>
-        <li><code>Ctrl+Z</code>/<code>Ctrl+Y</code> → undo/redo</li>
-        <li><code>Ctrl+F</code>,<code>Ctrl+L</code>,<code>/</code> → focus search field</li>
-        <li><code>Ctrl+S</code> → save config</li>
-        <li><code>Ctrl+R</code>/<code>F5</code> → reload config</li>
-        <li><code>Ctrl+O</code> → open "Load config" file-picker</li>
-        <li><code>Ctrl+G</code> → open Global Settings</li>
-        <li><code>ARROWS</code> → navigate rules</li>
-        <li><code>ENTER</code> → edit selected rule</li>
-        <li><code>DELETE</code>/<code>Backspace</code> → delete selected rule</li>
+      <li><code>➕︎&#65038</code> — Create new rule (<code>Ctrl+N</code>)</li>
+      <li><code>↶︎&#65038</code> — Undo last change (<code>Ctrl+Z</code>)</li>
+      <li><code>↷︎&#65038</code> — Redo (<code>Ctrl+Y</code>)</li>
+      <li><code>🔄︎&#65038</code> — Reload config from disk (<code>Ctrl+R</code> or <code>F5</code>)</li>
+      <li><code>📂︎&#65038</code> — Open / load different config file (<code>Ctrl+O</code>)</li>
+      <li><code>💾︎&#65038</code> — Save config as… (<code>Ctrl+S</code>)</li>
+      <li><code>⛭︎&#65038</code> — Global settings (<code>Ctrl+G</code>)</li>
     </ul>
-    There are also dialog-specific keyboard shortcuts - see help for a particular dialog.
+
+    <h2>Keyboard shortcuts – main window</h2>
+    <ul>
+      <li><code>Ctrl+N</code> — create new rule</li>
+      <li><code>Ctrl+C</code> / <code>Ctrl+V</code> — copy / paste selected rule</li>
+      <li><code>Ctrl+D</code> — duplicate selected rule</li>
+      <li><code>Ctrl+Z</code> / <code>Ctrl+Y</code> — undo / redo</li>
+      <li><code>Ctrl+F</code>, <code>Ctrl+L</code>, <code>/</code> — focus search field</li>
+      <li><code>Ctrl+S</code> — save current config</li>
+      <li><code>Ctrl+R</code> / <code>F5</code> — reload config</li>
+      <li><code>Ctrl+O</code> — open "Load config" dialog</li>
+      <li><code>Ctrl+G</code> — open Global Settings</li>
+      <li><code>↑</code> / <code>↓</code> — navigate between rules</li>
+      <li><code>Enter</code> — edit selected rule</li>
+      <li><code>Delete</code> / <code>Backspace</code> — delete selected rule</li>
+    </ul>
+
+    <p>
+      Each modal dialog has its own additional shortcuts — see the help text inside that dialog.
+    </p>
   `
 })
 

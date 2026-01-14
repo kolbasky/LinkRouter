@@ -509,6 +509,7 @@ a:hover {
   align-items: center;
   justify-content: center;
   z-index: 5000;
+  backdrop-filter: blur(4px);
 }
 
 .modal {
@@ -524,6 +525,7 @@ a:hover {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .modal h2 {
@@ -842,12 +844,12 @@ tr:last-child td[colspan] {
 .help-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.55);
   z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(4px);     /* nice modern touch if supported */
+  backdrop-filter: blur(4px);
 }
 
 .help-content {
@@ -884,7 +886,7 @@ tr:last-child td[colspan] {
 }
 
 .close-help {
-  position: fixed;
+  position: absolute;
   top: 1rem;
   right: 1.2rem;
   background: none;
@@ -895,6 +897,7 @@ tr:last-child td[colspan] {
   padding: 0.4rem 0.8rem;
   border-radius: 8px;
   transition: color 0.2s ease;
+  z-index: 1000;
 }
 
 .close-help:hover {
@@ -944,4 +947,54 @@ tr:last-child td[colspan] {
   color: var(--color-text-muted);
   border-top: 1px solid var(--color-border);
   padding-top: 1.2rem;
+}
+
+.help-btn-main {
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: var(--color-text-disabled);
+  box-shadow: none;
+  width: 48px;
+  height: 48px;
+  font-size: 24px;
+  font-weight: 300;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  right: 0px;
+  transition: color 0.2s ease;
+  opacity: 0.3;
+}
+
+.help-btn-main:hover {
+  color: var(--color-text-secondary);
+  transition: color 0.2s ease;
+  opacity: 1;
+}
+
+.help-btn-modal {
+  background: none;
+  border: none;
+  color: var(--color-text-disabled);
+  font-size: 0.8em;
+  font-weight: 600;
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: -4px;
+  opacity: 0.5;
+}
+
+.help-btn-modal:hover {
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+  text-decoration: dotted underline;
+  scale: 1.1;
+  opacity: 1;
 }
