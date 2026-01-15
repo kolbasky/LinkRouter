@@ -703,7 +703,7 @@ input[type="checkbox"] {
 }
 
 .browser-btn {
-  margin-top: 6px;
+  padding-top: 6px;
 }
 
 .reg-btn.warning {
@@ -1019,6 +1019,8 @@ tr:last-child td[colspan] {
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
+  position: relative;
+  display: inline-block;
 }
 
 .browser-btn-icon {
@@ -1027,4 +1029,35 @@ tr:last-child td[colspan] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+
+.browser-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  filter: invert(100%);
+  vertical-align: middle;
+  transform: translateY(3px);
+}
+
+
+.hotkey-hint {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  z-index: 2;
 }

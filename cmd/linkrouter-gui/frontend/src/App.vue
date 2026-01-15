@@ -231,7 +231,19 @@
                   @click="openTestUrlInBrowser(prog.program, prog.arguments)"
                   :title="`Open in ${prog.name} (Ctrl+${index + 1})`"
                 >
-                  <span class="browser-btn-icon">{{ getIcon(prog.arguments) }}&#65038</span>&nbsp;&nbsp;{{ index + 1 }}.&nbsp;{{ prog.name }}
+                  <span class="browser-btn-icon">
+                    <img 
+                      :src="`src/assets/icons/${getIcon(prog.program, prog.arguments)}.svg`" 
+                      alt=""
+                      class="browser-icon"
+                    /></span>
+                    &nbsp;{{ prog.name }}
+                    <span 
+                      v-if="isCtrlPressed" 
+                      class="hotkey-hint"
+                    >
+                      {{ index + 1 }}
+                    </span>
                 </button>
               </div>
             </div>
@@ -568,6 +580,10 @@ setTimeout(() => {
     // Priority 2: Enter in modals (confirm / default action)
     // ─────────────────────────────────────────────────────────────
 
+    if (e.key === 'Control' || e.key === 'Meta') {
+      isCtrlPressed.value = true;
+    }
+
     if (e.key === 'Enter' && !isCtrl) {
       if (showAlert.value) {
         e.preventDefault()
@@ -672,7 +688,13 @@ setTimeout(() => {
   });
 }, 100);
 
-
+setTimeout(() => {
+  window.addEventListener('keyup',  (e) => {
+    if (e.key === 'Control' || e.key === 'Meta') {
+      isCtrlPressed.value = false;
+    }
+  });
+}, 100);
 
 // Reactive state
 const canUndo = ref(false);
@@ -681,6 +703,7 @@ const config = ref({});
 const configPath = ref('');
 const copiedIndex = ref(-1)
 const copiedField = ref(null)
+const isCtrlPressed = ref(false);
 const search = ref('');
 const rulesContainer = ref(null);
 const searchInput = ref(null);
@@ -1158,12 +1181,23 @@ const getProgramName = (programPath) => {
   return filename.replace(/\.[^/.]+$/, ''); // Remove extension
 };
 
-const getIcon = (args) => {
-  if (!args) return '🌐︎';
-  const lower = args.toLowerCase();
-  return (lower.includes('--incognito') || lower.includes('-private-window')) 
-    ? '👓' // 🥷 👓 🕶️ 👤 👻 🎭 🤿
-    : '🌐︎';
+const getIcon = (programPath, args) => {
+  const pathLower = (programPath || '').toLowerCase();
+  const argsLower = (args || '').toLowerCase();
+  
+  if (argsLower.includes('--incognito') || argsLower.includes('-private-window')) {
+    return 'incognito';
+  }
+  
+  if (pathLower.includes('chrome')) return 'chrome';
+  if (pathLower.includes('firefox')) return 'firefox';
+  if (pathLower.includes('brave')) return 'brave';
+  if (pathLower.includes('edge')) return 'edge';
+  if (pathLower.includes('opera')) return 'opera';
+  if (pathLower.includes('vivaldi')) return 'vivaldi';
+  if (pathLower.includes('yandex')) return 'yandex';
+  
+  return 'generic';
 };
 
 const openTestUrlInBrowser = async (path = config.value.global.fallbackBrowserPath, args = "{URL}") => {
