@@ -233,7 +233,7 @@
                 >
                   <span class="browser-btn-icon">
                     <img 
-                      :src="`src/assets/icons/${getIcon(prog.program, prog.arguments)}.svg`" 
+                      :src="getIconUrl(getIcon(prog.program, prog.arguments))" 
                       alt=""
                       class="browser-icon"
                     /></span>
@@ -413,6 +413,7 @@
 
 <script setup>
 // import { Fzf } from 'fzf'
+import { getIconUrl } from './icons.js';
 import { WindowMinimise, WindowToggleMaximise, Quit, WindowUnminimise, BrowserOpenURL } from '../wailsjs/runtime/runtime';
 import { ref, computed, nextTick } from 'vue';
 import {
