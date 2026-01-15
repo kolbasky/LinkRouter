@@ -784,6 +784,7 @@ input[type="checkbox"] {
 
 .context-item:disabled {
   color: var(--color-border);
+  cursor: default;
 }
 
 /* Alert modals */
