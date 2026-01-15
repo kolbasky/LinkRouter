@@ -340,12 +340,12 @@
       :style="{ top: contextMenu.y + 'px', left: contextMenu.x + 'px' }"
       @click.stop
     >
-      <button class="context-item" @click="openAddRuleModal">➕︎&nbsp&nbspAdd</button><br>
-      <button class="context-item" @click="handleContextAction('edit')">✎&nbsp&nbspEdit</button><br>
-      <button class="context-item" @click="handleContextAction('copy')">⧉&nbsp&nbspCopy</button><br>
-      <button class="context-item" :disabled="!clipboardRule" @click="handleContextAction('paste')">📋︎&nbsp&nbspPaste</button><br>
-      <button class="context-item" @click="handleContextAction('duplicate')">⮻&nbsp&nbspDuplicate</button><br>
-      <button class="context-item" @click="handleContextAction('delete')">❌︎&nbsp&nbspDelete</button><br>
+      <button class="context-item" @click="openAddRuleModal">➕︎&nbsp&nbspAdd<br></button>
+      <button class="context-item" @click="handleContextAction('edit')">✎&nbsp&nbspEdit<br></button>
+      <button class="context-item" @click="handleContextAction('copy')">⧉&nbsp&nbspCopy<br></button>
+      <button class="context-item" :disabled="!clipboardRule" @click="handleContextAction('paste')">📋︎&nbsp&nbspPaste<br></button>
+      <button class="context-item" @click="handleContextAction('duplicate')">⮻&nbsp&nbspDuplicate<br></button>
+      <button class="context-item" @click="handleContextAction('delete')">❌︎&nbsp&nbspDelete<br></button>
     </div>
 
     <!-- Context Menu Backdrop -->

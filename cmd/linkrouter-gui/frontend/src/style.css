@@ -783,8 +783,9 @@ input[type="checkbox"] {
 }
 
 .context-item:disabled {
-  color: var(--color-border);
-  cursor: default;
+  /* color: var(--color-border);
+  cursor: default; */
+  display: none;
 }
 
 /* Alert modals */
