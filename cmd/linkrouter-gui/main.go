@@ -18,20 +18,36 @@ var InteractiveURL = flag.String("url", "", "URL to prefill")
 
 func main() {
 	flag.Parse()
-	// *InteractiveMode = true
-	// *InteractiveURL = "https://music.yandex.ru/album/123456/track/7890"
+	*InteractiveMode = true
+	*InteractiveURL = "https://music.yandex.ru/album/123456/track/7890"
 
 	// Create an instance of the app structure
 	app := NewApp()
 
+	var title = "Linkrouter"
+	var frameless = false
+	var width = 1024
+	var height = 768
+	var minWidth = 512
+	var minHeight = 384
+
+	// in interactive mode make window smaller and frameless
+	if *InteractiveMode && *InteractiveURL != "" {
+		frameless = true
+		width = 600
+		height = 650
+		minWidth = 600
+		minHeight = 650
+	}
+
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:     "LinkRouter Config Editor",
-		Width:     1024,
-		Height:    768,
-		MinWidth:  512,
-		MinHeight: 384,
-		Frameless: false,
+		Title:     title,
+		Width:     width,
+		Height:    height,
+		MinWidth:  minWidth,
+		MinHeight: minHeight,
+		Frameless: frameless,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

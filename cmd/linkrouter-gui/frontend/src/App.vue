@@ -163,7 +163,7 @@
     <!-- Edit Rule Modal -->
     <div v-if="showEditModal" class="modal-overlay"> <!--  @mousedown.self="closeEditModal" -->
       <div class="modal" @click.stop>
-        <h2>Edit Rule
+        <h2 style="--wails-draggable:drag">Edit Rule
           <sup><button class="help-btn-modal" @click="showHelp" title="Show Help (F1)">❓&#65038</button></sup>
         </h2>
         <div class="modal-form-content">
@@ -315,7 +315,7 @@
           v-model="protocolsInput"
           class="modal-input"
           placeholder="http, https, ssh, mailto"
-          @input="protocolsInput = protocolsInput.replace(/[^a-zA-Z0-9+.,\s-]/g, '')"
+          @input="protocolsInput = protocolsInput.replace(/[^a-zA-Z0-9+.,\s-]|,\s*,|\s{2,}/g, ' ')"
           />
         </div>
 
