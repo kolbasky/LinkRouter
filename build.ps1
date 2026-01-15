@@ -25,7 +25,7 @@ function Set-FileContent($Path, $Content) {
     [System.IO.File]::WriteAllText($Path, $Content, $utf8NoBom)
 }
 
-cd "${env:UserProfile}\git\link-router\"
+cd "${env:UserProfile}\git\LinkRouter\"
 
 # 1. cmd\linkrouter\main.go
 $mainGoPath = "cmd\linkrouter\main.go"
@@ -78,9 +78,9 @@ Write-Host "Version updated successfully!" -ForegroundColor Green
 # Build everything
 go generate .\cmd\linkrouter\
 go build -ldflags="-H windowsgui -s -w -buildid=" -trimpath -o bin\ .\cmd\linkrouter\
-& "${env:ProgramFiles}\7-Zip\7z.exe" a -tzip "${env:UserProfile}\git\link-router\bin\linkrouter-extension.zip" "${env:UserProfile}\git\link-router\extension\*"
+& "${env:ProgramFiles}\7-Zip\7z.exe" a -tzip "${env:UserProfile}\git\LinkRouter\bin\linkrouter-extension.zip" "${env:UserProfile}\git\LinkRouter\extension\*"
 if ($LASTEXITCODE -eq 0) { 
-    Copy-Item "${env:UserProfile}\git\link-router\bin\linkrouter-extension.zip" "${env:UserProfile}\git\link-router\bin\linkrouter-extension.xpi" 
+    Copy-Item "${env:UserProfile}\git\LinkRouter\bin\linkrouter-extension.zip" "${env:UserProfile}\git\LinkRouter\bin\linkrouter-extension.xpi" 
 }
 go generate .\cmd\linkrouter-gui\
 cd .\cmd\linkrouter-gui\
@@ -90,7 +90,7 @@ cp cmd\linkrouter-gui\build\bin\linkrouter-gui.exe bin\
 cd .\cmd\linkrouter-gui\
 
 Write-Host "Building Inno Setup installer..." -ForegroundColor Yellow
-Start-Process -FilePath "${env:ProgramFiles(x86)}\Inno Setup 6\Compil32.exe" -ArgumentList "/cc", "${env:UserProfile}\git\link-router\installer.iss" -Wait -NoNewWindow
+Start-Process -FilePath "${env:ProgramFiles(x86)}\Inno Setup 6\Compil32.exe" -ArgumentList "/cc", "${env:UserProfile}\git\LinkRouter\installer.iss" -Wait -NoNewWindow
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "Release $Version built successfully!" -ForegroundColor Green
