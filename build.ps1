@@ -3,6 +3,7 @@ param(
     [string]$Version
 )
 
+# Stop on error
 $ErrorActionPreference = "Stop"
 
 # Validate version format (x.y.z)
@@ -75,13 +76,36 @@ Set-FileContent $versionInfoPath2 $content
 
 Write-Host "Version updated successfully!" -ForegroundColor Green
 
-# Build everything
+# Build linkrouter.exe
+Write-Host "Building linkrouter.exe!" -ForegroundColor Green
 go generate .\cmd\linkrouter\
 go build -ldflags="-H windowsgui -s -w -buildid=" -trimpath -o bin\ .\cmd\linkrouter\
+
+# Pack extension
+Write-Host "Building extension packages..." -ForegroundColor Yellow
+$manifestPath = "${env:UserProfile}\git\LinkRouter\extension\manifest.json"
+$originalManifest = Get-Content $manifestPath -Raw
+
+# Create Chromium V3 manifest (remove scripts array)
+$chromiumManifest = $originalManifest -replace '.*"scripts":\s*\["background\.js"\].*\r?\n?', ''
+$chromiumManifest = $chromiumManifest -replace '(.*service_worker":\s*"background\.js").*', '$1'
+Set-FileContent $manifestPath $chromiumManifest
+
+# Package for Chromium (.zip)
 & "${env:ProgramFiles}\7-Zip\7z.exe" a -tzip "${env:UserProfile}\git\LinkRouter\bin\linkrouter-extension.zip" "${env:UserProfile}\git\LinkRouter\extension\*"
-if ($LASTEXITCODE -eq 0) { 
-    Copy-Item "${env:UserProfile}\git\LinkRouter\bin\linkrouter-extension.zip" "${env:UserProfile}\git\LinkRouter\bin\linkrouter-extension.xpi" 
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "Chromium extension (.zip) created successfully" -ForegroundColor Green
 }
+
+# Restore original V2 manifest for Firefox
+Set-FileContent $manifestPath $originalManifest
+
+# Package for Firefox (.xpi) - uses original manifest with scripts array
+& "${env:ProgramFiles}\7-Zip\7z.exe" a -tzip "${env:UserProfile}\git\LinkRouter\bin\linkrouter-extension.xpi" "${env:UserProfile}\git\LinkRouter\extension\*"
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "Firefox extension (.xpi) created successfully" -ForegroundColor Green
+}
+
 go generate .\cmd\linkrouter-gui\
 cd .\cmd\linkrouter-gui\
 Wails build
