@@ -5,24 +5,24 @@
   align-items: center;
   width: 100vw;
   height: 100vh;
-  background: rgba(27, 38, 54, 0.9);
+  background: rgba(27, 38, 54, 0.95);
   --wails-draggable: drag;
-  backdrop-filter: blur(2px);
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box;
 }
 
 .interactive-dialog {
   padding: 24px;
   border-radius: 16px;
   background: transparent !important;
-  min-width: 320px;
-  max-width: 600px;
-  width: 90vw;
+  width: 100vw;
 }
 
 /* Grid layout - 3 columns on desktop, responsive */
 .interactive-buttons-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 12px;
   margin-bottom: 20px;
 }

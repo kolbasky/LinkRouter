@@ -32,16 +32,16 @@ func main() {
 	var minWidth = 512
 	var minHeight = 384
 	var resizeable = true
-	var alpha = 128
+	var alpha = 255
 
 	// in interactive mode make window smaller and frameless
 	if *InteractiveMode && *InteractiveURL != "" {
 		frameless = true
-		width = 600
-		height = 650
+		width = 500
+		height = 100
 		minWidth = 100
 		minHeight = 100
-		resizeable = true
+		resizeable = false
 		alpha = 0
 	}
 

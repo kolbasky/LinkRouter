@@ -437,7 +437,7 @@
       </button>
     </div>
     
-    <button class="create-rule-btn" @click="launchRuleCreation">
+    <button class="create-rule-btn" @click="launchRuleCreation" title="Create new rule for current URL (Ctrl+N)">
       ➕︎ New rule
     </button>
   </div>
@@ -481,8 +481,19 @@ window.addEventListener('focus', () => {
   lastFocus = Date.now();
   if (launchedInInteractiveMode.value && launchedInInteractiveModeURL.value) {
     nextTick(() => {
-      setTimeout(resizeToDialog('.dialog'), 100);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          resizeToDialog('.interactive-dialog');
+        });
+      });
     })
+    nextTick(() => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          runtime.WindowCenter()
+        });
+      });
+    });
   }
 });
 
@@ -521,10 +532,23 @@ Promise.all([
       updateTestResult()
       nextTick(() => {
         regexInput.value?.focus()
-        requestAnimationFrame(() => {
-          resizeToDialog('.interactive-dialog');
+        requestAnimationFrame(() => { // this is sick but its official
+          requestAnimationFrame(() => {
+            // setTimeout(() => {
+                resizeToDialog('.interactive-dialog');
+            // }, 200);
+          });
         });
       })
+      nextTick(() => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            // setTimeout(() => {
+              runtime.WindowCenter();
+            // }, 50);
+          });
+        });
+      });
     }
 
     const show = await ShowCreateRule()
@@ -581,7 +605,7 @@ const guessRegex = (url) => {
 
 const getDialogSize = (d) => {
   const dialog = document.querySelector(d);
-  if (!dialog) return { width: 600, height: 400 };
+  if (!dialog) return { width: 100, height: 100 };
   
   const rect = dialog.getBoundingClientRect();
   // Add some padding for borders/shadow
@@ -594,11 +618,11 @@ const getDialogSize = (d) => {
 const resizeToDialog = (d) => {
   const { width, height } = getDialogSize(d);
   // Ensure minimum sizes
-  const finalWidth = Math.max(width, 400);
-  const finalHeight = Math.max(height, 300);
+  const finalWidth = Math.max(width, 100);
+  const finalHeight = Math.max(height, 100);
   
   runtime.WindowSetSize(finalWidth, finalHeight);
-};
+};  
 
 const launchRuleCreation = async () => {
   runtime.LogInfo(launchedInInteractiveMode.value + " " + launchedInInteractiveModeURL.value)
