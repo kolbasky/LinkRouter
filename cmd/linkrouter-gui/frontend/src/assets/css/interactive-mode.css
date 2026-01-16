@@ -1,0 +1,118 @@
+.interactive-mode {
+  display: flex;
+  border-radius: 16px;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(27, 38, 54, 0.9);
+  --wails-draggable: drag;
+  backdrop-filter: blur(2px);
+}
+
+.interactive-dialog {
+  padding: 24px;
+  border-radius: 16px;
+  background: transparent !important;
+  min-width: 320px;
+  max-width: 600px;
+  width: 90vw;
+}
+
+/* Grid layout - 3 columns on desktop, responsive */
+.interactive-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* Button styling */
+.browser-btn {
+  padding: 12px 16px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  border-radius: 8px;
+  color: var(--color-text-primary);
+  text-align: center;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.browser-btn:hover {
+  background: rgba(51, 65, 85, 0.8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.browser-btn-icon {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.browser-icon {
+  width: 24px;
+  height: 24px;
+  filter: invert(100%) brightness(1.1);
+}
+
+.hotkey-hint {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+}
+
+/* Create rule button */
+.create-rule-btn {
+  width: 100%;
+  padding: 12px;
+  background: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  border-radius: 8px;
+  color: #93c5fd;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.create-rule-btn:hover {
+  background: rgba(59, 130, 246, 0.3);
+  transform: translateY(-1px);
+}
+
+.hotkey-hint {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 1.0rem;
+  font-weight: bold;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+}

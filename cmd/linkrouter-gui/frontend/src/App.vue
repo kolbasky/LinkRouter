@@ -1,5 +1,5 @@
 <template>
-  <div class="app" spellcheck="false">
+  <div v-if='!launchedInInteractiveMode' class="app" spellcheck="false">
     <!-- Title Bar -->
     <!--WWW <div class="title-bar" @dblclick="maximizeWindow">
       <div class="title">LinkRouter Config Editor</div>
@@ -327,7 +327,7 @@
           v-model="protocolsInput"
           class="modal-input"
           placeholder="http, https, ssh, mailto"
-          @input="protocolsInput = protocolsInput.replace(/[^a-zA-Z0-9+.,\s-]|,\s*,|\s{2,}/g, ' ')"
+          @input="protocolsInput = sanitizeProtocols(protocolsInput)"
           />
         </div>
 
@@ -409,12 +409,46 @@
     </div>
   </div>
 
+<!-- Interactive Mode UI -->
+<div v-if="launchedInInteractiveMode" class="interactive-mode">
+  <div class="interactive-dialog">
+    <div class="interactive-buttons-grid">
+      <button
+        v-for="(prog, index) in interactivePrograms"
+        :key="index"
+        class="browser-btn"
+        @click="openTestUrlInBrowser(prog.program, prog.arguments)"
+        :title="`Open in ${prog.name} (Ctrl+${index + 1})`"
+      >
+        <span class="browser-btn-icon">
+          <img 
+            :src="getIconUrl(getIcon(prog.program, prog.arguments))" 
+            alt=""
+            class="browser-icon"
+          />
+        </span>
+        &nbsp;{{ prog.name }}
+        <span 
+          v-if="isCtrlPressed" 
+          class="hotkey-hint"
+        >
+          {{ index + 1 }}
+        </span>
+      </button>
+    </div>
+    
+    <button class="create-rule-btn" @click="launchRuleCreation">
+      ➕︎ New rule
+    </button>
+  </div>
+</div>
+
 </template>
 
 <script setup>
 // import { Fzf } from 'fzf'
 import { getIconUrl } from './icons.js';
-import { WindowMinimise, WindowToggleMaximise, Quit, WindowUnminimise, BrowserOpenURL } from '../wailsjs/runtime/runtime';
+import { WindowMinimise, WindowToggleMaximise, Quit, WindowUnminimise, BrowserOpenURL, LogInfo } from '../wailsjs/runtime/runtime';
 import { ref, computed, nextTick } from 'vue';
 import {
   GetInteractiveMode,
@@ -431,8 +465,12 @@ import {
   RegisterLinkRouter,
   UnregisterLinkRouter,
   OpenInFallbackBrowser,
-  TestRule
+  TestRule,
+  ShowCreateRule,
+  SpawnNewInstance
 } from '../wailsjs/go/main/App';
+
+let interactiveCSSLoaded = false;
 
 // reload config on focus, but with 3sec debounce
 let lastFocus = Date.now();
@@ -441,6 +479,11 @@ window.addEventListener('focus', () => {
     reloadConfig(true);
   }
   lastFocus = Date.now();
+  if (launchedInInteractiveMode.value && launchedInInteractiveModeURL.value) {
+    nextTick(() => {
+      setTimeout(resizeToDialog('.dialog'), 100);
+    })
+  }
 });
 
 Promise.all([
@@ -458,10 +501,34 @@ Promise.all([
       searchInput.value?.focus()
     });
 
-
     const mode = await GetInteractiveMode()
     launchedInInteractiveMode.value = mode.enabled === "true";
+    launchedInInteractiveModeURL.value = mode.url
     if (mode.enabled === "true" && mode.url) {
+      if (!interactiveCSSLoaded) {
+        import('./assets/css/interactive-mode.css');
+      interactiveCSSLoaded = true;
+      }
+      testUrl.value = mode.url
+      editingRule.value = {
+        regex: guessRegex(mode.url),
+        program: '',
+        arguments: '"{URL}"',
+        interactive: false
+      }
+      originalRule.value = null
+      editingRule.value.regex
+      updateTestResult()
+      nextTick(() => {
+        regexInput.value?.focus()
+        requestAnimationFrame(() => {
+          resizeToDialog('.interactive-dialog');
+        });
+      })
+    }
+
+    const show = await ShowCreateRule()
+    if (show) {
       testUrl.value = mode.url
       editingRule.value = {
         regex: guessRegex(mode.url),
@@ -477,6 +544,8 @@ Promise.all([
         regexInput.value?.focus()
       })
     }
+
+
 
     // Dirty hack to focus the app
     runtime.WindowMinimise()
@@ -509,6 +578,33 @@ const guessRegex = (url) => {
     return '.*'
   }
 }
+
+const getDialogSize = (d) => {
+  const dialog = document.querySelector(d);
+  if (!dialog) return { width: 600, height: 400 };
+  
+  const rect = dialog.getBoundingClientRect();
+  // Add some padding for borders/shadow
+  return {
+    width: Math.ceil(rect.width),
+    height: Math.ceil(rect.height)
+  };
+};
+
+const resizeToDialog = (d) => {
+  const { width, height } = getDialogSize(d);
+  // Ensure minimum sizes
+  const finalWidth = Math.max(width, 400);
+  const finalHeight = Math.max(height, 300);
+  
+  runtime.WindowSetSize(finalWidth, finalHeight);
+};
+
+const launchRuleCreation = async () => {
+  runtime.LogInfo(launchedInInteractiveMode.value + " " + launchedInInteractiveModeURL.value)
+  await SpawnNewInstance(['--create-rule', '--url', launchedInInteractiveModeURL.value]);
+  await runtime.Quit();
+};
 
 // Keyboard Hotkeys
 const isAnyModalOpen = computed(() => {
@@ -549,12 +645,13 @@ setTimeout(() => {
     if (e.key === 'Escape') {
       e.preventDefault()
 
-      if (showHelpOverlay.value)    { showHelpOverlay.value = false; restoreFocus(); return }
-      if (showAlert.value)          { showAlert.value = false; restoreFocus(); return }
-      if (showConfirm.value)        { showConfirm.value = false; restoreFocus(); return }
-      if (showEditModal.value)      { closeEditModal(); restoreFocus(); return }
-      if (showSettingsModal.value)  { closeSettingsModal(); restoreFocus(); return }
-      if (contextMenu.value.visible){ closeContextMenu(); restoreFocus(); return }
+      if (showHelpOverlay.value)            { showHelpOverlay.value = false; restoreFocus(); return }
+      if (showAlert.value)                  { showAlert.value = false; restoreFocus(); return }
+      if (showConfirm.value)                { showConfirm.value = false; restoreFocus(); return }
+      if (showEditModal.value)              { closeEditModal(); restoreFocus(); return }
+      if (showSettingsModal.value)          { closeSettingsModal(); restoreFocus(); return }
+      if (contextMenu.value.visible)        { closeContextMenu(); restoreFocus(); return }
+      if (launchedInInteractiveMode.value)  { Quit() }
 
       if (document.activeElement !== searchInput.value) {
         searchInput.value?.focus()
@@ -651,6 +748,10 @@ setTimeout(() => {
     if (!isAnyModalOpen.value) {
       if (isCtrl && e.code === 'KeyN') {
         e.preventDefault()
+        if (launchedInInteractiveMode.value) {
+          launchRuleCreation()
+          return
+        }
         openAddRuleModal()
         return
       }
@@ -710,6 +811,7 @@ const rulesContainer = ref(null);
 const searchInput = ref(null);
 const fallbackBrowserInput = ref(null);
 const launchedInInteractiveMode = ref(false);
+const launchedInInteractiveModeURL = ref('');
 const lastFocusedElement = ref(null);
 
 const alertMessage = ref('');
@@ -1308,7 +1410,7 @@ const openSettingsModal = () => {
     supportedProtocols: [...(config.value.global?.supportedProtocols || [])]
   };
   originalGlobal.value = config.value.global;
-  protocolsInput.value = editingGlobal.value.supportedProtocols.join(', ');
+  protocolsInput.value = editingGlobal.value.supportedProtocols.join(',');
   showSettingsModal.value = true;
   nextTick(() => {
     fallbackBrowserInput.value?.focus()
@@ -1359,6 +1461,13 @@ const saveGlobalSettings = async () => {
     saveConfig();
     saveToUndo();
 };
+
+const sanitizeProtocols = (p) => {
+  p = p.replace(/[^a-zA-Z0-9+.,-]/g, '')
+  p = p.replace(/,+/g,',')
+  p = p.replace(/(^|,)[^a-zA-Z]/g,'$1')
+  return p
+}
 
 const registerApp = async () => {
     saveGlobalSettings()

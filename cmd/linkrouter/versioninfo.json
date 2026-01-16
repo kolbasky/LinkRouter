@@ -2,13 +2,13 @@
     "FixedFileInfo": {
         "FileVersion": {
             "Major": 2,
-            "Minor": 6,
+            "Minor": 7,
             "Patch": 0,
             "Build": 0
         },
         "ProductVersion": {
             "Major": 2,
-            "Minor": 6,
+            "Minor": 7,
             "Patch": 0,
             "Build": 0
         },
@@ -22,14 +22,14 @@
         "Comments": "",
         "CompanyName": "",
         "FileDescription": "LinkRouter",
-        "FileVersion": "2.6.0.0",
+        "FileVersion": "2.7.0.0",
         "InternalName": "",
         "LegalCopyright": "https://github.com/kolbasky/LinkRouter",
         "LegalTrademarks": "",
         "OriginalFilename": "linkrouter.exe",
         "PrivateBuild": "",
         "ProductName": "LinkRouter",
-        "ProductVersion": "v2.6.0",
+        "ProductVersion": "v2.7.0",
         "SpecialBuild": ""
     },
     "VarFileInfo": {

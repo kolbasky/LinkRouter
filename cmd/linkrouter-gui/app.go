@@ -35,8 +35,30 @@ func (a *App) GetInteractiveMode() map[string]string {
 			"enabled": "true",
 			"url":     *InteractiveURL,
 		}
+	} else if !*InteractiveMode && *InteractiveURL != "" {
+		return map[string]string{
+			"enabled": "false",
+			"url":     *InteractiveURL,
+		}
+	} else {
+		return map[string]string{"enabled": "false"}
 	}
-	return map[string]string{"enabled": "false"}
+}
+
+func (a *App) ShowCreateRule() bool {
+	if *launchCreateRule && *InteractiveURL != "" {
+		return true
+	}
+	return false
+}
+
+func (a *App) SpawnNewInstance(args []string) error {
+	exe, err := os.Executable()
+	if err != nil {
+		return err
+	}
+	err = exec.Command(exe, args...).Start()
+	return err
 }
 
 var configPath string

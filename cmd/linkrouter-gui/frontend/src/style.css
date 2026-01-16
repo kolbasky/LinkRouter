@@ -8,7 +8,7 @@
   --font-size-smaller: 0.85rem;
   
   /* Colors - Slate-based palette */
-  --color-bg-app: #1b2636;
+  --color-bg-app: rgb(27, 38, 54);
   --color-bg-card: #1e293b;
   --color-bg-input: #27344b;
   --color-border: #334155;
@@ -38,7 +38,7 @@
 
 /* Global Styles */
 html {
-  background-color: var(--color-bg-app);
+  background-color: transparent;
   color: var(--color-text-primary);
   height: 100%;
   cursor: default;
