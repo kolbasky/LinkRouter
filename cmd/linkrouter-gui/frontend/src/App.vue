@@ -578,10 +578,10 @@ Promise.all([
       }
       
       if (++attempts < maxAttempts) {
-        setTimeout(tryUnminimize, 5 * attempts);
+        setTimeout(tryUnminimize, 50);
       }
     };
-    setTimeout(tryUnminimize, 5);
+    setTimeout(tryUnminimize, 50);
 }).catch((err) => {
   showAlertModal(`Loading config failed:\n\n${err.message || err}`)
 });
