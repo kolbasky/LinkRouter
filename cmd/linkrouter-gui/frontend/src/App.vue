@@ -487,9 +487,6 @@ window.addEventListener('focus', () => {
     nextTick(() => {
       resizeToDialog('.interactive-dialog');
     })
-    nextTick(() => {
-      runtime.WindowCenter()
-    });
   }
 });
 
@@ -581,10 +578,10 @@ Promise.all([
       }
       
       if (++attempts < maxAttempts) {
-        setTimeout(tryUnminimize, 10 * attempts);
+        setTimeout(tryUnminimize, 5 * attempts);
       }
     };
-    setTimeout(tryUnminimize, 10);
+    setTimeout(tryUnminimize, 5);
 }).catch((err) => {
   showAlertModal(`Loading config failed:\n\n${err.message || err}`)
 });
