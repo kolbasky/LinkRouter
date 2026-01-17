@@ -100,3 +100,56 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   z-index: 2;
 }
+
+.url {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  min-width: 0;
+  --wails-draggable: no-drag;
+}
+.url-input {
+  max-width: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+  font-family: monospace;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  cursor: text;
+  user-select: text;
+  white-space: nowrap;
+  min-width: 0;
+  scrollbar-width: none;
+  position: relative;
+  align-items: center;
+  flex: 1;
+  padding: 10px 32px 10px 12px;
+  --wails-draggable: no-drag;
+}
+
+
+.copy-url-button {
+  position: absolute;
+  right: 6px;
+  top: 5px;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  width: var(--button-size-small);
+  height: var(--button-size-small);
+  border-radius: 6px;
+  font-size: 1.0rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+  padding-bottom: 4px;
+}
+
+
+.copy-url-button:hover {
+  color: var(--color-text-primary);
+}

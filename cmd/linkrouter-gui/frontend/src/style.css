@@ -338,11 +338,12 @@ a:hover {
 .copy-btn .emoji.checkmark {
   color: var(--color-text-primary);
   animation: pop-in 0.3s ease-in-out;
+  animation-fill-mode: forwards;
 }
 
 @keyframes pop-in {
   0%   { transform: scale(0.6); opacity: 0; }
-  60%  { transform: scale(1.3); opacity: 1; }
+  10%  { transform: scale(1.2); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
 }
 
@@ -352,8 +353,16 @@ a:hover {
 }
 
 .code-wrapper:has(.emoji.checkmark) code {
-  background: rgba(148, 163, 184, 0.2) !important;
-  transition: background 0.4s ease;
+  /* background-color: rgb(148, 163, 184) !important; */
+  /* transition: background 0.3s ease; */
+  animation: copied-code 0.3s ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes copied-code {
+  0%   { background-color: rgb(148, 163, 184, 0.0) }
+  10%  { background-color: rgb(148, 163, 184, 0.6)  }
+  100% { background-color: rgb(148, 163, 184, 0.2) }
 }
 
 /* Keep hover effect for non-checkmark state */
@@ -1060,4 +1069,12 @@ tr:last-child td[colspan] {
   padding: 0 2px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   z-index: 2;
+}
+
+.checkbox-hint  {
+  color: var(--color-text-secondary);
+}
+
+.checkbox-hint.disabled  {
+  color: var(--color-text-disabled);
 }

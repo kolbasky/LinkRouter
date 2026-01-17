@@ -200,13 +200,27 @@
             placeholder="{URL} for URL; $1, $2 etc for captured groups"
           />
 
-          <label class="checkbox-label">
+          <label
+          class="checkbox-label"
+          >
             <input 
               type="checkbox" 
               v-model="editingRule.interactive"
               class="interactive-checkbox"
+              title="Regex is not used in this case and may be used as a name"
+              :disabled="/[$]\d+/.test(editingRule.arguments)"
             />
-            <span class="checkbox-hint">Add rule as button to open Test URL</span>
+            <span 
+              class="checkbox-hint"
+              title="Regex is not used in this case and may be used as a name"
+              :class="{ 'disabled': /[$]\d+/.test(editingRule.arguments) }"
+            >
+              
+              {{ /[$]\d+/.test(editingRule.arguments) ? 
+                "Add rule as a button to Launcher (disabled becuase of captured groups in arguments)" : 
+                "Add rule as a button to Launcher" 
+              }}
+            </span>
           </label>
 
           <label>Test URL</label>
@@ -416,6 +430,15 @@
 <!-- Interactive Mode UI -->
 <div v-if="launchedInInteractiveMode" class="interactive-mode">
   <div class="interactive-dialog">
+    <div class="url">
+      <input v-model="testUrl" class="url-input">
+    </input>
+    <button class="copy-url-button" @click="copyToClipboard(testUrl, '999', 'url')" title="Copy to clipboard">
+      <span class="emoji" v-if="!(copiedIndex === '999' && copiedField === 'url')">📋︎</span>
+      <span class="emoji" v-else>✓</span>
+    </button>
+      
+    </div>
     <div class="interactive-buttons-grid">
       <button
         v-for="(prog, index) in interactivePrograms"
@@ -1321,7 +1344,7 @@ const getIcon = (programPath, args) => {
   return 'generic';
 };
 
-const openTestUrlInBrowser = async (path = config.value.global.fallbackBrowserPath, args = "{URL}") => {
+const openTestUrlInBrowser = async (path = config.value.global.fallbackBrowserPath, args = "\"{URL}\"") => {
   if (!testUrl.value?.trim()) return;
   try {
     await OpenInFallbackBrowser(path, args, '"' + testUrl.value.trim() + '"');
@@ -1835,8 +1858,8 @@ const helpContent = computed(() => {
          Recommendation: always wrap the URL in double quotes, e.g. <code>"{URL}"</code> or <code>"mailto:$1"</code>.
       </p>
 
-      <p><strong>Add as button below Test URL</strong><br>
-        When enabled, this rule appears as a button in the rule-creation dialog when Test URL is not empty.<br>
+      <p><strong>Add rule as a button to Launcher</strong><br>
+        When enabled, this rule appears as a button in the Launcher and the rule-creation dialog when Test URL is not empty.<br>
         <br>
         Use it to turn LinkRouter into a quick app/browser selector:<br>
         • No matching rule → dialog opens with pre-filled URL<br>
