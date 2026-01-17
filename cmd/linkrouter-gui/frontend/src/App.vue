@@ -186,6 +186,7 @@
               v-model="editingRule.program" 
               class="modal-input program-input" 
               placeholder="C:\Program Files\App\app.exe" 
+              @input='editingRule.program = editingRule.program.replace(/"/g,"")'
             />
             <button class="browse-btn" @click="browseFile('ruleProgram')" title="Browse for program">
               <span class="emoji">📂︎</span>
@@ -280,6 +281,7 @@
               v-model="editingGlobal.fallbackBrowserPath"
               class="modal-input program-input"
               placeholder="C:\Program Files\Firefox\firefox.exe"
+              @input='editingGlobal.fallbackBrowserPath = editingGlobal.fallbackBrowserPath.replace(/"/g,"")'
             />
             <button class="browse-btn" @click="browseFile('fallbackBrowser')" title="Browse for program">
               <span class="emoji">📂︎</span>
@@ -304,6 +306,7 @@
             v-model="editingGlobal.defaultConfigEditor"
             class="modal-input program-input"
             placeholder="notepad.exe"
+            @input='editingGlobal.defaultConfigEditor = editingGlobal.defaultConfigEditor.replace(/"/g,"")'
             />
             <button class="browse-btn" @click="browseFile('defaultEditor')" title="Browse for program">
               <span class="emoji">📂︎</span>
@@ -316,6 +319,7 @@
             v-model="editingGlobal.logPath"
             class="modal-input"
             placeholder="logs\linkrouter.log"
+            @input='editingGlobal.logPath = editingGlobal.logPath.replace(/"/g,"")'
             />
             <button class="browse-btn" @click="browseFile('logPath')" title="Browse for program">
               <span class="emoji">📂︎</span>
@@ -481,18 +485,10 @@ window.addEventListener('focus', () => {
   lastFocus = Date.now();
   if (launchedInInteractiveMode.value && launchedInInteractiveModeURL.value) {
     nextTick(() => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          resizeToDialog('.interactive-dialog');
-        });
-      });
+      resizeToDialog('.interactive-dialog');
     })
     nextTick(() => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          runtime.WindowCenter()
-        });
-      });
+      runtime.WindowCenter()
     });
   }
 });
@@ -530,25 +526,24 @@ Promise.all([
       originalRule.value = null
       editingRule.value.regex
       updateTestResult()
+      
       nextTick(() => {
         regexInput.value?.focus()
-        requestAnimationFrame(() => { // this is sick but its official
-          requestAnimationFrame(() => {
-            // setTimeout(() => {
-                resizeToDialog('.interactive-dialog');
-            // }, 200);
-          });
-        });
-      })
-      nextTick(() => {
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            // setTimeout(() => {
-              runtime.WindowCenter();
-            // }, 50);
-          });
-        });
+        resizeIntervalId.value = setInterval(() => {
+          resizeToDialog('.interactive-dialog');
+        }, 5);
       });
+      setTimeout(() => {
+        clearInterval(resizeIntervalId.value);
+      }, 200);
+      nextTick(() => {
+        centerIntervalId.value = setInterval(() => {
+          runtime.WindowCenter();
+        }, 5);
+      });
+      setTimeout(() => {
+        clearInterval(centerIntervalId.value);
+      }, 200);
     }
 
     const show = await ShowCreateRule()
@@ -837,6 +832,8 @@ const fallbackBrowserInput = ref(null);
 const launchedInInteractiveMode = ref(false);
 const launchedInInteractiveModeURL = ref('');
 const lastFocusedElement = ref(null);
+const resizeIntervalId = ref(null)
+const centerIntervalId  = ref(null)
 
 const alertMessage = ref('');
 const showAlert = ref(false);

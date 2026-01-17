@@ -1,6 +1,6 @@
 .interactive-mode {
   display: flex;
-  border-radius: 16px;
+  border-radius: 8px;
   justify-content: center;
   align-items: center;
   width: 100vw;
@@ -10,13 +10,15 @@
   margin: 0 !important;
   padding: 0 !important;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .interactive-dialog {
   padding: 24px;
-  border-radius: 16px;
+  border-radius: 8px;
   background: transparent !important;
   width: 100vw;
+  overflow: hidden;
 }
 
 /* Grid layout - 3 columns on desktop, responsive */
