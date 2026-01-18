@@ -431,11 +431,11 @@
 <div v-if="launchedInInteractiveMode" class="interactive-mode">
   <div class="interactive-dialog">
     <div class="url">
-      <input v-model="testUrl" class="url-input">
+      <input v-model="testUrl" class="url-input" ref="urlInput">
     </input>
     <button class="copy-url-button" @click="copyToClipboard(testUrl, '999', 'url')" title="Copy to clipboard">
       <span class="emoji" v-if="!(copiedIndex === '999' && copiedField === 'url')">📋︎</span>
-      <span class="emoji" v-else>✓</span>
+      <span class="emoji checkmark" v-else>✓</span>
     </button>
       
     </div>
@@ -551,7 +551,7 @@ Promise.all([
         regexInput.value?.focus()
         resizeIntervalId.value = setInterval(() => {
           resizeToDialog('.interactive-dialog');
-        }, 5);
+        }, 10);
       });
       setTimeout(() => {
         clearInterval(resizeIntervalId.value);
@@ -559,7 +559,7 @@ Promise.all([
       nextTick(() => {
         centerIntervalId.value = setInterval(() => {
           runtime.WindowCenter();
-        }, 5);
+        }, 10);
       });
       setTimeout(() => {
         clearInterval(centerIntervalId.value);
@@ -716,7 +716,6 @@ setTimeout(() => {
     // ─────────────────────────────────────────────────────────────
     // Priority 2: Enter in modals (confirm / default action)
     // ─────────────────────────────────────────────────────────────
-
     if (e.key === 'Control' || e.key === 'Meta') {
       isCtrlPressed.value = true;
     }
@@ -735,6 +734,17 @@ setTimeout(() => {
       if (document.activeElement === searchInput.value) {
         e.preventDefault()
         rulesContainer.value?.focus()
+        return
+      }
+      if (urlInput.value?.focus() && launchedInInteractiveMode.value) {
+        e.preventDefault()
+        openTestUrlInBrowser(interactivePrograms.value[0].program, interactivePrograms.value[0].arguments)
+        return
+      }
+      if (launchedInInteractiveMode.value) {
+        e.preventDefault()
+        runtime.LogInfo(urlInput.value?.focus())
+        openTestUrlInBrowser(interactivePrograms.value[0].program, interactivePrograms.value[0].arguments)
         return
       }
     }
@@ -854,6 +864,7 @@ const launchedInInteractiveModeURL = ref('');
 const lastFocusedElement = ref(null);
 const resizeIntervalId = ref(null)
 const centerIntervalId  = ref(null)
+const urlInput = ref(null)
 
 const alertMessage = ref('');
 const showAlert = ref(false);

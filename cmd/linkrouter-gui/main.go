@@ -20,7 +20,7 @@ var launchCreateRule = flag.Bool("create-rule", false, "Launch GUI with Edit Rul
 func main() {
 	flag.Parse()
 	// *InteractiveMode = true
-	// *InteractiveURL = "https://music.yandex.ru/album/123456/track/7890"
+	// *InteractiveURL = "https://music.yandex.ru/album/123456/track/7890-aaaaaaaaaaaaaaaaaaaaaaaaa"
 
 	// Create an instance of the app structure
 	app := NewApp()

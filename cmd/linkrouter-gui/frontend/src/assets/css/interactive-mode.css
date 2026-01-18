@@ -111,7 +111,7 @@
 }
 .url-input {
   max-width: 100%;
-  background: rgba(0, 0, 0, 0.1);
+  background: none;
   border-radius: 6px;
   color: var(--color-text-primary);
   font-size: 0.9rem;
@@ -125,8 +125,16 @@
   position: relative;
   align-items: center;
   flex: 1;
-  padding: 10px 32px 10px 12px;
+  padding: 10px 34px 10px 12px;
   --wails-draggable: no-drag;
+}
+
+.url-input:focus {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(59, 130, 246, 0.4);
+  /* background: var(--color-bg-card); */
+  box-shadow: 0 0 3px 3px rgba(59, 130, 246, 0.2);
+  outline: none;
 }
 
 
@@ -152,4 +160,25 @@
 
 .copy-url-button:hover {
   color: var(--color-text-primary);
+}
+
+.copy-url-button .emoji {
+  transition: color 0.2s ease;
+}
+
+.copy-url-button .emoji:hover {
+  transition: color 0.2s ease;
+  color: var(--color-text-primary);
+}
+
+.copy-url-button .emoji.checkmark {
+  animation: pop-in 0.3s ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+
+@keyframes pop-in {
+  0%   { transform: scale(0.6); opacity: 0; }
+  60%  { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }
