@@ -1,4 +1,4 @@
-# ![LinkRouter icon](resources/icon/32.png?raw=true) LinkRouter
+# <img src="./resources/icon/32.png?raw=true" alt="icon" width="22" height="22"> LinkRouter
 
 A lightweight portable Windows app that routes links to specific applications based on **regex rules**.
 
