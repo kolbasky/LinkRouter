@@ -431,7 +431,7 @@
 <div v-if="launchedInInteractiveMode" class="interactive-mode">
   <div class="interactive-dialog">
     <div class="url">
-      <input v-model="testUrl" class="url-input" ref="urlInput">
+      <input v-model="testUrl" class="url-input" ref="urlInput" onfocus="this.select();">
     </input>
     <button class="copy-url-button" @click="copyToClipboard(testUrl, '999', 'url')" title="Copy to clipboard">
       <span class="emoji" v-if="!(copiedIndex === '999' && copiedField === 'url')">📋︎</span>
