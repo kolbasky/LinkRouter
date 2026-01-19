@@ -475,7 +475,7 @@
 <script setup>
 // import { Fzf } from 'fzf'
 import { getIconUrl } from './icons.js';
-import { WindowMinimise, WindowToggleMaximise, Quit, WindowUnminimise, BrowserOpenURL, LogInfo } from '../wailsjs/runtime/runtime';
+import { WindowMinimise, WindowToggleMaximise, Quit, WindowUnminimise, BrowserOpenURL } from '../wailsjs/runtime/runtime';
 import { ref, computed, nextTick } from 'vue';
 import {
   GetInteractiveMode,
@@ -640,7 +640,6 @@ const resizeToDialog = (d) => {
 };  
 
 const launchRuleCreation = async () => {
-  runtime.LogInfo(launchedInInteractiveMode.value + " " + launchedInInteractiveModeURL.value)
   await SpawnNewInstance(['--create-rule', '--url', launchedInInteractiveModeURL.value]);
   await runtime.Quit();
 };
@@ -743,7 +742,6 @@ setTimeout(() => {
       }
       if (launchedInInteractiveMode.value) {
         e.preventDefault()
-        runtime.LogInfo(urlInput.value?.focus())
         openTestUrlInBrowser(interactivePrograms.value[0].program, interactivePrograms.value[0].arguments)
         return
       }
