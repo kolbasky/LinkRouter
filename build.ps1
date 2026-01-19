@@ -108,7 +108,7 @@ if ($LASTEXITCODE -eq 0) {
 
 go generate .\cmd\linkrouter-gui\
 cd .\cmd\linkrouter-gui\
-Wails build
+Wails build -trimpath -ldflags="-w -s"
 cd ..\..
 cp cmd\linkrouter-gui\build\bin\linkrouter-gui.exe bin\
 cd .\cmd\linkrouter-gui\
