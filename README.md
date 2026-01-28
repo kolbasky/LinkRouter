@@ -1,6 +1,6 @@
 # <img src="./resources/icon/32.png?raw=true" alt="icon" width="22" height="22"> LinkRouter
 
-A lightweight portable Windows app that routes links to specific applications based on **regex rules**.
+A lightweight Windows app that routes links to specific applications based on **regex rules**.
 
 Windows lets you choose a program to handle specific protocols, but there is no way to choose an app based on link contents. This app aims to fill that gap and suits power users who want **total control** over how links open on their machine.
 - ✅ Open https-links to Steam, Discord, Spotify, Yandex Music etc in their native apps
