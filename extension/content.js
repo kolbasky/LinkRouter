@@ -36,7 +36,7 @@ document.addEventListener(eventType, (e) => {
   if (e.button !== 0) return;
 
   const a = e.target.closest('a');
-  if (!a || !/^https?:\/\//i.test(a.href)) return;
+  if (!a) return;
 
   e.preventDefault();
   e.stopPropagation();

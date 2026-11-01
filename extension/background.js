@@ -1,5 +1,30 @@
 const PROTOCOL = "linkrouter-ext://";
 
+const pendingUrls = new Map();
+
+chrome.webNavigation.onBeforeNavigate.addListener((details) => {
+  if (details.frameId === 0) {
+    pendingUrls.set(details.tabId, details.url);
+  }
+});
+
+chrome.webNavigation.onCompleted.addListener((details) => {
+  if (details.frameId === 0) {
+    pendingUrls.delete(details.tabId);
+  }
+});
+
+chrome.webNavigation.onErrorOccurred.addListener((details) => {
+  if (details.frameId === 0) {
+    pendingUrls.delete(details.tabId);
+  }
+});
+
+chrome.tabs.onRemoved.addListener((tabId) => {
+  pendingUrls.delete(tabId);
+});
+
+
 chrome.runtime.onInstalled.addListener(() => {
   // right-click menu for links
   chrome.contextMenus.create({
@@ -51,12 +76,20 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 // Click on the extension icon (toolbar button)
 chrome.action.onClicked.addListener((tab) => {
-  if (!tab?.url || !/^https?:\/\//i.test(tab.url)) {
-    return; // Ignore chrome://, about:, extension pages, etc.
+  if (!tab?.id) return;
+
+  let targetUrl = pendingUrls.get(tab.id);
+  if (!targetUrl) {
+    targetUrl = tab.url;
   }
 
-  const originalUrl = tab.url
-  const routed = PROTOCOL + encodeURIComponent(tab.url);
+  if (!targetUrl || /^(chrome|brave|edge|about|moz-extension|opera|vivaldi|yandex|browser|view-source|resource|moz-src):/i.test(targetUrl)) {
+    return;
+  }
+
+  const originalUrl = tab.url || targetUrl;
+  const routed = PROTOCOL + encodeURIComponent(targetUrl);
+  
   chrome.tabs.update(tab.id, { url: routed }, (updatedTab) => {
     if (chrome.runtime.lastError || !updatedTab) {
       chrome.tabs.update(tab.id, { url: originalUrl });

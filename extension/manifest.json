@@ -21,8 +21,9 @@
   },
   "permissions": [
     "contextMenus",
-    "activeTab",
-    "storage"
+    "tabs",
+    "storage",
+    "webNavigation"
   ],
   "background": {
     "service_worker": "background.js",

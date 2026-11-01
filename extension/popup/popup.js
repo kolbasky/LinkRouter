@@ -24,13 +24,20 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('open-current').addEventListener('click', () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const currentTab = tabs[0];
-      if (!currentTab?.url || !/^https?:\/\//i.test(currentTab.url)) {
-        window.close();
+      const targetUrl = (currentTab?.pendingUrl)
+        ? currentTab.pendingUrl
+        : currentTab?.url;
+
+      if (!targetUrl) {
         return;
       }
 
-      const originalUrl = currentTab.url;
-      const routed = "linkrouter-ext://" + encodeURIComponent(originalUrl);
+      if (!targetUrl || /^(chrome|brave|edge|about|moz-extension|opera|vivaldi|yandex|browser|view-source|resource|moz-src):/i.test(targetUrl)) {
+        return;
+      }
+
+      const originalUrl = targetUrl;
+      const routed = "linkrouter-ext://" + encodeURIComponent(targetUrl);
 
       chrome.tabs.update(currentTab.id, { url: routed }, () => {
         if (chrome.runtime.lastError) {
