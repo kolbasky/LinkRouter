@@ -1356,7 +1356,7 @@ const getIcon = (programPath, args) => {
 const openTestUrlInBrowser = async (path = config.value.global.fallbackBrowserPath, args = "\"{URL}\"") => {
   if (!testUrl.value?.trim()) return;
   try {
-    await OpenInFallbackBrowser(path, args, '"' + testUrl.value.trim() + '"');
+    await OpenInFallbackBrowser(path, args, testUrl.value.trim());
   } catch (err) {
     runtime.LogError("Failed to open URL:", err);
   }

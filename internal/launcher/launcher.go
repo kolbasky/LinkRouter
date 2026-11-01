@@ -130,15 +130,23 @@ func HandleURL(url string) {
 		from_extension = true
 		url = strings.TrimPrefix(url, "linkrouter-ext://")
 		logger.Log(fmt.Sprintf("Trimmed URL: %s", url))
-	}
-
-	if decoded, err := urlpkg.QueryUnescape(url); err == nil {
-		url = decoded
+		// we only decode when receiving from extension, since it encodes
+		// mind + signs - thus PathUnescape
+		if decoded, err := urlpkg.PathUnescape(url); err == nil {
+			url = decoded
+		} else {
+			logger.Log(fmt.Sprintf("Unescape failed (using raw): %s", err))
+		}
 	}
 
 	// windows appends trailing slash in this case
 	if from_extension && strings.HasSuffix(url, "/") {
-		url = url[:len(url)-1]
+		url = strings.TrimSuffix(url, "/")
+	}
+
+	// we only decode when receiving from extension, since it encodes
+	if from_extension {
+		logger.Log(fmt.Sprintf("Decoded URL: %s", url))
 	}
 
 	if rule, matches, ruleIndex := cfg.MatchRule(url); rule != nil {
@@ -168,6 +176,7 @@ func HandleURL(url string) {
 			guiArgs := `--interactive --url=` + strconv.Quote(url)
 			fullCmdLine := quotedGUI + " " + guiArgs
 
+			logger.Log("Interactive cmdline: " + fullCmdLine)
 			cmd := exec.Command(guiPath)
 			cmd.Path = guiPath
 			cmd.SysProcAttr = &syscall.SysProcAttr{
