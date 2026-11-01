@@ -1156,10 +1156,7 @@ const saveConfigAs = async () => {
 
 const saveConfig = async () => {
   try {
-    const Path = await SaveConfig(config.value);
-    if (Path) {
-      configPath.value = Path;
-    }
+    await SaveConfig(config.value);
   } catch (err) {
     showAlertModal(`Failed to save config:\n\n${err.message || err}`);
   }
