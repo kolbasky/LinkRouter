@@ -59,6 +59,7 @@ func main() {
 		DisableResize:   !resizeable,
 		BackgroundType:  backgroundType,
 		BackgroundColour: backgroundColour,
+		DefaultContextMenuDisabled: true,
 		Windows: application.WindowsWindow{
 			DisableIcon:                       true,
 			Theme:                             application.Dark,

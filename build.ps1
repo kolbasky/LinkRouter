@@ -122,6 +122,7 @@ cd .\cmd\linkrouter-gui\
 Write-Host "Building Inno Setup installer..." -ForegroundColor Yellow
 Start-Process -FilePath "${env:ProgramFiles(x86)}\Inno Setup 6\Compil32.exe" -ArgumentList "/cc", "${env:UserProfile}\git\LinkRouter\installer.iss" -Wait -NoNewWindow
 
+cd ..\..
 if ($LASTEXITCODE -eq 0) {
     Write-Host "Release $Version built successfully!" -ForegroundColor Green
     Write-Host "Output: bin\" -ForegroundColor Cyan

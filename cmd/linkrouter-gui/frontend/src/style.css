@@ -440,12 +440,12 @@ a:hover {
 .config-path.report-success {
   color: var(--color-accent-success);
   font-weight: 500;
-  animation: blinker 4s ease-in-out 1;
+  animation: blinker 10s ease-in-out 1;
 }
 
 @keyframes blinker {
   0%, 100% { opacity: 0; }
-  15%, 85% { opacity: 1; }
+  5%, 95% { opacity: 1; }
 }
 
 .button-group {

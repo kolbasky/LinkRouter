@@ -1097,6 +1097,26 @@ const loadConfig = async () => {
   }
 };
 
+const sameConfig = (a, b) => {
+  const shape = (cfg) => ({
+    global: cfg?.global ? {
+      fallbackBrowserPath: cfg.global.fallbackBrowserPath || '',
+      fallbackBrowserArgs: cfg.global.fallbackBrowserArgs || '',
+      defaultConfigEditor: cfg.global.defaultConfigEditor || '',
+      logPath: cfg.global.logPath || '',
+      interactiveMode: !!cfg.global.interactiveMode,
+      supportedProtocols: [...(cfg.global.supportedProtocols || [])],
+    } : {},
+    rules: (cfg?.rules || []).map(r => ({
+      regex: r.regex || '',
+      program: r.program || '',
+      arguments: r.arguments || '',
+      interactive: !!r.interactive,
+    })),
+  });
+  return JSON.stringify(shape(a)) === JSON.stringify(shape(b));
+};
+
 const reloadConfig = async (silent = false) => {
   try {
     // Re-fetch config from backend (reads file again)
@@ -1110,6 +1130,8 @@ const reloadConfig = async (silent = false) => {
       ? filteredRules.value[selectedRowIndex.value]?.rule 
       : null;
 
+    const changed = !sameConfig(config.value, cfg);
+
     // Update config
     cfg.rules = (cfg.rules || []).map((rule, index) => ({
       ...rule,
@@ -1117,6 +1139,10 @@ const reloadConfig = async (silent = false) => {
     }));
     config.value = cfg;
     configPath.value = path;
+
+    if (changed) {
+      saveToUndo();
+    }
 
     // Try to restore selection
     if (oldSelectedRule) {
@@ -1132,7 +1158,9 @@ const reloadConfig = async (silent = false) => {
         }
       });
     }
-    if (!silent) {
+    if (changed) {
+      showSavedNotification('Config changed on disk — loaded. Undo to revert.');
+    } else if (!silent) {
       showSavedNotification('Config reloaded!');
     }
   } catch (err) {
@@ -1657,7 +1685,7 @@ const showSavedNotification = (message = "Config saved!") => {
   saveNotificationTimeout = setTimeout(() => {
     reportSuccess.value = false
     statusMessage.value = ''
-  }, 4000)
+  }, 10000)
 }
 
 // History Ctrl+z
