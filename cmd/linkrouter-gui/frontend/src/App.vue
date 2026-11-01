@@ -1117,7 +1117,6 @@ const reloadConfig = async (silent = false) => {
     }));
     config.value = cfg;
     configPath.value = path;
-    saveToUndo();
 
     // Try to restore selection
     if (oldSelectedRule) {
