@@ -28,7 +28,7 @@ Use it in two ways:
 ### Installer (recommended)
 1. **Download** [`LinkRouter-Installer.exe`](https://github.com/kolbasky/LinkRouter/releases/latest) and follow the instructions
 2. Use GUI editor to create/edit rules. See [configuration section](#%EF%B8%8F-configuration) to get you started.
-3. **optionally**, install the browser extension from [mozilla addons](https://addons.mozilla.org/en-US/firefox/addon/linkrouter/) or [opera addons](https://addons.opera.com/en/extensions/details/linkrouter/). If there are any problems with extension avaiability in web-stores, there is an according optional task during isntallation.
+3. **optionally**, install the browser extension from [mozilla addons](https://addons.mozilla.org/en-US/firefox/addon/linkrouter/) or [opera addons](https://addons.opera.com/en/extensions/details/linkrouter/). If there are any problems with extension availability in web-stores, there is an according optional task during installation.
 
 ### Portable/custom
 1. Download [`linkrouter.exe`](https://github.com/kolbasky/LinkRouter/releases/latest)
@@ -39,7 +39,7 @@ Use it in two ways:
 6. **optionally**, install the browser extension from [mozilla addons](https://addons.mozilla.org/en-US/firefox/addon/linkrouter/) or [opera addons](https://addons.opera.com/en/extensions/details/linkrouter/). Also extension is available on [Releases page](https://github.com/kolbasky/LinkRouter/releases/latest) and may be loaded in develoer mode. Extension should work in any chromium-based browser.
 7. **Edit the config** by double-clicking `linkrouter.exe` again. Or copy [`linkrouter-gui.exe`](https://github.com/kolbasky/LinkRouter/releases/latest) to the same folder as `linkrouter.exe` and launch it.
 > [!NOTE]
-> Additional right-click menu entries are available on `linkrouter.exe` for you convenience after registration (may be hidden inside "show more options"):
+> Additional right-click menu entries are available on `linkrouter.exe` for your convenience after registration (may be hidden inside "show more options"):
 > - Register LinkRouter (or re-register)
 > - Unregister LinkRouter
 > - Edit LinkRouter config

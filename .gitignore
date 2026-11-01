@@ -34,7 +34,7 @@ go.work.sum
 bin/
 
 
-cmd/linkrouter-gui/frontend/wailsjs/
+cmd/linkrouter-gui/frontend/bindings/
 cmd/linkrouter-gui/frontend/dist/
 cmd/linkrouter-gui/build/
 cmd/linkrouter-gui/frontend/package.json.md5

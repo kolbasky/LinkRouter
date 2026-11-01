@@ -56,7 +56,7 @@ Set-FileContent $installerPath $content
 $versionInfoPath1 = "cmd\linkrouter\versioninfo.json"
 $content = Get-Content $versionInfoPath1 -Raw
 $content = $content -replace '"FileVersion": "\d+\.\d+\.\d+\.0"', "`"FileVersion`": `"$fullVersionWithBuild`""
-$content = $content -replace '"ProductVersion": "v\d+\.\d+\.\d+"', "`"ProductVersion`": `"v$Version`""
+$content = $content -replace '"ProductVersion": "v?\d+\.\d+\.\d+"', "`"ProductVersion`": `"$Version`""
 $content = $content -replace '"Major": \d+', "`"Major`": $major"
 $content = $content -replace '"Minor": \d+', "`"Minor`": $minor"
 $content = $content -replace '"Patch": \d+', "`"Patch`": $patch"
@@ -67,7 +67,7 @@ Set-FileContent $versionInfoPath1 $content
 $versionInfoPath2 = "cmd\linkrouter-gui\versioninfo.json"
 $content = Get-Content $versionInfoPath2 -Raw
 $content = $content -replace '"FileVersion": "\d+\.\d+\.\d+\.0"', "`"FileVersion`": `"$fullVersionWithBuild`""
-$content = $content -replace '"ProductVersion": "v\d+\.\d+\.\d+"', "`"ProductVersion`": `"v$Version`""
+$content = $content -replace '"ProductVersion": "v?\d+\.\d+\.\d+"', "`"ProductVersion`": `"$Version`""
 $content = $content -replace '"Major": \d+', "`"Major`": $major"
 $content = $content -replace '"Minor": \d+', "`"Minor`": $minor"
 $content = $content -replace '"Patch": \d+', "`"Patch`": $patch"
@@ -108,7 +108,13 @@ if ($LASTEXITCODE -eq 0) {
 
 go generate .\cmd\linkrouter-gui\
 cd .\cmd\linkrouter-gui\
-Wails build -trimpath -ldflags="-w -s"
+wails3 generate bindings
+cd .\frontend\
+npm install
+npm run build
+cd ..\
+New-Item -ItemType Directory -Force build\bin | Out-Null
+go build -trimpath -ldflags="-H windowsgui -w -s" -o build\bin\linkrouter-gui.exe .
 cd ..\..
 cp cmd\linkrouter-gui\build\bin\linkrouter-gui.exe bin\
 cd .\cmd\linkrouter-gui\
@@ -121,7 +127,7 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "Output: bin\" -ForegroundColor Cyan
     Write-Host "Installer: bin\LinkRouter-Setup-$Version.exe" -ForegroundColor Cyan
 } else {
-    Write-Error "Inno Setup compilation failed!"  -ForegroundColor Red
+    Write-Error "Inno Setup compilation failed!"
     exit 1
 }
 

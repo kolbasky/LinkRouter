@@ -268,7 +268,7 @@ func RegisterApp() error {
 
 	dialogs.ShowMessageBox(
 		"LinkRouter registration",
-		"Registration sucessfull!\nYou can now right-click exe file for more actions.",
+		"Registration successful!\nYou can now right-click exe file for more actions.",
 		0x00000040)
 
 	logger.Log("Registration completed successfully")

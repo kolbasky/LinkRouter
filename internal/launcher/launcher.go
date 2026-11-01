@@ -29,24 +29,6 @@ func HandleNoArgs() {
 		}
 	} else {
 		EditConfig()
-		// cfg, err := config.LoadConfig()
-		// if err != nil {
-		// 	dialogs.ShowError("failed to load config:\n" + err.Error())
-		// 	os.Exit(1)
-		// }
-
-		// url := ""
-		// logger.Log("Handling URL: " + url)
-		// if cfg.Global.FallbackBrowserPath != "" {
-		// 	argsTemplate := cfg.Global.FallbackBrowserArgs
-		// 	if !strings.Contains(argsTemplate, "{URL}") {
-		// 		argsTemplate += " {URL}"
-		// 	}
-		// 	LaunchApp(cfg.Global.FallbackBrowserPath, argsTemplate, url)
-		// } else {
-		// 	logger.Log("Error: fallbackBrowserPath in linkrouter.json is empty")
-		// 	dialogs.ShowError("fallbackBrowserPath in linkrouter.json is empty")
-		// }
 	}
 	os.Exit(0)
 }
@@ -82,7 +64,7 @@ func Help() {
 	err := cmd_help.Start()
 	if err != nil {
 		// basically should never get here
-		helpText := `LinkRouter – regex-based router for handlinkg links.
+		helpText := `LinkRouter – regex-based router for handling links.
 
 USAGE:
  linkrouter.exe [URL]	Handle a link

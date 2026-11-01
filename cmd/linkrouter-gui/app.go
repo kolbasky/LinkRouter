@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"linkrouter/internal/config"
@@ -14,19 +13,15 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
 type App struct {
-	ctx context.Context
+	app *application.App
 }
 
-func NewApp() *App {
-	return &App{}
-}
-
-func (a *App) startup(ctx context.Context) {
-	a.ctx = ctx
+func NewApp(app *application.App) *App {
+	return &App{app: app}
 }
 
 func (a *App) GetInteractiveMode() map[string]string {
@@ -61,8 +56,6 @@ func (a *App) SpawnNewInstance(args []string) error {
 	return err
 }
 
-var configPath string
-
 func (a *App) GetConfig() (*config.Config, error) {
 	return config.LoadConfig()
 }
@@ -80,13 +73,15 @@ func (a *App) SaveConfigAs(cfg *config.Config) (string, error) {
 		return "", errors.New("config is nil")
 	}
 
-	filePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
-		Title:           "Save LinkRouter Config",
-		DefaultFilename: "linkrouter.json",
-		Filters: []runtime.FileFilter{
+	saveDialog := a.app.Dialog.SaveFile()
+	saveDialog.SetOptions(&application.SaveFileDialogOptions{
+		Title:    "Save LinkRouter Config",
+		Filename: "linkrouter.json",
+		Filters: []application.FileFilter{
 			{DisplayName: "JSON Files (*.json)", Pattern: "*.json"},
 		},
 	})
+	filePath, err := saveDialog.PromptForSingleSelection()
 	if err != nil {
 		return "", err
 	}
@@ -105,8 +100,7 @@ func (a *App) SaveConfigAs(cfg *config.Config) (string, error) {
 }
 
 func (a *App) GetCurrentConfigPath() string {
-	configPath = config.GetConfigPath()
-	return configPath
+	return config.GetConfigPath()
 }
 
 func (a *App) IsValidRegex(regexStr string) string {
@@ -131,21 +125,26 @@ func (a *App) TestRegex(regexStr, url string) bool {
 	return re.MatchString(url)
 }
 
-func (a *App) OpenFileDialog(title string, filters []runtime.FileFilter) (string, error) {
+type FileFilter struct {
+	DisplayName string `json:"displayName"`
+	Pattern     string `json:"pattern"`
+}
+
+func (a *App) OpenFileDialog(title string, filters []FileFilter) (string, error) {
 	if title == "" {
 		title = "Select File"
 	}
 
+	dialog := a.app.Dialog.OpenFile().SetTitle(title)
 	if len(filters) == 0 {
-		filters = []runtime.FileFilter{
-			{DisplayName: "All Files (*.*)", Pattern: "*.*"},
+		dialog.AddFilter("All Files (*.*)", "*.*")
+	} else {
+		for _, f := range filters {
+			dialog.AddFilter(f.DisplayName, f.Pattern)
 		}
 	}
 
-	filePath, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
-		Title:   title,
-		Filters: filters,
-	})
+	filePath, err := dialog.PromptForSingleSelection()
 	if err != nil {
 		return "", err
 	}
@@ -157,7 +156,7 @@ func (a *App) OpenFileDialog(title string, filters []runtime.FileFilter) (string
 
 // For config files
 func (a *App) OpenConfigDialog() (string, error) {
-	return a.OpenFileDialog("Select LinkRouter Config File", []runtime.FileFilter{
+	return a.OpenFileDialog("Select LinkRouter Config File", []FileFilter{
 		{DisplayName: "JSON Files (*.json)", Pattern: "*.json"},
 		{DisplayName: "All Files (*.*)", Pattern: "*.*"},
 	})
@@ -165,7 +164,7 @@ func (a *App) OpenConfigDialog() (string, error) {
 
 // For programs
 func (a *App) OpenProgramDialog() (string, error) {
-	return a.OpenFileDialog("Select Program", []runtime.FileFilter{
+	return a.OpenFileDialog("Select Program", []FileFilter{
 		{DisplayName: "Exe Files (*.exe)", Pattern: "*.exe"},
 		{DisplayName: "All Files (*.*)", Pattern: "*.*"},
 	})
@@ -270,7 +269,7 @@ func (a *App) TestRule(rule Rule, url string) error {
 	go func() {
 		re, err := regexp.Compile(rule.Regex)
 		if err != nil {
-			dialogs.ShowError("Unable to complie regex:\n" + err.Error())
+			dialogs.ShowError("Unable to compile regex:\n" + err.Error())
 			return
 		}
 		matches := re.FindStringSubmatch(url)

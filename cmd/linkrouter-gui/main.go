@@ -5,25 +5,18 @@ import (
 	"embed"
 	"flag"
 
-	"github.com/wailsapp/wails/v2"
-	"github.com/wailsapp/wails/v2/pkg/options"
-	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
-	"github.com/wailsapp/wails/v2/pkg/options/windows"
+	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
 //go:embed all:frontend/dist
 var assets embed.FS
+
 var InteractiveMode = flag.Bool("interactive", false, "Open in interactive mode")
 var InteractiveURL = flag.String("url", "", "URL to prefill")
 var launchCreateRule = flag.Bool("create-rule", false, "Launch GUI with Edit Rule dialog open")
 
 func main() {
 	flag.Parse()
-	// *InteractiveMode = true
-	// *InteractiveURL = "https://music.yandex.ru/album/123456/track/7890-aaaaaaaaaaaaaaaaaaaaaaaaa"
-
-	// Create an instance of the app structure
-	app := NewApp()
 
 	var title = "Linkrouter"
 	var frameless = false
@@ -32,7 +25,8 @@ func main() {
 	var minWidth = 512
 	var minHeight = 384
 	var resizeable = true
-	var alpha = 255
+	var backgroundType = application.BackgroundTypeSolid
+	var backgroundColour = application.NewRGB(27, 38, 54)
 
 	// in interactive mode make window smaller and frameless
 	if *InteractiveMode && *InteractiveURL != "" {
@@ -42,45 +36,52 @@ func main() {
 		minWidth = 100
 		minHeight = 100
 		resizeable = false
-		alpha = 0
+		backgroundType = application.BackgroundTypeTransparent
+		backgroundColour = application.NewRGBA(27, 38, 54, 0)
 	}
 
 	// Create application with options
-	err := wails.Run(&options.App{
-		Title:         title,
-		Width:         width,
-		Height:        height,
-		MinWidth:      minWidth,
-		MinHeight:     minHeight,
-		Frameless:     frameless,
-		DisableResize: !resizeable,
-		AssetServer: &assetserver.Options{
-			Assets: assets,
+	app := application.New(application.Options{
+		Name: "linkrouter",
+		Assets: application.AssetOptions{
+			Handler: application.AssetFileServerFS(assets),
 		},
-		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: uint8(alpha)},
-		OnStartup:        app.startup,
-		Bind: []interface{}{
-			app,
-		},
-		Windows: &windows.Options{
-			WebviewIsTransparent:              true,
-			WindowIsTranslucent:               true,
-			DisableWindowIcon:                 true,
-			WebviewUserDataPath:               "",
-			Theme:                             windows.Dark,
+	})
+
+	// Create the main window
+	app.Window.NewWithOptions(application.WebviewWindowOptions{
+		Title:           title,
+		Width:           width,
+		Height:          height,
+		MinWidth:        minWidth,
+		MinHeight:       minHeight,
+		Frameless:       frameless,
+		DisableResize:   !resizeable,
+		BackgroundType:  backgroundType,
+		BackgroundColour: backgroundColour,
+		Windows: application.WindowsWindow{
+			DisableIcon:                       true,
+			Theme:                             application.Dark,
 			DisableFramelessWindowDecorations: true,
-			CustomTheme: &windows.ThemeSettings{
-				DarkModeTitleBar:          windows.RGB(27, 38, 54),
-				DarkModeTitleText:         windows.RGB(203, 213, 225),
-				DarkModeBorder:            windows.RGB(27, 38, 54),
-				DarkModeTitleBarInactive:  windows.RGB(20, 28, 40),
-				DarkModeTitleTextInactive: windows.RGB(148, 163, 184),
-				DarkModeBorderInactive:    windows.RGB(20, 28, 40),
+			CustomTheme: application.ThemeSettings{
+				DarkModeActive: &application.WindowTheme{
+					TitleBarColour:  application.NewRGBPtr(27, 38, 54),
+					TitleTextColour: application.NewRGBPtr(203, 213, 225),
+					BorderColour:    application.NewRGBPtr(27, 38, 54),
+				},
+				DarkModeInactive: &application.WindowTheme{
+					TitleBarColour:  application.NewRGBPtr(20, 28, 40),
+					TitleTextColour: application.NewRGBPtr(148, 163, 184),
+					BorderColour:    application.NewRGBPtr(20, 28, 40),
+				},
 			},
 		},
 	})
 
-	if err != nil {
+	// Register the App service
+	app.RegisterService(application.NewService(NewApp(app)))
+
+	if err := app.Run(); err != nil {
 		println("Error:", err.Error())
 	}
 }

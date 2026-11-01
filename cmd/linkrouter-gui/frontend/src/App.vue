@@ -1,15 +1,5 @@
 <template>
   <div v-if='!launchedInInteractiveMode' class="app" spellcheck="false">
-    <!-- Title Bar -->
-    <!--WWW <div class="title-bar" @dblclick="maximizeWindow">
-      <div class="title">LinkRouter Config Editor</div>
-      <div class="title-bar-buttons">
-              <button class="titlebar-btn minimize-btn" @click="minimizeWindow">―</button>
-              <button class="titlebar-btn maximize-btn" @click="maximizeWindow">◻</button>
-              <button class="titlebar-btn close-btn" @click="closeWindow">⨯</button>
-    
-      </div>
-    </div> -->
 
     <div class="header">
       <div class="search-container">
@@ -473,9 +463,8 @@
 </template>
 
 <script setup>
-// import { Fzf } from 'fzf'
 import { getIconUrl } from './icons.js';
-import { WindowMinimise, WindowToggleMaximise, Quit, WindowUnminimise, BrowserOpenURL } from '../wailsjs/runtime/runtime';
+import { Window, Application, Browser } from '@wailsio/runtime';
 import { ref, computed, nextTick } from 'vue';
 import {
   GetInteractiveMode,
@@ -494,8 +483,9 @@ import {
   OpenInFallbackBrowser,
   TestRule,
   ShowCreateRule,
-  SpawnNewInstance
-} from '../wailsjs/go/main/App';
+  SpawnNewInstance,
+  OpenConfigInExplorer
+} from '../bindings/linkrouter/cmd/linkrouter-gui/app';
 
 let interactiveCSSLoaded = false;
 
@@ -558,7 +548,7 @@ Promise.all([
       }, 200);
       nextTick(() => {
         centerIntervalId.value = setInterval(() => {
-          runtime.WindowCenter();
+          Window.Center();
         }, 10);
       });
       setTimeout(() => {
@@ -584,27 +574,6 @@ Promise.all([
       })
     }
 
-
-
-    // Dirty hack to focus the app
-    runtime.WindowMinimise()
-    let attempts = 0;
-    const maxAttempts = 30;
-    const tryUnminimize = () => {
-      runtime.WindowUnminimise();
-      const currentActive = document.activeElement;
-      const isInputFocused = currentActive && 
-        currentActive.tagName.toLowerCase() === 'input';
-      
-      if (isInputFocused) {
-        return;
-      }
-      
-      if (++attempts < maxAttempts) {
-        setTimeout(tryUnminimize, 50);
-      }
-    };
-    setTimeout(tryUnminimize, 50);
 }).catch((err) => {
   showAlertModal(`Loading config failed:\n\n${err.message || err}`)
 });
@@ -636,12 +605,12 @@ const resizeToDialog = (d) => {
   const finalWidth = Math.max(width, 100);
   const finalHeight = Math.max(height, 100);
   
-  runtime.WindowSetSize(finalWidth, finalHeight);
+  Window.SetSize(finalWidth, finalHeight);
 };  
 
 const launchRuleCreation = async () => {
   await SpawnNewInstance(['--create-rule', '--url', launchedInInteractiveModeURL.value]);
-  await runtime.Quit();
+  await Application.Quit();
 };
 
 // Keyboard Hotkeys
@@ -689,7 +658,7 @@ setTimeout(() => {
       if (showEditModal.value)              { closeEditModal(); restoreFocus(); return }
       if (showSettingsModal.value)          { closeSettingsModal(); restoreFocus(); return }
       if (contextMenu.value.visible)        { closeContextMenu(); restoreFocus(); return }
-      if (launchedInInteractiveMode.value)  { Quit() }
+      if (launchedInInteractiveMode.value)  { Application.Quit() }
 
       if (document.activeElement !== searchInput.value) {
         searchInput.value?.focus()
@@ -907,51 +876,6 @@ const contextMenu = ref({
 
 const dragSourceIndex = ref(-1);
 
-// Fuzzy search
-
-// const fzfItems = computed(() => {
-//   return (config.value.rules || []).map((rule, i) => ({
-//     rule,
-//     realIndex: i,
-//     originalIndex: i + 1,
-//     str: `${rule.regex || ''} ${basename(rule.program || '')} ${rule.arguments || ''}`.toLowerCase()
-//   }))
-// })
-
-// const filteredRules = computed(() => {
-//   const query = search.value.trim()
-
-//   if (!query) {
-//     return (config.value.rules || []).map((rule, i) => ({
-//       rule,
-//       realIndex: i,
-//       originalIndex: i + 1
-//     }))
-//   }
-
-//   const fzf = new Fzf(fzfItems.value, {
-//     selector: (item) => item.str
-//   })
-
-//   const matches = fzf.find(query)
-
-//   const matchedRules = new Set(matches.map(entry => entry.item.rule))
-
-//   const result = (config.value.rules || [])
-//     .map((rule, i) => {
-//       if (matchedRules.has(rule)) {
-//         return {
-//           rule,
-//           realIndex: i,
-//           originalIndex: i + 1
-//         }
-//       }
-//       return null
-//     })
-//     .filter(Boolean)
-
-//   return result
-// })
 
 const rememberFocus = () => {
   const active = document.activeElement;
@@ -1112,9 +1036,9 @@ const handleRulesKeydown = (e) => {
 }
 
 // Window controls
-const closeWindow = () => Quit();
-const minimizeWindow = () => WindowMinimise();
-const maximizeWindow = () => WindowToggleMaximise();
+const closeWindow = () => Application.Quit();
+const minimizeWindow = () => Window.Minimise();
+const maximizeWindow = () => Window.ToggleMaximise();
 
 // Utility functions
 function basename(path) {
@@ -1295,7 +1219,7 @@ const closeEditModal = () => {
   }, 300);
   rulesContainer.value?.focus()
   if (launchedInInteractiveMode.value) {
-    runtime.Quit()
+    Application.Quit()
   }
 };
 
@@ -1358,16 +1282,16 @@ const openTestUrlInBrowser = async (path = config.value.global.fallbackBrowserPa
   try {
     await OpenInFallbackBrowser(path, args, testUrl.value.trim());
   } catch (err) {
-    runtime.LogError("Failed to open URL:", err);
+    console.error("Failed to open URL:", err);
   }
   if (launchedInInteractiveMode.value) {
-    runtime.Quit()
+    Application.Quit()
   }
 };
 
 const openExternal = (url) => {
   showAlert(url)
-  BrowserOpenURL(url)
+  Browser.OpenURL(url)
 }
 
 const testRuleLocally = async () => {
@@ -1712,7 +1636,7 @@ const configPathDisplay = computed(() => {
 async function openConfigInExplorer() {
   if (!configPath.value) return;
   try {
-    await window.go.main.App.OpenConfigInExplorer(configPath.value);
+    await OpenConfigInExplorer(configPath.value);
   } catch (err) {
     showAlertModal(`Failed to open config in Explorer:\n\n${err.message || err}`);
   }
@@ -1820,10 +1744,10 @@ const handleHelpLinkClick = (event) => {
 
     const url = target.getAttribute('href')
     if (url && url !== '#' && !url.startsWith('javascript:')) {
-      BrowserOpenURL(url)
+      Browser.OpenURL(url)
     } else if (target.hasAttribute('data-external')) {
       const customUrl = target.getAttribute('data-external')
-      if (customUrl) BrowserOpenURL(customUrl)
+      if (customUrl) Browser.OpenURL(customUrl)
     }
   }
 }
