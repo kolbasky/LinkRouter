@@ -106,14 +106,19 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "Chromium extension (.zip) created successfully" -ForegroundColor Green
 }
 
-# Restore original V2 manifest for Firefox
-Set-FileContent $manifestPath $originalManifest
+# Create Firefox manifest (remove service_worker, keep scripts)
+$firefoxManifest = $originalManifest -replace '.*"service_worker":\s*"background\.js".*\r?\n?', ''
+$firefoxManifest = $firefoxManifest -replace '(.*"scripts":\s*\["background\.js"\]).*', '$1'
+Set-FileContent $manifestPath $firefoxManifest
 
-# Package for Firefox (.xpi) - uses original manifest with scripts array
+# Package for Firefox (.xpi) - manifest with scripts array only
 & "${env:ProgramFiles}\7-Zip\7z.exe" a -tzip "${env:UserProfile}\git\LinkRouter\bin\linkrouter-extension.xpi" "${env:UserProfile}\git\LinkRouter\extension\*"
 if ($LASTEXITCODE -eq 0) {
     Write-Host "Firefox extension (.xpi) created successfully" -ForegroundColor Green
 }
+
+# Restore the source manifest (with both background keys)
+Set-FileContent $manifestPath $originalManifest
 
 go generate .\cmd\linkrouter-gui\
 cd .\cmd\linkrouter-gui\
