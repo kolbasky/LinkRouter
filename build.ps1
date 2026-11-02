@@ -29,12 +29,13 @@ function Set-FileContent($Path, $Content) {
 cd "${env:UserProfile}\git\LinkRouter\"
 
 # 0. install prereqs
+$WailsVersion = "3.1.0"
 go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo@latest
-go install github.com/wailsapp/wails/v3/cmd/wails3@v3.1.0
-cd cmd\linkrouter-gui\frontend
-npm install
-npm audit fix
-cd ..\..\..\
+go get "github.com/wailsapp/wails/v3@v$WailsVersion"
+go mod tidy
+go install "github.com/wailsapp/wails/v3/cmd/wails3@v$WailsVersion"
+Set-FileContent "cmd\linkrouter-gui\frontend\package.json" ((Get-Content "cmd\linkrouter-gui\frontend\package.json" -Raw) -replace '"@wailsio/runtime": "[^"]+"', ('"@wailsio/runtime": "' + $WailsVersion + '"'))
+
 
 # 1. cmd\linkrouter\main.go
 $mainGoPath = "cmd\linkrouter\main.go"
@@ -119,6 +120,7 @@ cd .\cmd\linkrouter-gui\
 wails3 generate bindings
 cd .\frontend\
 npm install
+npm audit fix
 npm run build
 cd ..\
 New-Item -ItemType Directory -Force build\bin | Out-Null
