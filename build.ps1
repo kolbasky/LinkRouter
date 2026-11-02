@@ -28,6 +28,14 @@ function Set-FileContent($Path, $Content) {
 
 cd "${env:UserProfile}\git\LinkRouter\"
 
+# 0. install prereqs
+go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo@latest
+go install github.com/wailsapp/wails/v3/cmd/wails3@v3.1.0
+cd cmd\linkrouter-gui\frontend
+npm install
+npm audit fix
+cd ..\..\..\
+
 # 1. cmd\linkrouter\main.go
 $mainGoPath = "cmd\linkrouter\main.go"
 $content = Get-Content $mainGoPath -Raw
